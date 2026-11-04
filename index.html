@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v195 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v196 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -694,7 +694,7 @@ const scY=322;
 const VS=110/1050;   /* heights in px per mm, the same scale as lengths */
 const YEX=210+(330+565)*VS;   /* gripper bar (y 210) 330 mm above the big forks, lifting belt top level with the big forks and 565 mm above the exit belts */
 const GF=YEX+880*VS,GP=GF-650*VS,GT=GF-3000*VS;   /* machine 3000 mm high from the floor */
-let SOLID=false,WALLS='',FST='',ENDW='';const XH=-40;   /* solid mode: infeed guarding runs from the feeder section back to x -40 */const KU5=1,XE=605+95,XS=XE-640;   /* solid covers, true size, shifted along the machine: the guillotine (x 605) sits at the delivery-side edge of the delivery window; the panels end just after the feeder operator screen (no panels beyond it) */   /* covers: false = see-through (inside visible), true = solid like the real machine */
+let SOLID=false,WALLS='';const XH=-40;   /* solid mode: infeed guarding runs from the feeder section back to x -40 */const KU5=1,XE=605+95,XS=XE-640;   /* solid covers, true size, shifted along the machine: the guillotine (x 605) sits at the delivery-side edge of the delivery window; the panels end just after the feeder operator screen (no panels beyond it) */   /* covers: false = see-through (inside visible), true = solid like the real machine */
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
  /* look of the real machine, from the 3D views on the Safety screen: wooden platform deck, dark steel railings and stairs,
     light grey guard doors with blue door switches, dark lower panels at die-cutting and stripping, white roof covers */
@@ -769,30 +769,23 @@ L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke
 L1+=boxR(90,122,222,232,0,54,'c-blue');
 L1+=boxR(84,128,210,218,SZ0-2,SZ0+12,'c-gray')+boxR(84,128,210,218,SZ0+SZW-12,SZ0+SZW+2,'c-gray');   /* side lays at the sheet edges */
 L1+=ln(86,214,-2,126,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"');
-{FST='';/* infeed front stops, from Denis's photos: a white traverse beam with a ballscrew above, a rail across the machine,
+{/* infeed front stops, from Denis's photos: a white traverse beam with a ballscrew above, a rail across the machine,
    two narrow stainless front-stop plates with angled flaps leaning back over the stack, a wide stainless plate at the drive side, photocells on top */
  const zw=mm=>mm*KV,fp=[[W*.36,200],[W*.53,200],[W*.74,380]];
- FST+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */
- FST+=ln(120,127,ZN,120,127,ZF,'stroke="#8E949A" stroke-width="2.4"')+ln(120,127,ZN,120,127,ZF,'stroke="#C9CED3" stroke-width="1" stroke-dasharray="1.2 1"');   /* ballscrew */
- FST+=boxR(118,134,124,136,W*.36-zw(40),W*.36+zw(240),'c-white');   /* carriage on the screw */
- FST+=boxR(130,134,176,184,ZN,ZF,'c-inox');   /* rail the stops sit on */
+ L1+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */
+ L1+=ln(120,127,ZN,120,127,ZF,'stroke="#8E949A" stroke-width="2.4"')+ln(120,127,ZN,120,127,ZF,'stroke="#C9CED3" stroke-width="1" stroke-dasharray="1.2 1"');   /* ballscrew */
+ L1+=boxR(118,134,124,136,W*.36-zw(40),W*.36+zw(240),'c-white');   /* carriage on the screw */
+ L1+=boxR(130,134,176,184,ZN,ZF,'c-inox');   /* rail the stops sit on */
  fp.forEach(([z0,w],i)=>{const z1=z0+zw(w);
-   FST+=boxR(126,130,i===2?140:150,203,z0,z1,'c-inox');   /* stainless front-stop plate; the sheet runs out under it */
-   if(i<2)FST+=quad([[127,150,z0],[127,150,z1],[113,131,z1],[113,131,z0]],'fill="#B9967A" stroke="#7D6B5A" stroke-width=".5"');   /* angled flap leaning back over the stack */
-   else FST+=quad([[127,140,z0],[127,140,z0+zw(60)],[121,132,z0+zw(60)],[121,132,z0]],'fill="#C9CED3" stroke="#7D848B" stroke-width=".5"');   /* bent lip of the wide plate */
-   if(i<2)FST+=boxR(128,133,141,148,z0+zw(20),z0+zw(60),'c-blue');});   /* photocells on the stop holders */
- L1+=FST;
- {/* infeed end wall of the machine (solid covers only): the board runs into the machine through a slot under it,
-    white wall with a grey rail strip at the bottom; below the slot a grey panel with a chrome rod along the edge */
-  const x0=134,x1=137,za=ZN-8,zb=ZF+12;
-  ENDW=boxR(x0,x1,GT,186,za,zb,'c-white')+boxR(x0-1,x1,186,198,za,zb,'c-inox')+ln(x0-1,191,za,x0-1,191,zb,'stroke="#7D848B" stroke-width=".8"')
-   +boxR(x0,x1,216,GP,za,zb,'c-white')+quad([[x0-.2,224,za],[x0-.2,224,zb],[x0-.2,GP,zb],[x0-.2,GP,za]],'fill="#C3C8CD" fill-opacity=".6"')
-   +ln(x0-2,214,za,x0-2,214,zb,'stroke="#8E949A" stroke-width="2.6" stroke-linecap="round"')+ln(x0-2,214,za,x0-2,214,zb,'stroke="#E6E9EC" stroke-width="1"');}
+   L1+=boxR(126,130,i===2?140:150,203,z0,z1,'c-inox');   /* stainless front-stop plate; the sheet runs out under it */
+   if(i<2)L1+=quad([[127,150,z0],[127,150,z1],[113,131,z1],[113,131,z0]],'fill="#B9967A" stroke="#7D6B5A" stroke-width=".5"');   /* angled flap leaning back over the stack */
+   else L1+=quad([[127,140,z0],[127,140,z0+zw(60)],[121,132,z0+zw(60)],[121,132,z0]],'fill="#C9CED3" stroke="#7D848B" stroke-width=".5"');   /* bent lip of the wide plate */
+   if(i<2)L1+=boxR(128,133,141,148,z0+zw(20),z0+zw(60),'c-blue');});   /* photocells on the stop holders */
  {const xb=125-SLX,zc=W*.45,zh=zw(70);   /* back stop: white column on the floor, arm and a white plate against the back of the stack */
   L1+=boxR(xb-16,xb-8,214,GP,zc-zh,zc+zh,'c-white')+boxR(xb-16,xb-2,206,214,zc-zh,zc+zh,'c-white')+boxR(xb-4,xb-1,192,212,zc-zw(150),zc+zw(150),'c-white');}
 }
 L1+=boxR(608.8,615,210,242,ZN,ZF,'c-gray')+boxR(604,621,242,250,ZN,ZF,'c-gray');
-$('L1').innerHTML=L1;if(SOLID&&!(YAW>0))$('L0').insertAdjacentHTML('afterbegin',ENDW);   /* infeed end wall behind everything when seen from the delivery side */
+$('L1').innerHTML=L1;
 $('lower').innerHTML=boxR(PX0,322.5,220,260,ZN-6,ZF+6,'c-gray');
 let creaseD='';BOFF.forEach(o=>CRS(o).forEach(([u0,v0,u1,v1])=>creaseD+=seg3(327,194,u0,v0,u1,v1)+' '));
 let U=`<g opacity=".42">`+boxR(PX0,322.5,128,174,ZN-6,ZF+6,'c-gray')+quad([[PX0+2,174,ZN-4],[320.5,174,ZN-4],[320.5,182,ZN-4],[PX0+2,182,ZN-4]],'fill="#888780" stroke="#5F5E5A" stroke-width="0.5"')+`</g>`;
@@ -807,7 +800,7 @@ drawSens();
 $('belt').innerHTML=boxR(484,514,146,150,ZN-5,ZF+30,'c-gray')+'<g id="bdash"></g>';
 $('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+`<path d="${chainPath(ZN)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
 [182,617].map(x=>ell(x,210-CR0,ZN,4,4*c,'fill="var(--faint)"')+ell(x,210-CR0-CHV,ZN,4,4*c,'fill="var(--faint)"')).join('')+'';
-$('L5').innerHTML=!SOLID?'':(YAW>0?ENDW+FST:'')+(cyw>=0?gcutEnv(true):WALLS);   /* seen from the infeed side the end wall is in front: wall, then the front stops in front of it */   /* solid covers go over the chains and the ejector */
+$('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;   /* solid covers go over the chains and the ejector */
 $('scale').innerHTML=`<line x1="327" y1="${scY}" x2="472" y2="${scY}" stroke="var(--accent)" stroke-width="1"/><line x1="327" y1="${scY-4}" x2="327" y2="${scY+4}" stroke="var(--accent)"/><line x1="399.5" y1="${scY-3}" x2="399.5" y2="${scY+3}" stroke="var(--accent)"/><line x1="472" y1="${scY-4}" x2="472" y2="${scY+4}" stroke="var(--accent)"/><polygon id="mark" points="327,${scY-1} 322,${scY-9} 332,${scY-9}" fill="var(--accent)"/>`;
 }
 buildStatic();
