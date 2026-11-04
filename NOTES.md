@@ -65,6 +65,7 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
   1310·1320 batch height + pieces grid (columns = pieces along the line = separator 1, rows = across = separator 2, pressures),
   1710 TT1, 1410 shift, 1720 TT2, 1510 align, 2210 interleave, 2030 drum, 2400 palletizer, 6610 bottom sheets.
   Left arrow = forward, right arrow = back; last screen has Save. These photo screens are ONLY in the job setup.
+- Green counters (stacks through per station, bundles on the pallet, pallets out on 8410) can be typed to correct them.
 - Save (header "Save job" or the blue Save button) stores EVERY setting of the G-Cut and the line into the loaded job
   (stack size, board, speed, empty cycles, prefeeder, photocells, all line settings). Saved in the browser (localStorage), per person.
 

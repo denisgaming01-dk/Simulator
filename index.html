@@ -303,7 +303,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v169 · 4 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v170 · 4 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1314,7 +1314,8 @@ function lPress(dt){const st=LS.press;if(!st.its.length)return;const its=st.its;
   case 'open':st.t+=dt;st.cl=1-ease(Math.min(1,st.t/.44));if(st.t>=.44){st.cl=0;st.ph='out';}break;
   case 'out':if(lSendOn('press'))st.ph='idle';break;}}
 const lColTop=()=>LPB+(lSheet.col.length?6:0)+lCol.reduce((a,L)=>a+Math.max(...L.its.map(q=>q.h+(q.board?6:0))),0);
-const lColCount=()=>lCol.length;   /* bundles on the pallet: a collected bundle counts as one */
+let lColAdj=0;   /* operator correction of the bundle count on the pallet (a stack taken off or put on by hand) */
+const lColCount=()=>Math.max(0,lCol.length+lColAdj);   /* bundles on the pallet: a collected bundle counts as one */
 function lPal(dt){const st=LS.pal,its=st.its,S=LSET.pal;st.cy=st.cy||0;st.fx=st.fx||0;const sp=Math.max(10,S.spd)/100*.95;   /* 5% slower than the nominal speed, as on the machine */
  const mv=to=>{const d=to-st.cy,stp=450*sp*dt;if(Math.abs(d)<=stp){st.cy=to;return true;}st.cy+=Math.sign(d)*stp;return false;};
  switch(st.ph){
@@ -1345,7 +1346,7 @@ function lPal(dt){const st=LS.pal,its=st.its,S=LSET.pal;st.cy=st.cy||0;st.fx=st.
   case 'colOut':st.t+=dt;{const d=LPITCH/665;const f=Math.min(1,st.t/d);
      lCol.forEach(L=>L.its.forEach(q=>{if(q.sb==null)q.sb=q.s;q.s=q.sb+LPITCH*1.3*f;q.op=Math.max(0,1-Math.max(0,f-.5)*2);}));
      lSheet.cmove=f;
-     if(st.t>=d){lItems=lItems.filter(q=>!lCol.some(L=>L.its.includes(q)));lCol=[];lSheet.col=[];lSheet.cmove=0;st.ph='sheetIn';st.t=0;
+     if(st.t>=d){lItems=lItems.filter(q=>!lCol.some(L=>L.its.includes(q)));lCol=[];lColAdj=0;lSheet.col=[];lSheet.cmove=0;st.ph='sheetIn';st.t=0;
        if(LSET.palLimit<999&&lColN>=LSET.palLimit){lineHalt=true;log(`Pallet limit ${LSET.palLimit} reached: line stopped`,'f');}}}break;
   /* only when the pallet has left the stacking belt do the bottom sheets run in from the ready spot */
   case 'sheetIn':{const hd=mv(0);if(!lSheet.ready||!lSheet.rdy.length){if(hd)lSheetDone(st);break;}
@@ -1635,7 +1636,7 @@ function frame(ts){if(last===null)last=ts;const dt=Math.min(ts-last,100);last=ts
  R(4,576,60,58,'#D6DADF');g+=`<path d="M12 600L30 590L56 596V618L38 628L12 622Z" fill="#E8DC20" stroke="#555"/>`;
  /* exit turntable circle: pallets out */
  g+=`<circle cx="210" cy="320" r="56" fill="${BL}" stroke="${BS}" stroke-width="2"/><path d="M168 300L232 266L262 300L198 340Z" fill="#9A9A9A" stroke="#555"/><path d="M178 330L244 292L254 312L188 352Z" fill="#9A9A9A" stroke="#555"/>`;
- box('gdk','hPalOut',184,300,52,18,'0','out');
+ box('gdk','hPalOut',184,300,52,18,'0','in','min="0" max="9999" title="Pallets out: type to correct"');
  /* palletizer speed */
  gauge(288,366);box('yel','hPalSpd',302,356,34,20,LSET.pal.spd,'in','min="10" max="100"');T(350,372,'%',13,'#10202A');
  /* 6 stacking belt with align size; extension and pallet limit */
@@ -1649,17 +1650,17 @@ function frame(ts){if(last===null)last=ts;const dt=Math.min(ts-last,100);last=ts
  /* 4 palletizer */
  R(250,384,74,10,BL,BS);R(252,394,72,140,BL,BS);R(262,380,54,8,BL,BS);R(246,534,82,10,BL,BS);
  for(let y=404;y<528;y+=7){R(276,y,58,3.5,'#2FA6E0');R(276,y+3.5,58,1.2,'#F2E600');}
- box('gdk','hPalWant',262,412,22,18,LSET.pal.want,'in','min="1" max="99" title="Stacks wanted"');box('glt','hPalNow',284,412,22,18,'0','out');
+ box('gdk','hPalWant',262,412,22,18,LSET.pal.want,'in','min="1" max="99" title="Stacks wanted"');box('glt','hPalNow',284,412,22,18,'0','in','min="0" max="99" title="Bundles on the pallet now: type to correct"');
  hand(282,460,1);
  /* rotation press */
  R(336,388,72,10,BL,BS);R(340,398,64,8,BL,BS);R(334,406,80,124,'#9A9A9A',BS);R(362,392,20,136,BL,BS);R(338,526,76,8,BL,BS);
- box('glt','hc_press',366,426,16,16,'0','out');hand(362,458,1);
+ box('glt','hc_press',366,426,16,16,'0','in','min="0" max="99" title="Stacks through: type to correct"');hand(362,458,1);
  
  /* green lamp: side aligning */
  box('lamp','hSide',438,362,36,36,'','btn','aria-label="Side aligning on or off" aria-pressed="true"');
  /* align table + robot 3 */
  R(414,410,74,112,'#9A9A9A','#1A1A1A');R(414,402,74,6,'#1A1A1A');R(414,522,74,6,'#1A1A1A');R(416,412,4,108,'#F2E600');
- const sq=(kk,x,y,big)=>{box('glt','hc_'+kk,x+4,y+4,22,20,'0','out');box('red','hq_'+kk,x+4,y+25,22,20,LSET[kk].seqN,'in','min="1" max="10" title="Number of sequences (1-10)"');box('org','ho_'+kk,x+4,y+46,22,20,LSET[kk].seqI+1,'in','min="1" max="10" title="Sequence it is doing now: type a number to pick a sequence and edit it"');
+ const sq=(kk,x,y,big)=>{box('glt','hc_'+kk,x+4,y+4,22,20,'0','in','min="0" max="99" title="Stacks through: type to correct"');box('red','hq_'+kk,x+4,y+25,22,20,LSET[kk].seqN,'in','min="1" max="10" title="Number of sequences (1-10)"');box('org','ho_'+kk,x+4,y+46,22,20,LSET[kk].seqI+1,'in','min="1" max="10" title="Sequence it is doing now: type a number to pick a sequence and edit it"');
    box('wait','hw_'+kk,x+27,y+25,38,20,LSET[kk].wait,'in','min="1" max="4" title="Stacks to collect"');box('now','hn_'+kk,x+27,y+46,38,20,'0','out');};
  sq('align',418,410);box('dkb','hs_align',440,478,46,22,300,'in','min="0" max="999" title="Belt run into the front plate, 0 = plate stays down"');
  R(428,528,6,18,BL,BS);R(418,544,58,62,BL,BS);R(418,566,18,12,'#F2E600');hand(440,556,.85);g+=`<path d="M422 600L434 588M472 600L460 588M422 550L434 562M472 550L460 562" stroke="#F2E600" stroke-width="2"/>`;
@@ -1932,6 +1933,10 @@ LACC.forEach(kk=>{hNum('hq_'+kk,v=>{const S=LSET[kk];S.seqN=v;if(S.seqI>=v){S.se
   hNum('ho_'+kk,v=>{const S=LSET[kk];v=Math.min(v,S.seqN);S.seqI=v-1;seqLoad(kk);seqUI(kk);log(`${LNAME[kk]}: now on sequence ${v} (${seqDesc(kk)})`);},1,10);seqUI(kk);});
 $('hSide').onclick=e=>{LSET.align.side=!LSET.align.side;log(`Side aligning ${LSET.align.side?'on':'off'}`);lineUI();};
 hNum('hPalWant',v=>LSET.pal.want=v,1,99);hNum('hPalL',v=>{LSET.pal.L=v;log(`Palletizer align length ${v} mm`);},100,2100);hNum('hPalW',v=>{LSET.pal.W=v;log(`Palletizer align width ${v} mm`);},100,2100);hNum('hPalSpd',v=>LSET.pal.spd=v,10,100);
+/* counters can be corrected by the operator, e.g. after taking a stack off the line */
+LORDER.forEach(kk=>{if($('hc_'+kk)&&$('hc_'+kk).tagName==='INPUT')hNum('hc_'+kk,v=>{LS[kk].cnt=v;log(`${LNAME[kk]}: stack count set to ${v}`);},0,99);});
+hNum('hPalNow',v=>{lColAdj=v-lCol.length;log(`Palletizer: bundles on the pallet set to ${v}`);},0,99);
+hNum('hPalOut',v=>{lColN=v;log(`Pallets out set to ${v}`);},0,9999);
 hNum('hPalLim',v=>{LSET.palLimit=v;if(v>lColN&&lineHalt){lineHalt=false;log('Pallet limit raised: line runs again','ok');}},1,999);
 hNum('hBatch',v=>{LSET.batchH=v;log(`Batch height ${v} mm`);},50,425);
 document.querySelectorAll('#hmi2 [data-sec]').forEach(b=>b.onclick=()=>{const k2=b.dataset.sec;
@@ -1949,9 +1954,10 @@ function lineUI(){
  const key=JSON.stringify(LSET.sec);if(key!==hmiLast){hmiLast=key;const none=Object.values(LSET.sec).every(v=>!v);
    document.querySelectorAll('#hmi2 [data-sec]').forEach(b=>{const k2=b.dataset.sec;
      if(k2==='all')hmiTile(b,'',false);else if(k2==='none')hmiTile(b,'',true);else{hmiTile(b,k2,!LSET.sec[k2]);b.setAttribute('aria-pressed',LSET.sec[k2]);}});}
- LORDER.forEach(kk=>{const e=$('hc_'+kk);if(e)e.textContent=LS[kk].cnt;});
+ const sv=(e,v)=>{if(!e||e===document.activeElement)return;if(e.tagName==='INPUT'){if(+e.value!==v)e.value=v;}else e.textContent=v;};
+ LORDER.forEach(kk=>sv($('hc_'+kk),LS[kk].cnt));
  LACC.forEach(kk=>{const st=LS[kk];$('hn_'+kk).textContent=st.ph==='collect'?lBundles(st.its):0;seqLive(kk);});if(typeof jLiveTick==='function')jLiveTick();
- $('hPalNow').textContent=lColCount();$('hPalOut').textContent=lColN;
+ sv($('hPalNow'),lColCount());sv($('hPalOut'),lColN);
  $('hSide').classList.toggle('on',LSET.align.side);{const a={33:-62,66:0,99:62}[LSET.lineSpd],y=362;$('hGN').setAttribute('transform',`rotate(${a} 38 ${y})`);$('hSpd').setAttribute('aria-label',`Line belt speed: ${LSET.lineSpd} %`);}$('hSide').setAttribute('aria-pressed',LSET.align.side);
  $('hSheetMark').setAttribute('opacity',LSET.sec[5]&&lSheet.ready&&lSheet.rdy.length>0?1:.15);}
 
