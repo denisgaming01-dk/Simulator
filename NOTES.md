@@ -4,7 +4,7 @@ Training simulator for operators at Logatec: Göpfert G-Cut 13/21 flatbed die-cu
 and the downstream separator / palletizer line (Corrpal-style). Built by Denis with Claude.
 
 - Live page: https://denisgaming01-dk.github.io/Simulator/ (this repo, `index.html`, GitHub Pages from `main` / root)
-- Claude artifact (source of truth, single HTML file): https://claude.ai/artifact/YCgCwqpTsrtDnSBvuCeHGz (version 166 at handover)
+- Claude artifact (source of truth, single HTML file): https://claude.ai/artifact/YCgCwqpTsrtDnSBvuCeHGz (version 167; the header badge shows the version)
 - `Simulator-Launcher.html`: tiny file given to colleagues once; it fetches the newest `index.html` from
   github.io, falling back to `cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/index.html` (fallback only works if the repo is public).
 - After every change: update the artifact AND push `index.html` here. Delete `.github/workflows/main.yml` (accidental, always fails).
