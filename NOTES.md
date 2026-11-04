@@ -40,6 +40,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
 - Denis will measure at work: gripper bar spacing (sim assumes ~1385 mm = 145 px), operator-side panel widths, window sizes, guillotine to delivery window edge. Then rescale sections and covers together (stripping windows should match the stripping section).
 
 - v194: solid mode: feeder section solid again (HMI screen, buttons); infeed guarding from x 60 back to x -40 (XH) from Denis's photo: corner posts (dark edge on operator side), white top beam/rails, open roof and open end for the prefeeder, guard door with big glass window (dark frame, blue light, handle) and white lower half; the stack and back stop show through the glass. Drive-side wall runs to x -40, light inside (dark mode).
+- v195: solid mode: infeed end wall of the machine (x 134-137, full width): white wall from the roof down to a grey rail strip, slot where the board runs in (y 198-216), white/grey panel below with a chrome rod. Seen from the infeed side (turn > 0) it is drawn over the inside with the front stops in front of it; from the delivery side it is behind everything.
 
 ## Prefeeder
 - True size, 3000 mm high. Belts 2100 wide. Stores board so the infeed does not run out during stack change.
