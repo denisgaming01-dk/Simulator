@@ -163,7 +163,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .gTg{width:48px;height:22px;font:600 11px/1 'Segoe UI',Tahoma,sans-serif;padding:0;white-space:nowrap}.gTg.on{background:#2DB34A;color:#fff;border-color:#1E7A33}
 .gSl{position:relative;height:16px;background:#fff;border:1px solid #C7CDD3}.gSl i{position:absolute;left:0;top:0;bottom:0;background:#2DB34A}
 .gSk{position:absolute;left:0;top:334px;width:850px;height:142px;background:#E6EAEE;border-top:1px solid #D3D8DD}
-.gSk svg g[data-g]{cursor:pointer}.gSk svg g[data-g]:hover rect.f{stroke:#1E6FD9;stroke-width:2}
+.gSk svg g[data-g]{cursor:pointer}.gSk svg g[data-pc]:hover rect{stroke:#1E6FD9;stroke-width:2}
+#gMonBox{zoom:.8}#gMonBox .montab{font-size:12px;min-width:0;border-spacing:4px 3px}#gMonBox .montab th{font-size:11.5px}#gMonBox .hint{font-size:11px;margin-top:8px;color:#56616C}.gSk svg g[data-g]:hover rect.f{stroke:#1E6FD9;stroke-width:2}
 .gPage{position:absolute;inset:0;padding:24px;font-size:13px}
 .gPage ul{list-style:none;margin:8px 0 0;padding:0;max-height:420px;overflow:auto}.gPage li{padding:4px 0;border-bottom:1px solid #DDE2E7;font-size:12px}
 .gJob{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid #C7CDD3;background:#fff;margin:0 0 6px;max-width:520px;cursor:pointer}.gJob.sel{border-color:#1E6FD9;background:#EAF2FD}
@@ -337,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v174 · 4 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v175 · 4 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -451,6 +452,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
     <section class="card pad hmicard" aria-label="G-Cut control panel">
       <h2>G-Cut control panel</h2>
       <div id="g1Wrap"><div id="g1"><div id="g1In"></div></div></div>
+      <div id="gMonHold" hidden><div id="gMonBox" class="mon"><div class="monwrap"><table class="montab" id="mon"></table></div>
+      <div class="hint">Each exit photocell checks for board twice as the sheet leaves the station: at the first and second distance from the sheet's front edge. Values 0 to 1300 mm, the longest sheet the machine takes in the feed direction. This job's sheet is <span class="shl">1050</span> mm long, so a check point past <span class="shl">1050</span> mm looks at empty space and trips. A BS photocell with no values of its own uses the AS values of its station. Only one photocell per station can be switched off, so the sheet is always seen. Front lays has one photocell and can be switched off. The Stripping exit photocells can be moved across the sheet to look at solid board instead of holes or slots.</div>
+      <div class="err" id="monMsg" role="status"></div>
+    </div></div>
       <div class="hmiNote">Copy of the G-Cut operator screen, in English. Production page: speed, counters, job data and the machine sketch (tap a section to look at it). The other menus follow as Denis sends photos of them.</div>
     </section>
     <section class="card pad hmicard" aria-label="Line control panel">
@@ -458,12 +463,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <div id="hmi2Wrap"><div id="hmi2"><div id="hmi2In"></div></div></div>
       <div class="hmiNote">Copy of the line screen (yellow underlined numbers are the station numbers: 1010 transfer belt, 1310 separator 1, 1710 turntable 1, 1320 separator 2, 1410 shift belt, 1720 turntable 2, 1510 align table, 2210 robot 3, 2030 rotation drum, 2400 palletizer, 8210 stacking belt, 8410 pallet turntable, 6290 bottom-sheet belt, 6610 bottom-sheet robot): palletizer on the left, G-Cut on the right. Top row: all sections on, all off, sections 1–6 (red = off). Yellow fields can be changed. Tables: piece sizes for separator 2 (left) and separator 1 (right). On each station: green = stacks through (back to 0 when a pallet is finished), red and orange not used yet, blue = stacks to collect, light blue = stacks waiting now, dark blue = shift (stop position on a turntable, belt run into the front plate on the align table, 0 = plate down). Yellow 0 on the shift belt = sideways shift in mm. Green lamp: side aligning on the align table. Stacking belt frame: align width (left) × length (bottom) for the palletizer plates, ×999 = pallets before the line stops. Palletizer: stacks wanted (dark green) and stacks now. Circle: pallets out. Speed gauge on the left: line belt speed, click for 33 % (red), 66 % (orange) or 99 % (green). Hands open the station menus: separators = break pressure (2–7.5 bar) and press time, robot 3 and rotation press = stack numbers 1–24 where the board is laid or the stack is turned, robot 5 = number of bottom sheets and their offset. Palletizer: no settings yet.</div>
     </section>
-    <section class="card pad mon" aria-label="Photocell monitor">
-      <h2>Photocell monitor</h2>
-      <div class="monwrap"><table class="montab" id="mon"></table></div>
-      <div class="hint">Each exit photocell checks for board twice as the sheet leaves the station: at the first and second distance from the sheet's front edge. Values 0 to 1300 mm, the longest sheet the machine takes in the feed direction. This job's sheet is 1050 mm long, so a check point past 1050 mm looks at empty space and trips. A BS photocell with no values of its own uses the AS values of its station. Only one photocell per station can be switched off, so the sheet is always seen. Front lays has one photocell and can be switched off. The Stripping exit photocells can be moved across the sheet to look at solid board instead of holes or slots.</div>
-      <div class="err" id="monMsg" role="status"></div>
-    </section>
+
     </div>
 
     <aside class="side">
@@ -1944,10 +1944,11 @@ function gBuild(){const nav=Object.keys(gNames).map(k=>`<button data-gp="${k}" c
   <div class="gMsg"><h4>Current messages</h4><div id="gM"></div></div>
   <div class="gSt" style="width:160px"><h4>Status</h4><div><b id="gs0" class="on"></b>Control on</div><div><b id="gs1"></b>Safety OK</div><div><b id="gs2"></b>Main motor on</div><div><b id="gs3"></b>Feeding on</div><div><b id="gs4"></b>Busy</div></div>
   <div class="gClk"><span id="gClk"></span><div class="gIco"><span title="User"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="9" cy="6" r="4" fill="#2A2F36"/><path d="M2 19c0-5 3-7 7-7s7 2 7 7z" fill="#2A2F36"/></svg></span><span title="Language: English"><svg width="26" height="16" viewBox="0 0 26 16"><rect width="26" height="16" fill="#012169"/><path d="M0 0L26 16M26 0L0 16" stroke="#fff" stroke-width="3"/><path d="M13 0V16M0 8H26" stroke="#fff" stroke-width="5"/><path d="M13 0V16M0 8H26" stroke="#C8102E" stroke-width="3"/></svg></span><span title="Info"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#1E6FD9"/><path d="M10 8v7M10 5v1" stroke="#fff" stroke-width="2.4"/></svg></span></div></div></div>`;
+ {const mb=$('gMonBox');if(mb&&mb.parentNode!==$('gMonHold'))$('gMonHold').appendChild(mb);}
  $('g1In').innerHTML=top+`<div class="gNav">${nav}</div><div class="gBody" id="gBody"></div>`;
  document.querySelectorAll('#g1In [data-gp]').forEach(b=>b.onclick=()=>{gPage=b.dataset.gp;gBuild();});
  gBodyBuild();gTick();}
-function gBodyBuild(){const B=$('gBody');
+function gBodyBuild(){const B=$('gBody');{const mb=$('gMonBox');if(mb&&mb.parentNode!==$('gMonHold'))$('gMonHold').appendChild(mb);}   /* keep the photocell table alive between pages */
  if(gPage==='prod'){
   B.innerHTML=`<div class="gPan" style="left:8px;top:8px;width:270px;height:326px"><h4>Job data</h4>
     <div class="gRow"><span class="lab">Job</span><b>${JOB.name}</b></div><div class="gRow"><span class="lab">Pieces per sheet</span><span>${JOB.np} × ${JOB.pl} × ${JOB.pw}</span></div>
@@ -1976,11 +1977,15 @@ function gBodyBuild(){const B=$('gBody');
   B.querySelectorAll('[data-ged]').forEach(x=>x.onclick=()=>{const f=$(x.dataset.ged);f.readOnly=false;f.focus();f.select();
     f.onchange=f.onblur=()=>{if(f.readOnly)return;f.readOnly=true;const v=Math.max(0,Math.round(+f.value)||0);if(f.id==='gTot'){total=v;log(`Total sheets set to ${v}`);}else{count=Math.min(v,STACK);drawPile();log(`Sheets on the delivery pile set to ${count}`);}};});
   B.querySelectorAll('[data-gt]').forEach(x=>x.onclick=()=>x.classList.toggle('on'));
+  B.querySelectorAll('[data-pc]').forEach(x=>x.onclick=()=>{gPage='pc';gBuild();});
   B.querySelectorAll('[data-g]').forEach(x=>x.onclick=()=>{pick(x.dataset.g);if(x.dataset.n==='Delivery'){gPage='set';gBuild();}else log(`G-Cut screen: ${x.dataset.n} selected (its settings menu follows when Denis sends the photo)`);});}
  else if(gPage==='set'){/* Settings: sheet delivery page drawn on the photo of the real screen; only the batch (sheets per stack) works for now */
   B.innerHTML=`<div style="position:absolute;inset:0;background:url(${G_DEL}) 0 0/850px 476px"></div><div style="position:absolute;left:0;top:0;width:200px;height:24px;background:#F2F4F6;padding:4px 10px;font:500 15px 'Segoe UI',Tahoma,sans-serif;color:#2F8C7E">SHEET DELIVERY</div>
    <input class="gF" id="gBatch" title="Batch: sheets per stack" aria-label="Batch: sheets per stack" style="position:absolute;left:444px;top:290px;width:48px;height:20px;background:#fff"><input class="gF" id="gBatchNow" readonly title="Sheets on the delivery pile now" aria-label="Sheets on the delivery pile now" style="position:absolute;left:444px;top:315px;width:48px;height:20px">`;
   $('gBatch').onchange=e=>{const s=$('stk');let v=Math.round(+e.target.value)||STACK;v=Math.max(+s.min,Math.min(+s.max,v));s.value=v;s.dispatchEvent(new Event('input'));s.dispatchEvent(new Event('change'));e.target.value=v;};}
+ else if(gPage==='pc'){/* photocell settings: opened from the photocell drawn next to the delivery in the machine sketch */
+  B.innerHTML=`<div class="gPage" style="padding:14px 16px;overflow:auto"><b style="font-size:15px;color:#2F8C7E">PHOTOCELLS</b><button class="gB" id="gPcBack" style="float:right;width:110px;height:28px">◀ Production</button><div id="gPcIn" style="margin-top:10px"></div></div>`;
+  $('gPcIn').appendChild($('gMonBox'));$('gPcBack').onclick=()=>{gPage='prod';gBuild();};}
  else if(gPage==='alr'){B.innerHTML=`<div class="gPage"><b style="font-size:15px">Alerts</b><ul id="gAl"></ul></div>`;}
  else if(gPage==='jobs'){B.innerHTML=`<div class="gPage"><b style="font-size:15px">Jobs</b><div style="margin-top:10px">${Object.keys(JOBS).map(k=>`<div class="gJob${k===gSel?' sel':''}" data-gj="${k}"><b>${JOBS[k].name}</b><span>${JOBS[k].np} × ${JOBS[k].pl} × ${JOBS[k].pw} mm${k===JOBK?' · loaded':''}</span></div>`).join('')}</div>
    <button class="gB" id="gLoad" style="width:140px;height:36px;margin-top:6px;font-size:13px">Load job</button><p style="color:#56616C;font-size:11px;max-width:520px">Loading a job puts it on the G-Cut and the line; the simulator restarts with it.</p></div>`;
@@ -1988,7 +1993,7 @@ function gBodyBuild(){const B=$('gBody');
  else B.innerHTML=`<div class="gPage"><b style="font-size:15px">${gNames[gPage]}</b><p style="color:#56616C;max-width:560px">${{set:'Settings for each section of the machine, scrolled left and right.',mach:'Machine data and service menu.',saf:'All doors, stops and covers with safety switches.'}[gPage]} This screen is built next, from Denis's photo of it.</p></div>`;}
 function gSketch(){/* simple side view like the real screen: delivery and exit belt on the left, feeder on the right; tap a section */
  const S=[['delivery','Delivery',150,120],['strip','Stripping',275,100],['strip','Blanking',380,40],['die','Die-cutting',425,150],['infeed','Feeder',580,90]];
- let s=`<svg width="850" height="142" viewBox="0 0 850 142" aria-label="Machine sketch: tap a section"><path d="M40 100H140" stroke="#999" stroke-width="2"/><rect x="60" y="62" width="8" height="14" fill="#333"/><path d="M64 76V102" stroke="#2DB34A" stroke-width="2"/><path d="M70 104l8-10 6 12 6-6h20" fill="none" stroke="#D9774A" stroke-width="1.5"/>`;
+ let s=`<svg width="850" height="142" viewBox="0 0 850 142" aria-label="Machine sketch: tap a section"><path d="M40 100H140" stroke="#999" stroke-width="2"/><g data-pc="1" role="button" aria-label="Photocells" style="cursor:pointer"><rect class="f" x="48" y="54" width="34" height="60" fill="transparent" stroke="none"/><rect x="60" y="62" width="8" height="14" fill="#333"/><path d="M64 76V102" stroke="#2DB34A" stroke-width="2"/></g><path d="M70 104l8-10 6 12 6-6h20" fill="none" stroke="#D9774A" stroke-width="1.5"/>`;
  S.forEach(([g,n,x,w])=>{s+=`<g data-g="${g}" data-n="${n}" role="button" aria-label="${n}"><rect class="f" x="${x}" y="8" width="${w}" height="128" fill="#F7F8F9" stroke="#3A4048" stroke-width="1.2"/>
    <rect x="${x+6}" y="18" width="${w-12}" height="10" fill="#C9CED3"/><rect x="${x+6}" y="34" width="${w-12}" height="${g==='die'?40:30}" fill="${g==='die'?'#5B636B':'#E3E7EA'}" stroke="#7A838C"/><rect x="${x+6}" y="${g==='die'?78:68}" width="${w-12}" height="14" fill="${g==='die'?'#5B636B':'#fff'}" stroke="#7A838C"/>
    <text x="${x+w/2}" y="128" font-size="10" text-anchor="middle" fill="#56616C">${n}</text></g>`;});
@@ -2088,7 +2093,7 @@ function gcutApply(g){if(!g)return;const set=(id,v)=>{const e=$(id);if(e!=null&&
  if(g.pfOn===false&&PF.on)$('pfOn').click();
  (g.sens||[]).forEach(s=>{const o=SK[s.k];if(!o)return;o.on=s.on;o.v=s.v;o.z=o.v*KV+SZ0;if(s.mm&&o.mm)o.mm=[...s.mm];});drawSens();}
 gcutApply(jobGet(JOBK).gcut);
-gBuild();new ResizeObserver(()=>g1Fit()).observe($('g1'));g1Fit();
+document.querySelectorAll('.shl').forEach(e=>e.textContent=SHL);gBuild();new ResizeObserver(()=>g1Fit()).observe($('g1'));g1Fit();
 setSpd();drawPile();buildMon();buildEvents();pick('overview');log('Machine running','ok');requestAnimationFrame(frame);
 </script>
 
