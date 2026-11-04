@@ -7,6 +7,8 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
 - Claude artifact (source of truth, single HTML file): https://claude.ai/artifact/YCgCwqpTsrtDnSBvuCeHGz (version 167; the header badge shows the version)
 - `Simulator-Launcher.html`: tiny file given to colleagues once; it fetches the newest `index.html` from
   github.io, falling back to `cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/index.html` (fallback only works if the repo is public).
+- Work PCs block github.io but allow jsDelivr. The launcher asks data.jsdelivr.com for the newest tag and loads that exact version.
+  The workflow `purge-cdn.yml` tags every push as 1.<badge version>.<commit count> and purges jsDelivr. Always raise the badge number (`class="ver"`) with each update.
 - After every change: update the artifact AND push `index.html` here. Delete `.github/workflows/main.yml` (accidental, always fails).
 
 ## Working rules (from Denis)
