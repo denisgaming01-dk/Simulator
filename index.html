@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v187 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v188 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -720,10 +720,10 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
      const zt=ZF+12;o+=quad([[0,GT,zp],[640,GT,zp],[640,GT,zt],[0,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"');
      for(const x of [92,256,392,552])o+=ln(x,GT,zp,x,GT,zt,'stroke="#7E848B" stroke-width=".7"');o+=ln(0,GT,(zp+zt)/2,640,GT,(zp+zt)/2,'stroke="#9AA0A6" stroke-width=".5"');
      const X=u=>640-u,Y=v=>GT+(GP-GT)*v,R2=(u0,u1,v0,v1)=>rp(X(u1),X(u0),Y(v0),Y(v1)),F=(u0,u1,v0,v1,f)=>Q(X(u1),X(u0),Y(v0),Y(v1),f);
-     const WIN=[[95,195,.34,.63],[255,376,.33,.53],[255,376,.555,.75]];   /* real windows: delivery, die-cutting upper and lower */
+     const WC=(210-GT)/(GP-GT),WIN=[[95,195,WC-.145,WC+.145],[255,376,.33,.53],[255,376,.555,.75]];   /* real windows: delivery, die-cutting upper and lower */
      o+=`<path d="${rp(0,640,GT,GP)} ${WIN.map(w=>R2(...w)).join(' ')}" fill="#E8EAEC" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".6"/>`;   /* white panels */
      o+=`<path d="${R2(87,203,.06,.34)}" fill="#D2D5D8"/>`+`<path d="${R2(392,548,.06,.30)}" fill="#D2D5D8"/>`;   /* grey upper covers */
-     o+=`<path d="${R2(87,203,.30,.78)} ${R2(95,195,.34,.63)}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame round the delivery window */
+     o+=`<path d="${R2(87,203,WC-.185,WC+.26)} ${R2(...WIN[0])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame round the delivery window */
      o+=`<path d="${R2(247,386,.16,.79)} ${R2(255,376,.33,.53)} ${R2(255,376,.555,.75)}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame, die-cutting windows */
      o+=F(392,548,.30,.45,'fill="#2E3136"');   /* dark band at the stripping side of the feeder section */
      o+=F(150,192,.14,.26,'fill="#1C1E21"');   /* small viewing window high up */
