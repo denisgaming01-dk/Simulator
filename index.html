@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v179 · 4 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v180 · 4 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -762,7 +762,8 @@ const pos=chainPt;
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 let p=.46,k=100,last=null,mode='run',T=3600,stopAt=null,stop180=false,jog=false,stopReq=null;
 const VMIN=250,VMAX=6500,RAMP=(VMAX-VMIN)/10;let vSet=2500,vAct=VMIN;
-let exitBlk=false,infH=60,noRefill=false,infStandby=false,sbT=0,rsT=0,loading=false;const INF_MIN=16,INF_OK=40;let INF_FULL=60;   /* infeed stack height the prefeeder keeps (set on the G-Cut feeder settings page, default 60 mm) */
+let exitBlk=false,infH=60,noRefill=false,infStandby=false,sbT=0,rsT=0,loading=false;const INF_MIN=16;let INF_OK=40,INF_FULL=60;   /* INF_OK: after standby the infeed starts again above this; kept below the set height */
+const setInfFull=v=>{INF_FULL=v;INF_OK=Math.min(40,v);};   /* set height below 40 mm: reaching the set height starts the infeed again */   /* infeed stack height the prefeeder keeps (set on the G-Cut feeder settings page, default 60 mm) */
 let STACK=JOB.batch,THK=2.7;const PXMM=VS,MAXH=398;
 let GAPN=1,gapDone=false,gapLeft=0,sCount=0,bCount=0,chg=null,bedCur=YEX-565*VS+3;const BED0=YEX-565*VS,FS=BED0-200*VS,FL=BED0,   /* small forks 200 mm above the big forks */   /* lifting belt top position 565 mm above the exit belts; at 0 it is level with them */SMAX=5,BSTEP=5;
 let count=0,outs=[],nout=0,total=0,removedN=0,faultN=0,cycles0=100;
@@ -1038,7 +1039,7 @@ function reset(){
  if(lineFault&&mode!=='fault'&&mode!=='estop'){lineReset();hint('Line fault cleared.');return;}
  if((infStandby||(noRefill&&infH<=INF_MIN))&&!exitBlk&&!loading&&mode!=='fault'&&mode!=='estop'){noRefill=false;
    if(PF.on){PF.noStack=false;if(PF.wait===0){PF.wait=PF_STK;}log('Reset: forklift puts a new board stack on the prefeeder','ok');ui();hint(`New stack on the prefeeder. It lifts, pushes a bundle onto the stored board and refills the infeed. The feeder starts again 1–2 s after the stack is above ${INF_OK} mm.`);return;}
-   loading=true;log('Reset: loading board onto the infeed by hand (prefeeder off)','ok');ui();hint(infStandby?`Loading board. The feeder starts again 1–2 s after the stack is above ${INF_OK} mm.`:'Loading board. Switch the feeder on when the stack is above 40 mm.');return;}
+   loading=true;log('Reset: loading board onto the infeed by hand (prefeeder off)','ok');ui();hint(infStandby?`Loading board. The feeder starts again 1–2 s after the stack is above ${INF_OK} mm.`:'Loading board. Switch the feeder on when the stack is above '+INF_OK+' mm.');return;}
  if(exitBlk&&mode!=='fault'&&mode!=='estop'){exitBlk=false;blockPile=false;log('Reset: exit belt cleared, the stack drives out. Feeder can be switched on again','ok');ui();hint('Exit belt cleared. Switch the feeder on to carry on.');return;}
  if(mode==='fault'){const a=alarm;
    const f=a.id!=null?F[a.id]:null;
@@ -1630,8 +1631,8 @@ window.__line={LS,LSET,get items(){return lItems},get col(){return lCol},step:li
 /* ---------- loop ---------- */
 function frame(ts){if(last===null)last=ts;const dt=Math.min(ts-last,100);last=ts;
  if(loading){infH=Math.min(INF_FULL,infH+15*dt/1000);if(infH>=INF_FULL)loading=false;if(!infStandby)ui();}
- if(infStandby&&mode==='run'){sbT+=dt;rsT=infH>INF_OK?rsT+dt:0;
-   if(rsT>=1500){infStandby=false;log(`Stack above ${INF_OK} mm: infeed back in operation`,'ok');}
+ if(infStandby&&mode==='run'){sbT+=dt;rsT=infH>=INF_OK-.01&&(INF_OK<40||infH>INF_OK)?rsT+dt:0;
+   if(rsT>=1500){infStandby=false;log(INF_OK<40?`Stack at the set height ${INF_OK} mm: infeed back in operation`:`Stack above ${INF_OK} mm: infeed back in operation`,'ok');}
    else if(sbT>=60000){infStandby=false;setFeed(true);log('Infeed in standby for 60 s: feeder switched off, switch it on again by hand','f');}
    ui();}
  if(mode==='run'){
@@ -1994,7 +1995,7 @@ function gBodyBuild(){const B=$('gBody');{const mb=$('gMonBox');if(mb&&mb.parent
    B.innerHTML=`<div style="position:absolute;inset:0;background:url(${G_FEED}) 0 0/850px 476px"></div>${ttl('FEEDER')}
     <input class="gF" id="gInfSet" title="Infeed stack height the prefeeder keeps, mm" aria-label="Infeed stack height, mm" style="position:absolute;left:264px;top:25px;width:58px;height:21px;background:#fff">
     <input class="gF" id="gInfNow" readonly title="Infeed stack height now, mm" aria-label="Infeed stack height now, mm" style="position:absolute;left:264px;top:48px;width:58px;height:21px">${pg}`;
-   $('gInfSet').onchange=e=>{let v=Math.round(+e.target.value)||INF_FULL;v=Math.max(INF_OK+10,Math.min(150,v));INF_FULL=v;e.target.value=v;log(`Infeed stack height set to ${v} mm`);};}
+   $('gInfSet').onchange=e=>{let v=Math.round(+e.target.value)||INF_FULL;v=Math.max(30,Math.min(150,v));setInfFull(v);e.target.value=v;log(`Infeed stack height set to ${v} mm`);};}
   else if(gSetP==='die'){/* platen press (die-cutting): nothing can be set here yet, the page shows the real screen */
    B.innerHTML=`<div style="position:absolute;inset:0;background:url(${G_DIE}) 0 0/850px 476px"></div>${ttl('PLATEN PRESS')}${pg}`;}
   else{/* stripping station: the two stripping-exit photocells, AS (rear, top field) and BS (front, left field), position from the sheet centre */
@@ -2120,7 +2121,7 @@ window.__sim={advance:x=>advance(x),get mode(){return mode},inject,reset,render,
 /* G-Cut settings saved with the job (stack size, board, speed, empty cycles, prefeeder, photocells) */
 function gcutGet(){return {infFull:INF_FULL,spd:+$('spd').value,stack:STACK,thk:THK,gap:GAPN,pfStore:PF.store,pfBun:PF.bun,pfOn:PF.on,
  sens:SENS.map(o=>({k:o.k,on:o.on,v:o.v,mm:o.mm?[...o.mm]:null}))};}
-function gcutApply(g){if(!g)return;if(g.infFull)INF_FULL=g.infFull;const set=(id,v)=>{const e=$(id);if(e!=null&&v!=null){e.value=v;e.dispatchEvent(new Event('input'));}};
+function gcutApply(g){if(!g)return;if(g.infFull)setInfFull(g.infFull);const set=(id,v)=>{const e=$(id);if(e!=null&&v!=null){e.value=v;e.dispatchEvent(new Event('input'));}};
  if(g.thk)setThk(g.thk);set('stk',g.stack);set('spd',g.spd);set('gap',g.gap);set('pfStore',g.pfStore);set('pfBun',g.pfBun);
  if(g.pfOn===false&&PF.on)$('pfOn').click();
  (g.sens||[]).forEach(s=>{const o=SK[s.k];if(!o)return;o.on=s.on;o.v=s.v;o.z=o.v*KV+SZ0;if(s.mm&&o.mm)o.mm=[...s.mm];});drawSens();}
