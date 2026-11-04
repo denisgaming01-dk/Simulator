@@ -34,6 +34,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
 - Delivery batch max 400 mm high; always fits the rotation drum.
 
 - Look of the G-Cut (v186, from the Safety-screen 3D views): wooden platform deck and stair treads, dark steel railings (hand rail, knee rail, toe board) and stair stringers, see-through light grey guard doors with a blue door switch and a yellow-ringed reset button per section, dark lower panels at stripping/die-cutting, white roof covers. Backup before this: v185 (revert if Denis does not like it).
+- v187: "Covers" button above the 3D view toggles see-through / solid. Solid = operator side drawn after Denis's photo of the real G-Cut (white panels, dark frames round the delivery window and the two die-cutting windows, small control column with screen, buttons and e-stop, button panel, feeder screen, green/blue light strips, white roof); the machine runs visibly through the window openings. From the drive side, solid shows a closed wall. Not drawn yet: the black arms/tables in front of the feeder section.
 
 ## Prefeeder
 - True size, 3000 mm high. Belts 2100 wide. Stores board so the infeed does not run out during stack change.
