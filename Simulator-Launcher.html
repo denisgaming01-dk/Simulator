@@ -30,7 +30,13 @@ function get(i){
  x.onerror=function(){if(done)return;done=true;clearTimeout(t);notes.push(u+': blocked or no connection');get(i+1);};
  try{x.open('GET',u,true);x.send();}catch(e){done=true;clearTimeout(t);notes.push(u+': '+e.message);get(i+1);}
 }
-get(0);
+/* every update gets a version tag (1.171.0 ...); ask jsDelivr which one is the newest and load exactly that one,
+   so a new version arrives within minutes instead of waiting for jsDelivr's branch cache */
+(function(){var x=new XMLHttpRequest(),done=false,go=function(){if(done)return;done=true;get(0);};
+ setTimeout(go,6000);
+ x.onload=function(){try{var v=JSON.parse(x.responseText).version;if(v&&!done)SRC.unshift('https://cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@'+v+'/index.html');}catch(e){}go();};
+ x.onerror=go;
+ try{x.open('GET','https://data.jsdelivr.com/v1/packages/gh/denisgaming01-dk/Simulator/resolved?specifier=latest&t='+Date.now(),true);x.send();}catch(e){go();}})();
 </script>
 </body>
 </html>
