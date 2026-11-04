@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v189 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v190 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -694,13 +694,13 @@ const scY=322;
 const VS=110/1050;   /* heights in px per mm, the same scale as lengths */
 const YEX=210+(330+565)*VS;   /* gripper bar (y 210) 330 mm above the big forks, lifting belt top level with the big forks and 565 mm above the exit belts */
 const GF=YEX+880*VS,GP=GF-650*VS,GT=GF-3000*VS;   /* machine 3000 mm high from the floor */
-let SOLID=false,WALLS='';   /* covers: false = see-through (inside visible), true = solid like the real machine */
+let SOLID=false,WALLS='';const XE=640,KU5=(640-182)/595;   /* solid covers: the photo layout is fitted between the delivery end (x 640) and the infeed end of the chain (x 182), where the feeder operator screen sits on the real machine; beyond it the feeder continues in plain panels */   /* covers: false = see-through (inside visible), true = solid like the real machine */
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
  /* look of the real machine, from the 3D views on the Safety screen: wooden platform deck, dark steel railings and stairs,
     light grey guard doors with blue door switches, dark lower panels at die-cutting and stripping, white roof covers */
  if(!front){o+=boxR(-10,640,GP,GF,zr,ZF+12,'c-wood');   /* platform deck, wooden boards */
    {const sm='stroke="#8A6236" stroke-width=".5" stroke-opacity=".6"';for(let x=70;x<640;x+=80)o+=ln(x,GP,zr,x,GP,ZF+12,sm);for(let z=zr+40;z<ZF+12;z+=40)o+=ln(-10,GP,z,640,GP,z,sm);}
-   o+=`<g opacity="${SOLID?1:.22}">`+boxR(0,640,GT,GP,ZF+12,ZF+16,'c-gray')+`</g>`;   /* drive-side frame wall */
+   o+=`<g opacity="${SOLID?1:.22}">`+boxR(0,SOLID?XE:640,GT,GP,ZF+12,ZF+16,'c-gray')+`</g>`;   /* drive-side frame wall */
    if(!SOLID)o+=quad([[0,GT,ZN-6],[640,GT,ZN-6],[640,GT,ZF+12],[0,GT,ZF+12]],'fill="#EEF0F2" fill-opacity=".45" stroke="#9AA0A6" stroke-width=".6"');   /* roof covers */
    if(!SOLID){for(const x of [150,315,475])o+=ln(x,GT,ZN-6,x,GT,ZF+12,'stroke="#7E848B" stroke-width=".7"');
    o+=ln(0,GT,(ZN+ZF)/2,640,GT,(ZN+ZF)/2,'stroke="#9AA0A6" stroke-width=".5"');}}
@@ -711,17 +711,17 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
    for(const x of [293,367]){o+=ln(x,GP,zr,x,GF,zr-52,'stroke="#3B3F45" stroke-width="2.2"')+ln(x,GP-1000*VS,zr,x,GF-1000*VS,zr-52,st)+ln(x,GF,zr-52,x,GF-1000*VS,zr-52,st);}   /* steel stringers and stair hand rails */
    o+=`<g opacity=".45">`+ln(0,GP,ZN-6,0,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GP,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,0,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GT,ZN-6,640,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+`</g>`;rail=o;o=p;}   /* operator-side frame outline, 3000 mm high (drawn after the guards) */
    if(front&&SOLID&&cyw<0){/* seen from the drive side: solid drive-side wall and roof in front of everything */
-    const zt=ZF+12;let o=quad([[0,GT,ZN-8],[640,GT,ZN-8],[640,GT,zt],[0,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+quad([[0,GT,ZF+16],[640,GT,ZF+16],[640,GP,ZF+16],[0,GP,ZF+16]],'fill="#D9DCDF" stroke="#9AA0A6" stroke-width=".6"');
-    for(const x of [150,315,475])o+=ln(x,GT,ZF+16,x,GP,ZF+16,'stroke="#9AA0A6" stroke-width=".7"')+ln(x,GT,ZN-8,x,GT,zt,'stroke="#7E848B" stroke-width=".7"');WALLS=o;}
+    const zt=ZF+12;let o=quad([[0,GT,ZN-8],[XE,GT,ZN-8],[XE,GT,zt],[0,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+quad([[0,GT,ZF+16],[XE,GT,ZF+16],[XE,GP,ZF+16],[0,GP,ZF+16]],'fill="#D9DCDF" stroke="#9AA0A6" stroke-width=".6"');
+    for(const x of [87,203,386,548,640].map(u=>XE-u*KU5))o+=ln(x,GT,ZF+16,x,GP,ZF+16,'stroke="#9AA0A6" stroke-width=".7"')+ln(x,GT,ZN-8,x,GT,zt,'stroke="#7E848B" stroke-width=".7"');WALLS=o;}
    else if(front){const zp=ZN-8,Q=(x0,x1,y0,y1,f)=>quad([[x0,y0,zp],[x1,y0,zp],[x1,y1,zp],[x0,y1,zp]],f);
     const bandT=GT+60*VS,bandB=GT+260*VS,winT=GP-1750*VS,winB=GP-1000*VS,lowT=GP-950*VS;
     const WN=[[8,150],[160,300],[330,470],[480,632]],rp=(x0,x1,y0,y1)=>`M${pt(x0,y0,zp)} L${pt(x1,y0,zp)} L${pt(x1,y1,zp)} L${pt(x0,y1,zp)} Z`;
     if(SOLID){/* solid covers, drawn after Denis's photo of the operator side (delivery left, feeder right on screen); u = mm-ish from the delivery end, v = 0 top .. 1 platform */
-     const zt=ZF+12;o+=quad([[0,GT,zp],[640,GT,zp],[640,GT,zt],[0,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"');
-     for(const x of [92,256,392,552])o+=ln(x,GT,zp,x,GT,zt,'stroke="#7E848B" stroke-width=".7"');o+=ln(0,GT,(zp+zt)/2,640,GT,(zp+zt)/2,'stroke="#9AA0A6" stroke-width=".5"');
-     const X=u=>640-u,Y=v=>GT+(GP-GT)*v,R2=(u0,u1,v0,v1)=>rp(X(u1),X(u0),Y(v0),Y(v1)),F=(u0,u1,v0,v1,f)=>Q(X(u1),X(u0),Y(v0),Y(v1),f);
+     const zt=ZF+12;o+=quad([[0,GT,zp],[XE,GT,zp],[XE,GT,zt],[0,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"');
+     for(const u of [87,203,386,548,640])o+=ln(XE-u*KU5,GT,zp,XE-u*KU5,GT,zt,'stroke="#7E848B" stroke-width=".7"');o+=ln(0,GT,(zp+zt)/2,XE,GT,(zp+zt)/2,'stroke="#9AA0A6" stroke-width=".5"');
+     const X=u=>XE-u*KU5,Y=v=>GT+(GP-GT)*v,R2=(u0,u1,v0,v1)=>rp(X(u1),X(u0),Y(v0),Y(v1)),F=(u0,u1,v0,v1,f)=>Q(X(u1),X(u0),Y(v0),Y(v1),f);
      const WC=(210-GT)/(GP-GT),WIN=[[95,195,.34,WC],[255,376,.33,.53],[255,376,.555,.75]];   /* real windows: delivery, die-cutting upper and lower */
-     o+=`<path d="${rp(0,640,GT,GP)} ${WIN.map(w=>R2(...w)).join(' ')}" fill="#E8EAEC" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".6"/>`;   /* white panels */
+     o+=`<path d="${rp(0,XE,GT,GP)} ${WIN.map(w=>R2(...w)).join(' ')}" fill="#E8EAEC" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".6"/>`;   /* white panels */
      o+=`<path d="${R2(87,203,.06,.34)}" fill="#D2D5D8"/>`+`<path d="${R2(392,548,.06,.30)}" fill="#D2D5D8"/>`;   /* grey upper covers */
      o+=`<path d="${R2(87,203,.30,WC+.15)} ${R2(...WIN[0])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame round the delivery window */
      o+=`<path d="${R2(247,386,.16,.79)} ${R2(255,376,.33,.53)} ${R2(255,376,.555,.75)}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame, die-cutting windows */
@@ -736,8 +736,8 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
      o+=F(562,628,.30,.44,'fill="#2B2E33"')+F(566,624,.315,.425,'fill="#4E8FD0"');   /* feeder operator screen */
      o+=F(566,624,.47,.58,'fill="#DCDFE2" stroke="#8A9096" stroke-width=".5"');for(let i=0;i<2;i++)for(let j=0;j<4;j++)o+=ell(X(574+j*14),Y(.50+i*.05),zp,1.7,1.7*c,'fill="#2B2E33"');
      for(const [u,col] of [[88,'#35D04A'],[246,'#35D04A'],[387,'#35D04A'],[549,'#2E7BFF']])o+=F(u-1.6,u+1.6,.10,.26,`fill="${col}"`);   /* status light strips */
-     for(const u of [87,203,247,386,548])o+=ln(X(u),GT,zp,X(u),GP,zp,'stroke="#9AA0A6" stroke-width=".7"');   /* section joints */
-     o+=ln(X(0),Y(.8),zp,X(640),Y(.8),zp,'stroke="#B4B9BE" stroke-width=".5"');}
+     for(const u of [87,203,247,386,548,640])o+=ln(X(u),GT,zp,X(u),GP,zp,'stroke="#9AA0A6" stroke-width=".7"');   /* section joints */
+     o+=ln(X(0),Y(.8),zp,0,Y(.8),zp,'stroke="#B4B9BE" stroke-width=".5"');}
     else{o+=Q(0,640,GT,GP,'fill="#E4E7EA" fill-opacity=".16"');   /* light grey guard doors, see-through so the inside stays visible */
     o+=Q(0,640,bandT,bandB,'fill="#3A3B3F" fill-opacity=".18"');   /* dark band */
     o+=Q(160,470,lowT,GP-4,'fill="#2B2E33" fill-opacity=".22"');   /* dark lower panels at stripping and die-cutting */
