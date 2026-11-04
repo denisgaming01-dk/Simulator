@@ -39,7 +39,7 @@ header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
 h1{font-family:var(--f-label);font-weight:700;font-size:24px;letter-spacing:.01em;margin:0;text-wrap:balance}
 .sub{color:var(--muted);font-size:13px}
 .grow{flex:1}
-.ver{font:600 12px var(--f-ui,sans-serif);color:#fff;background:#2E9B4A;border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:middle;letter-spacing:.02em}
+.ver{font:600 12px var(--f-ui,sans-serif);color:#fff;background:#2E6BD8;border-radius:999px;padding:3px 10px;margin-left:8px;vertical-align:middle;letter-spacing:.02em}
 .jobsave{font:600 13px var(--f-ui,sans-serif);padding:5px 12px;margin-right:10px;border-radius:6px;border:1px solid var(--faint);background:var(--panel);color:var(--ink);cursor:pointer}.jobsave.done{background:#3CC23C;color:#06300A}
 .jobsel{font-size:13px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;margin-right:10px}.jobsel select{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--faint);border-radius:6px;padding:4px 6px}
 .chip{font-family:var(--f-label);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;padding:5px 12px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;border:1px solid transparent}
@@ -133,6 +133,40 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .mm input.bad{border-color:var(--fault)}
 .hmicard h2{margin-bottom:8px}
 #hmi2Wrap{overflow-x:hidden;border-radius:6px}
+/* ---- G-Cut operator screen ---- */
+#g1Wrap{overflow-x:hidden;border-radius:6px}
+#g1{position:relative;width:100%;min-width:0}
+#g1In{position:absolute;left:0;top:0;width:1000px;height:560px;transform-origin:0 0;background:#E9ECEF;font:400 12px 'Segoe UI',Tahoma,var(--f-ui,sans-serif);color:#2A2F36;overflow:hidden}
+#g1In *{box-sizing:border-box}
+.gTop{position:absolute;left:0;top:0;width:1000px;height:84px;background:#F4F6F8;border-bottom:1px solid #C7CDD3;display:flex}
+.gTop>div{border-right:1px solid #D3D8DD;padding:5px 8px;overflow:hidden}
+.gTop h4,.gPan h4{margin:0 0 4px;font:500 11px 'Segoe UI',Tahoma,sans-serif;color:#4A5560;text-transform:uppercase;letter-spacing:.02em}
+.gKV{display:grid;grid-template-columns:auto 1fr;gap:1px 14px;font-size:11px}.gKV span{color:#56616C}
+.gMsg{flex:1}.gMsg div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;line-height:17px}
+.gMsg i{display:inline-block;width:12px;height:12px;border-radius:50%;background:#1E6FD9;color:#fff;font:700 9px/12px sans-serif;text-align:center;font-style:normal;margin-right:5px;vertical-align:-1px}
+.gMsg i.w{background:none;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid #D93025;border-radius:0;margin-right:5px}
+.gSt h4{margin-bottom:1px}.gSt div{font-size:10.5px;line-height:12.4px;white-space:nowrap}.gSt b{display:inline-block;width:8px;height:8px;border-radius:50%;background:#C9CED3;margin-right:6px}.gSt b.on{background:#2DB34A}
+.gClk{width:180px;text-align:right;font-size:11px;color:#56616C;position:relative}
+.gIco{position:absolute;bottom:5px;display:flex;gap:6px;right:6px}.gIco span{width:40px;height:34px;background:#DDE2E7;border:1px solid #AEB6BE;display:flex;align-items:center;justify-content:center}
+.gNav{position:absolute;left:0;top:84px;width:150px;height:476px;background:#3A4048;padding-top:6px}
+.gNav button{display:block;width:140px;height:56px;margin:0 0 3px 6px;background:#DDE1E5;border:1px solid #9AA3AC;border-radius:2px 0 0 2px;font:400 14px 'Segoe UI',Tahoma,sans-serif;color:#2A2F36;cursor:pointer;padding:4px 0 0}
+.gNav button svg{display:block;margin:0 auto 2px}
+.gNav button.on{background:#F4F6F8;width:144px;color:#1E6FD9;border-right-color:#F4F6F8}
+.gBody{position:absolute;left:150px;top:84px;width:850px;height:476px;background:#F4F6F8}
+.gPan{position:absolute;background:#EEF1F4;border:1px solid #D8DDE2;padding:8px 10px}
+.gRow{display:flex;align-items:center;justify-content:space-between;margin:0 0 6px;font-size:11.5px}
+.gRow .lab{color:#3A4550}
+.gF{width:66px;height:20px;background:#D8DDE2;border:1px solid #B9C1C9;text-align:right;padding:0 4px;font:400 11.5px 'Segoe UI',Tahoma,sans-serif;color:#2A2F36}
+.gF:not([readonly]){background:#fff;border-color:#6F8FB5}
+.gB{background:#DDE2E7;border:1px solid #8E98A2;cursor:pointer;border-radius:2px;font:400 11px 'Segoe UI',Tahoma,sans-serif;color:#2A2F36}
+.gB:active{background:#C9D0D7}
+.gTg{width:48px;height:22px;font:600 11px/1 'Segoe UI',Tahoma,sans-serif;padding:0;white-space:nowrap}.gTg.on{background:#2DB34A;color:#fff;border-color:#1E7A33}
+.gSl{position:relative;height:16px;background:#fff;border:1px solid #C7CDD3}.gSl i{position:absolute;left:0;top:0;bottom:0;background:#2DB34A}
+.gSk{position:absolute;left:0;top:334px;width:850px;height:142px;background:#E6EAEE;border-top:1px solid #D3D8DD}
+.gSk svg g[data-g]{cursor:pointer}.gSk svg g[data-g]:hover rect.f{stroke:#1E6FD9;stroke-width:2}
+.gPage{position:absolute;inset:0;padding:24px;font-size:13px}
+.gPage ul{list-style:none;margin:8px 0 0;padding:0;max-height:420px;overflow:auto}.gPage li{padding:4px 0;border-bottom:1px solid #DDE2E7;font-size:12px}
+.gJob{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid #C7CDD3;background:#fff;margin:0 0 6px;max-width:520px;cursor:pointer}.gJob.sel{border-color:#1E6FD9;background:#EAF2FD}
 #hmi2{position:relative;width:100%;min-width:0}
 #hmi2In{position:absolute;left:0;top:0;width:1000px;height:640px;transform-origin:0 0}
 #hmi2In>svg{position:absolute;left:0;top:0}
@@ -303,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v171 · 4 Nov 2026 · update test</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v172 · 4 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -414,6 +448,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       </div>
     </section>
 
+    <section class="card pad hmicard" aria-label="G-Cut control panel">
+      <h2>G-Cut control panel</h2>
+      <div id="g1Wrap"><div id="g1"><div id="g1In"></div></div></div>
+      <div class="hmiNote">Copy of the G-Cut operator screen, in English. Production page: speed, counters, job data and the machine sketch (tap a section to look at it). The other menus follow as Denis sends photos of them.</div>
+    </section>
     <section class="card pad hmicard" aria-label="Line control panel">
       <h2>Line control panel</h2>
       <div id="hmi2Wrap"><div id="hmi2"><div id="hmi2In"></div></div></div>
@@ -443,7 +482,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <div class="hint" id="hint"></div>
         <div class="speed">
           <div class="row"><label for="spd">Set speed</label><output id="sv">2,500 sheets/h</output></div>
-          <input type="range" id="spd" min="250" max="6500" step="250" value="2500">
+          <input type="range" id="spd" min="250" max="6500" step="50" value="2500">
           <div class="row"><span class="sub">Actual speed</span><output id="va">250 sheets/h</output></div>
           <div class="meter" aria-hidden="true"><i id="vbar"></i><b id="vset"></b></div>
           <div class="sub">Starts at 250 and ramps 625 sheets/h per second (250 → 6,500 in 10 s). Jog runs at 250.</div>
@@ -1603,7 +1642,7 @@ function frame(ts){if(last===null)last=ts;const dt=Math.min(ts-last,100);last=ts
  if(mode!=='estop'){lineStep(dt/1000);pfStep(dt/1000);}
  lineUI();
  if(tw){const q=Math.min(1,(ts-tw.t0)/tw.dur),e=ease(q);vb=tw.from.map((v,i)=>v+(tw.to[i]-v)*e);setVB();if(q>=1)tw=null;}
- render(ts);ui();requestAnimationFrame(frame);}
+ render(ts);ui();if(!(frame.gn=(frame.gn||0)+1)%10||frame.gn%10===0)gTick();requestAnimationFrame(frame);}
 /* ---------- line control panel: copy of the line HMI screen (palletizer left, G-Cut right) ---------- */
 (function(){
  let g='',h='';const R=(x,y,w,hh,f,st,ex)=>g+=`<rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="${f}" stroke="${st||'none'}" ${ex||''}/>`;
@@ -1893,7 +1932,74 @@ function jobDraw(){const B=$('jobPopB'),F=$('jobPopF'),saved=jobsSaved();$('jobP
  B.querySelectorAll('[data-lrow]').forEach(x=>x.onclick=()=>{LSET[kk].seqI=+x.dataset.lrow;seqLoad(kk);seqUI(kk);log(`${LNAME[kk]}: now on sequence ${LSET[kk].seqI+1} (${seqDesc(kk)})`);jLiveTick();});
  if(JE.live){B.onchange=B.onclick=()=>setTimeout(jLiveSync,0);jLiveTick();}}
 function jobLoad(k){log(`Loading job ${JOBS[k].name} on the G-Cut and the line: the simulator restarts`,'ok');try{localStorage.setItem('dcsJob',k);}catch(_){}try{history.replaceState(null,'','#job='+k);}catch(_){try{location.hash='job='+k;}catch(__){}}setTimeout(()=>location.reload(),200);}
-function hmiFit(){const w=$('hmi2').clientWidth,k=Math.max(w,720)/1000;$('hmi2In').style.transform=`scale(${k})`;$('hmi2').style.height=(640*k)+'px';$('hmi2Wrap').style.overflowX=w<720?'auto':'hidden';}
+/* ---------- G-Cut operator screen (production page) ---------- */
+let gPage='prod',gSel=JOBK;
+const gIc={prod:'<path d="M12 3a9 9 0 1 1-8.5 6M3 4v5h5" fill="none" stroke="#1E6FD9" stroke-width="2"/>',set:'<circle cx="12" cy="12" r="8" fill="none" stroke="#2A2F36" stroke-width="2"/><path d="M4 12h16M12 4v16" stroke="#2A2F36" stroke-width="2"/>',
+ mach:'<path d="M7 3v18M7 3l-3 4M17 3v6a2 2 0 0 1-4 0V3M15 9v12" fill="none" stroke="#2A2F36" stroke-width="2"/>',jobs:'<path d="M3 7h7l2 2h9v10H3z" fill="#2A2F36"/>',
+ alr:'<path d="M12 3l10 18H2z" fill="#2A2F36"/><path d="M12 10v5M12 17v1" stroke="#fff" stroke-width="2"/>',saf:'<path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z" fill="#2A2F36"/><path d="M12 4v16" stroke="#fff" stroke-width="2"/>'};
+const gNames={prod:'Production',set:'Settings',mach:'Machine',jobs:'Jobs',alr:'Alerts',saf:'Safety'};
+function gBuild(){const nav=Object.keys(gNames).map(k=>`<button data-gp="${k}" class="${k===gPage?'on':''}"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">${gIc[k]}</svg>${gNames[k]}</button>`).join('');
+ const top=`<div class="gTop"><div style="width:210px"><h4>Current job</h4><div class="gKV"><span>Job</span><b id="gJn"></b><span>Format</span><b id="gJf"></b><span>Board</span><b id="gJb"></b></div></div>
+  <div class="gMsg"><h4>Current messages</h4><div id="gM"></div></div>
+  <div class="gSt" style="width:160px"><h4>Status</h4><div><b id="gs0" class="on"></b>Control on</div><div><b id="gs1"></b>Safety OK</div><div><b id="gs2"></b>Main motor on</div><div><b id="gs3"></b>Feeding on</div><div><b id="gs4"></b>Busy</div></div>
+  <div class="gClk"><span id="gClk"></span><div class="gIco"><span title="User"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="9" cy="6" r="4" fill="#2A2F36"/><path d="M2 19c0-5 3-7 7-7s7 2 7 7z" fill="#2A2F36"/></svg></span><span title="Language: English"><svg width="26" height="16" viewBox="0 0 26 16"><rect width="26" height="16" fill="#012169"/><path d="M0 0L26 16M26 0L0 16" stroke="#fff" stroke-width="3"/><path d="M13 0V16M0 8H26" stroke="#fff" stroke-width="5"/><path d="M13 0V16M0 8H26" stroke="#C8102E" stroke-width="3"/></svg></span><span title="Info"><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#1E6FD9"/><path d="M10 8v7M10 5v1" stroke="#fff" stroke-width="2.4"/></svg></span></div></div></div>`;
+ $('g1In').innerHTML=top+`<div class="gNav">${nav}</div><div class="gBody" id="gBody"></div>`;
+ document.querySelectorAll('#g1In [data-gp]').forEach(b=>b.onclick=()=>{gPage=b.dataset.gp;gBuild();});
+ gBodyBuild();gTick();}
+function gBodyBuild(){const B=$('gBody');
+ if(gPage==='prod'){
+  B.innerHTML=`<div class="gPan" style="left:8px;top:8px;width:270px;height:326px"><h4>Job data</h4>
+    <div class="gRow"><span class="lab">Job</span><b>${JOB.name}</b></div><div class="gRow"><span class="lab">Pieces per sheet</span><span>${JOB.np} × ${JOB.pl} × ${JOB.pw}</span></div>
+    <div class="gRow"><span class="lab">Format</span><span id="gFmt"></span></div><div class="gRow"><span class="lab">Board thickness</span><span id="gThk"></span></div>
+    <div class="gRow"><span class="lab">Sheets per stack</span><span id="gStk"></span></div><div class="gRow"><span class="lab">Line job</span><span>${JOB.name}</span></div>
+    <button class="gB" id="gSave" style="position:absolute;right:10px;bottom:10px;width:120px;height:34px"><svg width="14" height="14" viewBox="0 0 14 14" style="display:block;margin:0 auto"><path d="M1 1H11L13 3V13H1Z" fill="#2A2F36"/><rect x="3" y="1" width="6" height="4" fill="#fff"/></svg>Save correction</button></div>
+   <div class="gPan" style="left:284px;top:8px;width:290px;height:326px"><h4>Piece count</h4>
+    <div class="gRow"><span class="lab">Total (sheets)</span><span><input class="gF" id="gTot" readonly> <button class="gB" data-ged="gTot" style="width:30px;height:24px;vertical-align:middle" aria-label="Edit total">✎</button></span></div>
+    <div class="gRow"><span class="lab">Current stack</span><span><input class="gF" id="gBun" readonly> <button class="gB" data-ged="gBun" style="width:30px;height:24px;vertical-align:middle" aria-label="Edit current stack">✎</button></span></div>
+    <h4 style="margin-top:14px">Speed (cycles/h)</h4>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:#56616C;padding:0 40px"><span>0</span><input class="gF" id="gAct" readonly style="width:56px;height:18px"><span>6500</span></div>
+    <div style="display:flex;align-items:center;gap:6px;margin:4px 0"><button class="gB" id="gMinus" style="width:34px;height:30px;font-size:22px;line-height:1" aria-label="Slower">−</button><div class="gSl" style="flex:1"><i id="gBar"></i></div><button class="gB" id="gPlus" style="width:34px;height:30px;font-size:22px;line-height:1" aria-label="Faster">+</button></div>
+    <div style="text-align:center"><input class="gF" id="gSet" style="width:64px;text-align:center" aria-label="Set speed"></div>
+    <div class="gRow" style="margin-top:12px"><span class="lab">Output (sheets/h)</span><input class="gF" id="gOut" readonly></div>
+    <div class="gRow"><span class="lab">Blanks per hour</span><input class="gF" id="gBlk" readonly></div></div>
+   <div class="gPan" style="left:580px;top:8px;width:262px;height:326px"><h4>Functions</h4>
+    ${['Extra ejection','Auto insert','ARF learning','Brake brush'].map((n,i)=>`<div class="gRow"><span class="lab">${n}</span><button class="gB gTg${i===3?' on':''}" data-gt="${i}">0 | I</button></div>`).join('')}
+    <div class="gRow"><span class="lab">Empty cycles</span><input class="gF" id="gGap" style="width:50px" aria-label="Empty cycles at stack change"></div>
+    <h4 style="margin-top:10px">Stripping</h4>
+    <div class="gRow"><span class="lab">Gap (mm)</span><input class="gF" value="-1.88" readonly></div><div class="gRow"><span class="lab">Pressure (t)</span><input class="gF" value="426" readonly></div><div class="gRow"><span class="lab">Plate position (°)</span><input class="gF" id="gPlt" readonly></div></div>
+   <div class="gSk">${gSketch()}</div>`;
+  $('gSave').onclick=()=>{saveMachine();};
+  $('gMinus').onclick=()=>gSpd(vSet-100);$('gPlus').onclick=()=>gSpd(vSet+100);
+  $('gSet').onchange=e=>gSpd(+e.target.value);
+  $('gGap').onchange=e=>{const v=Math.max(0,Math.min(10,Math.round(+e.target.value)||0));const s=$('gap');s.value=v;s.dispatchEvent(new Event('input'));s.dispatchEvent(new Event('change'));};
+  B.querySelectorAll('[data-ged]').forEach(x=>x.onclick=()=>{const f=$(x.dataset.ged);f.readOnly=false;f.focus();f.select();
+    f.onchange=f.onblur=()=>{if(f.readOnly)return;f.readOnly=true;const v=Math.max(0,Math.round(+f.value)||0);if(f.id==='gTot'){total=v;log(`Total sheets set to ${v}`);}else{count=Math.min(v,STACK);drawPile();log(`Sheets on the delivery pile set to ${count}`);}};});
+  B.querySelectorAll('[data-gt]').forEach(x=>x.onclick=()=>x.classList.toggle('on'));
+  B.querySelectorAll('[data-g]').forEach(x=>x.onclick=()=>{pick(x.dataset.g);log(`G-Cut screen: ${x.dataset.n} selected (its settings menu follows when Denis sends the photo)`);});}
+ else if(gPage==='alr'){B.innerHTML=`<div class="gPage"><b style="font-size:15px">Alerts</b><ul id="gAl"></ul></div>`;}
+ else if(gPage==='jobs'){B.innerHTML=`<div class="gPage"><b style="font-size:15px">Jobs</b><div style="margin-top:10px">${Object.keys(JOBS).map(k=>`<div class="gJob${k===gSel?' sel':''}" data-gj="${k}"><b>${JOBS[k].name}</b><span>${JOBS[k].np} × ${JOBS[k].pl} × ${JOBS[k].pw} mm${k===JOBK?' · loaded':''}</span></div>`).join('')}</div>
+   <button class="gB" id="gLoad" style="width:140px;height:36px;margin-top:6px;font-size:13px">Load job</button><p style="color:#56616C;font-size:11px;max-width:520px">Loading a job puts it on the G-Cut and the line; the simulator restarts with it.</p></div>`;
+  B.querySelectorAll('[data-gj]').forEach(x=>x.onclick=()=>{gSel=x.dataset.gj;gBodyBuild();});$('gLoad').onclick=()=>{if(gSel!==JOBK)jobLoad(gSel);};}
+ else B.innerHTML=`<div class="gPage"><b style="font-size:15px">${gNames[gPage]}</b><p style="color:#56616C;max-width:560px">${{set:'Settings for each section of the machine, scrolled left and right.',mach:'Machine data and service menu.',saf:'All doors, stops and covers with safety switches.'}[gPage]} This screen is built next, from Denis's photo of it.</p></div>`;}
+function gSketch(){/* simple side view like the real screen: delivery and exit belt on the left, feeder on the right; tap a section */
+ const S=[['delivery','Delivery',150,120],['strip','Stripping',275,100],['strip','Blanking',380,40],['die','Die-cutting',425,150],['infeed','Feeder',580,90]];
+ let s=`<svg width="850" height="142" viewBox="0 0 850 142" aria-label="Machine sketch: tap a section"><path d="M40 100H140" stroke="#999" stroke-width="2"/><rect x="60" y="62" width="8" height="14" fill="#333"/><path d="M64 76V102" stroke="#2DB34A" stroke-width="2"/><path d="M70 104l8-10 6 12 6-6h20" fill="none" stroke="#D9774A" stroke-width="1.5"/>`;
+ S.forEach(([g,n,x,w])=>{s+=`<g data-g="${g}" data-n="${n}" role="button" aria-label="${n}"><rect class="f" x="${x}" y="8" width="${w}" height="128" fill="#F7F8F9" stroke="#3A4048" stroke-width="1.2"/>
+   <rect x="${x+6}" y="18" width="${w-12}" height="10" fill="#C9CED3"/><rect x="${x+6}" y="34" width="${w-12}" height="${g==='die'?40:30}" fill="${g==='die'?'#5B636B':'#E3E7EA'}" stroke="#7A838C"/><rect x="${x+6}" y="${g==='die'?78:68}" width="${w-12}" height="14" fill="${g==='die'?'#5B636B':'#fff'}" stroke="#7A838C"/>
+   <text x="${x+w/2}" y="128" font-size="10" text-anchor="middle" fill="#56616C">${n}</text></g>`;});
+ s+=`<rect x="670" y="80" width="110" height="56" fill="#F7F8F9" stroke="#3A4048"/><rect x="600" y="40" width="40" height="22" fill="#1E9BE0"/><rect x="600" y="62" width="40" height="22" fill="#3A4048"/><circle cx="620" cy="24" r="9" fill="#1E6FD9"/><path d="M620 21v8M620 18v1" stroke="#fff" stroke-width="2"/></svg>`;
+ return s;}
+function gSpd(v){v=Math.max(VMIN,Math.min(VMAX,Math.round(v)));const s=$('spd');s.value=v;vSet=v;$('sv').textContent=v.toLocaleString('en-US')+' sheets/h';log(`Speed set to ${v} sheets/h`);}
+function gTick(){if(!$('gClk'))return;const d=new Date(),f=n=>String(n).padStart(2,'0');$('gClk').textContent=`${d.getDate()}. ${d.getMonth()+1}. ${d.getFullYear()} ${f(d.getHours())}:${f(d.getMinutes())}:${f(d.getSeconds())}`;
+ $('gJn').textContent=JOB.name;$('gJf').textContent=`${SHL} × ${SHW}`;$('gJb').textContent=THK+' mm';
+ const on=(i,v)=>$('gs'+i).classList.toggle('on',!!v);on(1,mode!=='estop');on(2,mode==='run');on(3,!feederOff);on(4,mode==='run'&&!feederOff);
+ const li=[...document.querySelectorAll('#log li')].slice(0,3);$('gM').innerHTML=li.map(l=>{const w=l.lastChild.className.includes('f');return `<div><i class="${w?'w':''}">${w?'':'i'}</i>${l.lastChild.textContent.replace(/</g,'&lt;')}</div>`;}).join('');
+ if(gPage==='alr'&&$('gAl'))$('gAl').innerHTML=[...document.querySelectorAll('#log li')].map(l=>`<li>${l.firstChild.textContent} · ${l.lastChild.textContent.replace(/</g,'&lt;')}</li>`).join('');
+ if(gPage!=='prod'||!$('gAct'))return;const sv=(id,v)=>{const e=$(id);if(!e||e===document.activeElement)return;if((id==='gTot'||id==='gBun')&&!e.readOnly)return;if(e.value!==String(v))e.value=v;};
+ sv('gAct',Math.round(mode==='run'?vAct:0));sv('gSet',vSet);sv('gTot',total);sv('gBun',count);sv('gOut',Math.round(mode==='run'&&!feederOff?vAct:0));sv('gBlk',Math.round((mode==='run'&&!feederOff?vAct:0)*BL.length));sv('gGap',GAPN);
+ sv('gPlt',(((k+p)%1)*360).toFixed(1));$('gFmt').textContent=`${SHL} × ${SHW} mm`;$('gThk').textContent=THK+' mm';$('gStk').textContent=STACK;$('gBar').style.width=(100*(mode==='run'?vAct:0)/6500)+'%';}
+function g1Fit(){const w=$('g1').clientWidth,k=Math.max(w,720)/1000;$('g1In').style.transform=`scale(${k})`;$('g1').style.height=(560*k)+'px';$('g1Wrap').style.overflowX=w<720?'auto':'hidden';}
+function hmiFit(){g1Fit();const w=$('hmi2').clientWidth,k=Math.max(w,720)/1000;$('hmi2In').style.transform=`scale(${k})`;$('hmi2').style.height=(640*k)+'px';$('hmi2Wrap').style.overflowX=w<720?'auto':'hidden';}
 /* resize the panel on the next frame and only when the width really changed, so the new height cannot start a resize loop
    (a page scrollbar appearing or going would otherwise flip the width back and forth) */
 let hmiW=-1,hmiRaf=0;new ResizeObserver(()=>{if(hmiRaf)return;hmiRaf=requestAnimationFrame(()=>{hmiRaf=0;const w=$('hmi2').clientWidth;if(Math.abs(w-hmiW)<24&&hmiW>0)return;hmiW=w;hmiFit();});}).observe($('hmi2'));hmiFit();hmiW=$('hmi2').clientWidth;
@@ -1975,6 +2081,7 @@ function gcutApply(g){if(!g)return;const set=(id,v)=>{const e=$(id);if(e!=null&&
  if(g.pfOn===false&&PF.on)$('pfOn').click();
  (g.sens||[]).forEach(s=>{const o=SK[s.k];if(!o)return;o.on=s.on;o.v=s.v;o.z=o.v*KV+SZ0;if(s.mm&&o.mm)o.mm=[...s.mm];});drawSens();}
 gcutApply(jobGet(JOBK).gcut);
+gBuild();new ResizeObserver(()=>g1Fit()).observe($('g1'));g1Fit();
 setSpd();drawPile();buildMon();buildEvents();pick('overview');log('Machine running','ok');requestAnimationFrame(frame);
 </script>
 

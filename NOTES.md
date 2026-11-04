@@ -72,6 +72,12 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
 - Save (header "Save job" or the blue Save button) stores EVERY setting of the G-Cut and the line into the loaded job
   (stack size, board, speed, empty cycles, prefeeder, photocells, all line settings). Saved in the browser (localStorage), per person.
 
+## G-Cut HMI (in progress)
+- G-Cut control panel above the line panel, built in English from Denis's photos (no brand logo). Production page done: current job, messages (last 3 log lines),
+  status lamps, nav (Production, Settings, Machine, Jobs, Alerts, Safety), job data + Save correction, piece count (total / current stack, editable with pencil),
+  speed −/+ (100 per step) and set field wired to the machine speed, output, functions (toggles visual only; empty cycles wired), stripping values (static),
+  machine sketch (tap a section = zoom the 3D view; its settings menu comes later). Jobs page loads a job; Alerts shows the log. Settings/Machine/Safety wait for photos.
+
 ## Jobs
 - Job dropdown in the header; changing job restarts the simulator.
 - Incom 3P: 3 pieces 950 × 360, B-flute, batch 50, sheet 975 × 1100.
