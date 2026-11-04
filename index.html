@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v178 · 4 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v179 · 4 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -762,7 +762,7 @@ const pos=chainPt;
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 let p=.46,k=100,last=null,mode='run',T=3600,stopAt=null,stop180=false,jog=false,stopReq=null;
 const VMIN=250,VMAX=6500,RAMP=(VMAX-VMIN)/10;let vSet=2500,vAct=VMIN;
-let exitBlk=false,infH=60,noRefill=false,infStandby=false,sbT=0,rsT=0,loading=false;const INF_MIN=16,INF_OK=40,INF_FULL=60;   /* the prefeeder keeps the infeed stack at 60 mm */
+let exitBlk=false,infH=60,noRefill=false,infStandby=false,sbT=0,rsT=0,loading=false;const INF_MIN=16,INF_OK=40;let INF_FULL=60;   /* infeed stack height the prefeeder keeps (set on the G-Cut feeder settings page, default 60 mm) */
 let STACK=JOB.batch,THK=2.7;const PXMM=VS,MAXH=398;
 let GAPN=1,gapDone=false,gapLeft=0,sCount=0,bCount=0,chg=null,bedCur=YEX-565*VS+3;const BED0=YEX-565*VS,FS=BED0-200*VS,FL=BED0,   /* small forks 200 mm above the big forks */   /* lifting belt top position 565 mm above the exit belts; at 0 it is level with them */SMAX=5,BSTEP=5;
 let count=0,outs=[],nout=0,total=0,removedN=0,faultN=0,cycles0=100;
@@ -1991,7 +1991,10 @@ function gBodyBuild(){const B=$('gBody');{const mb=$('gMonBox');if(mb&&mb.parent
    <input class="gF" id="gBatch" title="Batch: sheets per stack" aria-label="Batch: sheets per stack" style="position:absolute;left:444px;top:290px;width:48px;height:20px;background:#fff"><input class="gF" id="gBatchNow" readonly title="Sheets on the delivery pile now" aria-label="Sheets on the delivery pile now" style="position:absolute;left:444px;top:315px;width:48px;height:20px">${pg}`;
    $('gBatch').onchange=e=>{const s=$('stk');let v=Math.round(+e.target.value)||STACK;v=Math.max(+s.min,Math.min(+s.max,v));s.value=v;s.dispatchEvent(new Event('input'));s.dispatchEvent(new Event('change'));e.target.value=v;};}
   else if(gSetP==='feed'){/* feeder: photo only for now */
-   B.innerHTML=`<div style="position:absolute;inset:0;background:url(${G_FEED}) 0 0/850px 476px"></div>${ttl('FEEDER')}${pg}`;}
+   B.innerHTML=`<div style="position:absolute;inset:0;background:url(${G_FEED}) 0 0/850px 476px"></div>${ttl('FEEDER')}
+    <input class="gF" id="gInfSet" title="Infeed stack height the prefeeder keeps, mm" aria-label="Infeed stack height, mm" style="position:absolute;left:264px;top:25px;width:58px;height:21px;background:#fff">
+    <input class="gF" id="gInfNow" readonly title="Infeed stack height now, mm" aria-label="Infeed stack height now, mm" style="position:absolute;left:264px;top:48px;width:58px;height:21px">${pg}`;
+   $('gInfSet').onchange=e=>{let v=Math.round(+e.target.value)||INF_FULL;v=Math.max(INF_OK+10,Math.min(150,v));INF_FULL=v;e.target.value=v;log(`Infeed stack height set to ${v} mm`);};}
   else if(gSetP==='die'){/* platen press (die-cutting): nothing can be set here yet, the page shows the real screen */
    B.innerHTML=`<div style="position:absolute;inset:0;background:url(${G_DIE}) 0 0/850px 476px"></div>${ttl('PLATEN PRESS')}${pg}`;}
   else{/* stripping station: the two stripping-exit photocells, AS (rear, top field) and BS (front, left field), position from the sheet centre */
@@ -2032,6 +2035,7 @@ function gTick(){if(!$('gClk'))return;const d=new Date(),f=n=>String(n).padStart
  const on=(i,v)=>$('gs'+i).classList.toggle('on',!!v);on(1,mode!=='estop');on(2,mode==='run');on(3,!feederOff);on(4,mode==='run'&&!feederOff);
  const li=[...document.querySelectorAll('#log li')].slice(0,3);$('gM').innerHTML=li.map(l=>{const w=l.lastChild.className.includes('f');return `<div><i class="${w?'w':''}">${w?'':'i'}</i>${l.lastChild.textContent.replace(/</g,'&lt;')}</div>`;}).join('');
  if(gPage==='alr'&&$('gAl'))$('gAl').innerHTML=[...document.querySelectorAll('#log li')].map(l=>`<li>${l.firstChild.textContent} · ${l.lastChild.textContent.replace(/</g,'&lt;')}</li>`).join('');
+ if(gPage==='set'&&$('gInfSet')){if(document.activeElement!==$('gInfSet'))$('gInfSet').value=INF_FULL;$('gInfNow').value=Math.round(infH);}
  if(gPage==='set'&&$('gPcA')){const f=(id,k)=>{if(document.activeElement!==$(id))$(id).value=Math.round(SK[k].v-MID);};f('gPcA','ZA');f('gPcB','ZB');}
  if(gPage==='set'&&$('gBatch')){if(document.activeElement!==$('gBatch'))$('gBatch').value=STACK;$('gBatchNow').value=count;}
  if(gPage!=='prod'||!$('gAct'))return;const sv=(id,v)=>{const e=$(id);if(!e||e===document.activeElement)return;if((id==='gTot'||id==='gBun')&&!e.readOnly)return;if(e.value!==String(v))e.value=v;};
@@ -2114,9 +2118,9 @@ $('jobSel').onchange=e=>{const k=e.target.value;if(k===JOBK)return;log(`Changing
 log(`Job ${JOB.name}: ${JOB.np} pieces ${JOB.pl} × ${JOB.pw} mm, board ${SHL} × ${SHW} mm, ${JOB.batch} sheets per stack`,'ok');
 window.__sim={advance:x=>advance(x),get mode(){return mode},inject,reset,render,pick,setVB,zoom:z=>{tw=null;vb=z;setVB();}};
 /* G-Cut settings saved with the job (stack size, board, speed, empty cycles, prefeeder, photocells) */
-function gcutGet(){return {spd:+$('spd').value,stack:STACK,thk:THK,gap:GAPN,pfStore:PF.store,pfBun:PF.bun,pfOn:PF.on,
+function gcutGet(){return {infFull:INF_FULL,spd:+$('spd').value,stack:STACK,thk:THK,gap:GAPN,pfStore:PF.store,pfBun:PF.bun,pfOn:PF.on,
  sens:SENS.map(o=>({k:o.k,on:o.on,v:o.v,mm:o.mm?[...o.mm]:null}))};}
-function gcutApply(g){if(!g)return;const set=(id,v)=>{const e=$(id);if(e!=null&&v!=null){e.value=v;e.dispatchEvent(new Event('input'));}};
+function gcutApply(g){if(!g)return;if(g.infFull)INF_FULL=g.infFull;const set=(id,v)=>{const e=$(id);if(e!=null&&v!=null){e.value=v;e.dispatchEvent(new Event('input'));}};
  if(g.thk)setThk(g.thk);set('stk',g.stack);set('spd',g.spd);set('gap',g.gap);set('pfStore',g.pfStore);set('pfBun',g.pfBun);
  if(g.pfOn===false&&PF.on)$('pfOn').click();
  (g.sens||[]).forEach(s=>{const o=SK[s.k];if(!o)return;o.on=s.on;o.v=s.v;o.z=o.v*KV+SZ0;if(s.mm&&o.mm)o.mm=[...s.mm];});drawSens();}
