@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Tag this version
         run: |
           V=$(grep -o 'class="ver"[^>]*>v[0-9]*' index.html | grep -o 'v[0-9]*$' | tr -d v)
