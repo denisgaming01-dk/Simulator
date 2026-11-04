@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Die-Cutter Simulator</title>
+<style>body{font:16px system-ui,sans-serif;background:#F4F3EE;color:#222;display:grid;place-items:center;min-height:100vh;margin:0}
+.box{max-width:520px;padding:24px;text-align:center}.box b{display:block;font-size:20px;margin-bottom:8px}</style>
+</head>
+<body>
+<div class="box" id="msg"><b>Die-Cutter Simulator</b>Loading the newest version…</div>
+<script>
+/* Launcher: loads the newest simulator every time it is opened, so this file never has to be sent again. */
+const SRC=[
+ 'https://denisgaming01-dk.github.io/Simulator/index.html',
+ 'https://cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/index.html'
+];
+(async()=>{for(const u of SRC){try{const r=await fetch(u+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)continue;const h=await r.text();if(h.length<1000)continue;
+  document.open();document.write(h);document.close();return;}catch(e){}}
+ document.getElementById('msg').innerHTML='<b>Die-Cutter Simulator</b>The simulator could not be loaded. Check the internet connection, or ask Denis for the address.';})();
+</script>
+</body>
+</html>

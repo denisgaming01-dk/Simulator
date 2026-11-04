@@ -1,0 +1,87 @@
+# Die-Cutter Simulator – handover notes
+
+Training simulator for operators at Logatec: Göpfert G-Cut 13/21 flatbed die-cutter, the prefeeder before it,
+and the downstream separator / palletizer line (Corrpal-style). Built by Denis with Claude.
+
+- Live page: https://denisgaming01-dk.github.io/Simulator/ (this repo, `index.html`, GitHub Pages from `main` / root)
+- Claude artifact (source of truth, single HTML file): https://claude.ai/artifact/YCgCwqpTsrtDnSBvuCeHGz (version 166 at handover)
+- `Simulator-Launcher.html`: tiny file given to colleagues once; it fetches the newest `index.html` from
+  github.io, falling back to `cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/index.html` (fallback only works if the repo is public).
+- After every change: update the artifact AND push `index.html` here. Delete `.github/workflows/main.yml` (accidental, always fails).
+
+## Working rules (from Denis)
+- All UI text in English.
+- Change only what is asked; real-machine measurements from Denis always win over guesses.
+- Ask before a big rebuild if the request is ambiguous.
+- Colleagues must open it in a plain browser: no Claude app, no downloads (restricted at work). GitHub may be blocked at work.
+- Do not put brand names / logos on machine drawings.
+
+## Scale and geometry
+- One true height scale: `VS = 110/1050` px per mm (same as `KU`). Lengths and heights are true to scale.
+- G-Cut: frame 3000 mm high, operator platform 650 mm with railing and stairs; no railing on the roof.
+- Line level (G-Cut exit, separator line belts): 880 mm above floor (`YEX`). Palletizer belts (stacking + bottom-sheet): 350 mm above floor.
+- Machine width ~2230 mm for the 2100 mm max format; max sheet 2100 across × 1300 along the feed.
+- Gripper chain: 8 bars (fixed number), 12 grippers per bar, top chain 880 mm above bottom chain.
+  Known open point: platform-to-bottom-chain is 1125 mm in the sim, Denis measured 1180 mm.
+- Delivery: delivery belt at 565 mm; big forks level with the belt at 565; small forks 200 mm above big forks; gripper bar 330 mm above big forks.
+- Grippers hold the sheet 10 mm from the front edge (inside the 15 mm front waste).
+- Waste: front 15 mm, back and sides 10 mm each (piece 800 × 1500 → sheet must be bigger than 820 × 1525).
+- Sheets travelling through the machine are drawn at real board thickness (E 1.5, B 2.7, C 4.0 …).
+- Infeed stack full level 60 mm. Stacks count in sheets (B-flute 2.7 mm: 1600 mm ≈ 590 sheets).
+- Delivery batch max 400 mm high; always fits the rotation drum.
+
+## Prefeeder
+- True size, 3000 mm high. Belts 2100 wide. Stores board so the infeed does not run out during stack change.
+- Belt moves the stack forward; pneumatic pusher below/behind aligns it; two small pneumatic side align plates
+  (260 × 650 mm) cycle every 3 s; separating knife plate ~900 × 450 mm with hangers.
+- Overhead pusher redrawn from Denis's photo: dark grey columns, white box beam with rack, geared motor, carriage, hanging push plate.
+
+## Line (order and sizes)
+Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
+Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2, 1410 shift, 1720 TT2, 1510 align,
+2210 robot 3 (interleave boards), 2030 rotation drum, 2400 palletizer, 8210 stacking belt, 8410 pallet turntable, 6290 bottom-sheet belt, 6610 bottom-sheet robot.
+- Separator belts 2100 × 700; pressing device 2100 × 400 (wooden plate 400 mm along); turntables 2100 × 2100; gaps between belts 50 mm.
+- Turntable lift 40 mm.
+- Separator: back press lifts first, then front; each lift 1.26 s (slowed 5% on request). Batch height = stack height + 30 mm clearance.
+  Default pressure 4.5 bar breaks a 270 mm bundle; press time 2.5 s default.
+- Separators can break along the line between blanks (stack turned 90°) or between rows of blanks (not turned) – needed for 4-piece jobs.
+- Rotation drum: turns the stack over 180° forward/backward (axis across the line), opening 432 mm, takes up to 2100 × 1300,
+  10% slower on request. A turned stack is drawn darker brown and its outline mirrored; printed underside then shows on top.
+- Palletizer: blue belt strips on the carriage with steel forks between them; align plates are 3 white perforated panels per side.
+  Sequence per batch: carriage to 200 mm above the stack → forks extend → lower until forks are 20 mm above the stack →
+  align plates square the batch → forks pull out (batch drops) → plates open → carriage returns. Speed slowed 5% on request.
+  "Additional alignment" batches (green numbers on 2400): after delivery the carriage goes 150 mm lower and squares again.
+- Stacking belt plain; pallet drives out along the line.
+
+## HMI (separator line screen)
+- Copy of the Siemens line screen. Left column (icons copied from Denis's photo): file cabinet = jobs menu, arrows = nothing yet,
+  hand = manual section operation (skipped for now), speed gauge = line speed 33/66/99 %, Save button.
+  Top left: cabinet icon with "D" + loaded job name.
+- Sequences on TT1, shift, TT2, align: red box = number of sequences (1–10), orange box = sequence being done NOW (type to pick/edit),
+  each sequence has its own Wait + command (turn angle / stop position / shift mm / belt run). Advances when the batch leaves the belt; loops 1-2-3-1…
+- Station hands on the line screen open SMALL menus. Palletizer, robot 3 and drum hands open the big number grid (1–30; X closes):
+  palletizer 0 / 1-24, robot 3 0 / 1-24 + board size, drum 2,4,6 / 1,3,5 / Off. Robot 5 keeps its bottom-sheet menu.
+- Job setup (file cabinet → select job → Edit): 9 screens drawn on photos of the real screens, in this order:
+  1310·1320 batch height + pieces grid (columns = pieces along the line = separator 1, rows = across = separator 2, pressures),
+  1710 TT1, 1410 shift, 1720 TT2, 1510 align, 2210 interleave, 2030 drum, 2400 palletizer, 6610 bottom sheets.
+  Left arrow = forward, right arrow = back; last screen has Save. These photo screens are ONLY in the job setup.
+- Save (header "Save job" or the blue Save button) stores EVERY setting of the G-Cut and the line into the loaded job
+  (stack size, board, speed, empty cycles, prefeeder, photocells, all line settings). Saved in the browser (localStorage), per person.
+
+## Jobs
+- Job dropdown in the header; changing job restarts the simulator.
+- Incom 3P: 3 pieces 950 × 360, B-flute, batch 50, sheet 975 × 1100.
+- Incom 6P: 6 pieces 1150 × 330, B-flute, batch 100, batch height 300, sheet 1175 × 2000; TT1 turns 90°, shift waits for 3 bundles, stack 6 high, interleave on 2 and 5.
+- Atlantic Barcaffe: die drawing 1630 across × 1221 along (front edge 1650 incl. waste), 4 nested blanks (right pair turned against the left),
+  one piece 610.5 × 883; B-flute, batch 50, print on the bottom side. Line breaks all 4 pieces (sep 1 610.5 / 610.5, TT1 90°, sep 2 815 / 815)
+  and palletizes one per layer. Denis sets up the rest (rotation, turning) himself. Blank outlines are simplified (no locking tabs / slits).
+  Open: Denis said "cutting tool and cutout design don't match" – not yet located; ask him for a screenshot.
+
+## Still to do (Denis asked to keep for later)
+- Delivery settings: belt speed (default 50 %) and lifting-belt lower/raise time (default 0.5 s).
+- Line-full photocell that stops the infeed when covered.
+- Move the stripping-exit photocell left/right setting to its proper HMI menu (Denis will send photos).
+- Manual operation of sections (hand icon).
+- Pallet turntable 8410 behaviour.
+- MP4 videos (1000 / 3000 / 6500 sheets/h) for PowerPoint – on hold.
+- Real stack-change timings from machine data (current estimates OK).
