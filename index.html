@@ -330,7 +330,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* SVG */
 #mach .th{font-family:var(--f-label);font-weight:600;font-size:13px;fill:var(--ink)}
 #mach .ts{font-family:var(--f-body);font-size:11px;fill:var(--muted)}
-.c-gray{fill:var(--m-fill);stroke:var(--m-stroke)} .c-wood{fill:#C89A62;stroke:#7A5530} .c-steel{fill:#4A4E55;stroke:#2A2D31} .c-blue{fill:var(--mb-fill);stroke:var(--mb-stroke)} .c-purple{fill:var(--mp-fill);stroke:var(--mp-stroke)}
+.c-gray{fill:var(--m-fill);stroke:var(--m-stroke)} .c-wood{fill:#C89A62;stroke:#7A5530} .c-inox{fill:#C9CED3;stroke:#7D848B} .c-white{fill:#F2F3F4;stroke:#9AA0A6} .c-steel{fill:#4A4E55;stroke:#2A2D31} .c-blue{fill:var(--mb-fill);stroke:var(--mb-stroke)} .c-purple{fill:var(--mp-fill);stroke:var(--mp-stroke)}
 </style>
 </head>
 <body>
@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v191 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v192 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -755,7 +755,21 @@ L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke
 L1+=boxR(90,122,222,232,0,54,'c-blue');
 L1+=boxR(84,128,210,218,SZ0-2,SZ0+12,'c-gray')+boxR(84,128,210,218,SZ0+SZW-12,SZ0+SZW+2,'c-gray');   /* side lays at the sheet edges */
 L1+=ln(86,214,-2,126,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"');
-L1+=boxR(127,131,146,203,ZN,ZF,'c-gray');
+{/* infeed front stops, from Denis's photos: a white traverse beam with a ballscrew above, a rail across the machine,
+   two narrow stainless front-stop plates with angled flaps leaning back over the stack, a wide stainless plate at the drive side, photocells on top */
+ const zw=mm=>mm*KV,fp=[[W*.36,200],[W*.53,200],[W*.74,380]];
+ L1+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */
+ L1+=ln(120,127,ZN,120,127,ZF,'stroke="#8E949A" stroke-width="2.4"')+ln(120,127,ZN,120,127,ZF,'stroke="#C9CED3" stroke-width="1" stroke-dasharray="1.2 1"');   /* ballscrew */
+ L1+=boxR(118,134,124,136,W*.36-zw(40),W*.36+zw(240),'c-white');   /* carriage on the screw */
+ L1+=boxR(130,134,176,184,ZN,ZF,'c-inox');   /* rail the stops sit on */
+ fp.forEach(([z0,w],i)=>{const z1=z0+zw(w);
+   L1+=boxR(126,130,i===2?140:150,203,z0,z1,'c-inox');   /* stainless front-stop plate; the sheet runs out under it */
+   if(i<2)L1+=quad([[127,150,z0],[127,150,z1],[113,131,z1],[113,131,z0]],'fill="#B9967A" stroke="#7D6B5A" stroke-width=".5"');   /* angled flap leaning back over the stack */
+   else L1+=quad([[127,140,z0],[127,140,z0+zw(60)],[121,132,z0+zw(60)],[121,132,z0]],'fill="#C9CED3" stroke="#7D848B" stroke-width=".5"');   /* bent lip of the wide plate */
+   if(i<2)L1+=boxR(128,133,141,148,z0+zw(20),z0+zw(60),'c-blue');});   /* photocells on the stop holders */
+ {const xb=125-SLX,zc=W*.45,zh=zw(70);   /* back stop: white column on the floor, arm and a white plate against the back of the stack */
+  L1+=boxR(xb-16,xb-8,214,GP,zc-zh,zc+zh,'c-white')+boxR(xb-16,xb-2,206,214,zc-zh,zc+zh,'c-white')+boxR(xb-4,xb-1,192,212,zc-zw(150),zc+zw(150),'c-white');}
+}
 L1+=boxR(608.8,615,210,242,ZN,ZF,'c-gray')+boxR(604,621,242,250,ZN,ZF,'c-gray');
 $('L1').innerHTML=L1;
 $('lower').innerHTML=boxR(PX0,322.5,220,260,ZN-6,ZF+6,'c-gray');
