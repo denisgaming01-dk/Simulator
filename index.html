@@ -303,11 +303,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v168 · 4 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v169 · 4 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
-    <label class="jobsel" for="jobSel">Job <select id="jobSel"><option value="3P">Incom 3P</option><option value="6P">Incom 6P</option><option value="BC">Atlantic Barcaffe</option></select></label><button id="jobSaveTop" class="jobsave" title="Save every setting of the G-Cut and the line to this job">Save job</button>
+    <label class="jobsel" for="jobSel">Job <select id="jobSel"><option value="3P">Incom 3P</option><option value="6P">Incom 6P</option><option value="BC">Atlantic Barcaffe</option><option value="T3">Tray 3P 590</option></select></label><button id="jobSaveTop" class="jobsave" title="Save every setting of the G-Cut and the line to this job">Save job</button>
     <span id="chip" class="chip run"><i></i><span id="chipT">Running</span></span>
     <span class="readout" id="clock">Cycle 0</span>
   </header>
@@ -535,10 +535,16 @@ const JOBS={'3P':{name:'Incom 3P',np:3,pl:950,pw:360,batch:50,sep2:[360,360,360]
     return [L1,my(L1),R1,my(R1)];})(),
   creases:[[0,178.5,883,178.5],[0,1042.5,883,1042.5],[255,178.5,255,1042.5],[628,178.5,628,1042.5],[183,559.5,671,559.5],[183,661.5,671,661.5],
     [1003,52.5,1382,52.5],[1003,1168.5,1382,1168.5],[1003,52.5,1003,1168.5],[1382,52.5,1382,1168.5],[745,430.5,1630,430.5],[745,790.5,1630,790.5]]},
+ /* Tray 3P: three tray blanks 590 x 880 mm side by side (1770 across), BC-flute, 6000 sheets/h. Outline simplified from the job drawing. */
+ 'T3':{name:'Tray 3P 590',np:3,pl:880,pw:590,batch:50,sep2:[590,590,590],shiftW:2,palL:1180,palW:880,want:6,bar:5,
+  boardAt:[2,4,5],brd:{L:1180,W:880},gcut:{spd:6000,thk:6.5,stack:50},
+  shapes:(()=>{const one=[[30,0],[560,0],[560,40],[590,40],[590,146],[560,146],[560,176],[590,190],[590,690],[560,704],[560,724],[590,724],[590,840],[560,840],[560,880],[30,880],[30,840],[0,840],[0,724],[30,724],[30,704],[0,690],[0,190],[30,176],[30,146],[0,146],[0,40],[30,40]];
+    return [0,1,2].map(i=>one.map(([x,y])=>[x+590*i,y]));})(),
+  creases:[0,1,2].flatMap(i=>{const o=590*i;return [[o+30,40,o+560,40],[o,146,o+590,146],[o,724,o+590,724],[o+30,840,o+560,840],[o+106,0,o+106,880],[o+484,0,o+484,880]];})},
  '6P':{name:'Incom 6P',np:6,pl:1150,pw:330,batch:100,sep2:[330,330,330,330,330,330],shiftW:3,palL:990,palW:1150,want:6,bar:4.5}};
 const JOBK=(()=>{let k='';try{k=(location.hash.match(/job=(\w+)/)||[])[1]||'';}catch(e){}if(!JOBS[k])try{k=localStorage.getItem('dcsJob')||'';}catch(e){}return JOBS[k]?k:'3P';})(),JOB=JOBS[JOBK];
 const FWL=15,TWL=10,SWL=10,SHL=JOB.pl+FWL+TWL,SHW=JOB.np*JOB.pw+2*SWL;   /* sheet: length along the feed, width across */
-JOBS['3P'].batchH=Math.round(50*2.7)+30;JOBS['6P'].batchH=Math.round(100*2.7)+30;JOBS['BC'].batchH=Math.round(50*2.7)+30;   /* batch height: stack height (sheets x 2.7 mm B-flute) plus 30 mm clearance */
+JOBS['T3'].batchH=Math.round(50*6.5)+30;JOBS['3P'].batchH=Math.round(50*2.7)+30;JOBS['6P'].batchH=Math.round(100*2.7)+30;JOBS['BC'].batchH=Math.round(50*2.7)+30;   /* batch height: stack height (sheets x 2.7 mm B-flute) plus 30 mm clearance */
 const NPW=['','one','two','three','four','five','six'][JOB.np]||String(JOB.np);
 const D2R=Math.PI/180,W=64,B=40;
 /* gripper chain: 8 bars 145 px (about 1385 mm) apart, round a sprocket at each end; the return run is about 880 mm above the
@@ -626,9 +632,9 @@ PINS.sort((a,b)=>b[1]-a[1]);
 const ST={odl:{n:'Sheet delivery',e:'after the guillotine'},izv:{n:'Stripping exit',e:'stripping station',ex:2},izt:{n:'Die-cut exit',e:'die-cutting station',ex:1},pred:{n:'Sheet transfer',e:'gripper takes the sheet',ex:0},lays:{n:'Front lays',e:'infeed front stop'}};
 const SENS=[
  {k:'OA',st:'odl',side:'AS',x:612,mm:null},{k:'OB',st:'odl',side:'BS',x:612,mm:null},
- {k:'ZA',st:'izv',side:'AS',x:472,mm:[100,950]},{k:'ZB',st:'izv',side:'BS',x:472,mm:[100,950]},
- {k:'IA',st:'izt',side:'AS',x:327,mm:[100,950]},{k:'IB',st:'izt',side:'BS',x:327,mm:null},
- {k:'PA',st:'pred',side:'AS',x:182,mm:[100,950]},{k:'PB',st:'pred',side:'BS',x:182,mm:null},
+ {k:'ZA',st:'izv',side:'AS',x:472,mm:[100,Math.min(950,SHL-100)]},{k:'ZB',st:'izv',side:'BS',x:472,mm:[100,Math.min(950,SHL-100)]},
+ {k:'IA',st:'izt',side:'AS',x:327,mm:[100,Math.min(950,SHL-100)]},{k:'IB',st:'izt',side:'BS',x:327,mm:null},
+ {k:'PA',st:'pred',side:'AS',x:182,mm:[100,Math.min(950,SHL-100)]},{k:'PB',st:'pred',side:'BS',x:182,mm:null},
  {k:'LB',st:'lays',side:'BS',x:134,mm:null,below:true}];
 const MID=SHW/2;/* sheet centre line */
 const VPOS={OA:MID+168.5,OB:MID-171.5,ZA:MID+400,ZB:MID-400,IA:MID+168.5,IB:MID-171.5,PA:MID+168.5,PB:MID-171.5,LB:MID};
@@ -1099,8 +1105,8 @@ const jclone=o=>JSON.parse(JSON.stringify(o));
 function jobDefault(k){const J=JOBS[k],sq=(base)=>({...base,seqN:1,seq:Array.from({length:10},()=>({...base}))});
  return {batchH:J.batchH,sep1:[...(J.sep1||[J.pl]),0,0,0,0,0,0,0,0,0,0].slice(0,10),sep2:[...J.sep2,0,0,0,0,0,0,0,0,0,0].slice(0,10),
   tt1:{spd:80,...sq({wait:1,ang:90,off:0})},tt2:{spd:80,...sq({wait:1,ang:0,off:0})},shift:sq({wait:J.shiftW,mm:0}),align:{side:true,...sq({wait:1,run:300})},
-  boardAt:[false,false,true,false,false,true],brd:{L:400,W:400},brdSpd:100,rotAt:[],pal:{want:J.want,spd:90,L:J.palL,W:J.palW},palAlign:Array.from({length:31},()=>false),
-  bot:{n:1,offs:[0,0,0,0,0,0,0,0,0,0],rot:[],L:800,W:800},bar:{sep1:J.bar,sep2:J.bar},palLimit:999};}
+  boardAt:J.boardAt?Array.from({length:31},(_,n)=>J.boardAt.includes(n)):[false,false,true,false,false,true],brd:J.brd?{...J.brd}:{L:400,W:400},brdSpd:100,rotAt:[],pal:{want:J.want,spd:90,L:J.palL,W:J.palW},palAlign:Array.from({length:31},()=>false),
+  bot:{n:1,offs:[0,0,0,0,0,0,0,0,0,0],rot:[],L:800,W:800},bar:{sep1:J.bar,sep2:J.bar},palLimit:999,gcut:J.gcut?{...J.gcut}:undefined};}
 function jobsSaved(){try{return JSON.parse(localStorage.getItem('dcsJobs')||'{}')||{};}catch(e){return {};}}
 function jobGet(k){const s=jobsSaved()[k];return s?{...jobDefault(k),...jclone(s)}:jobDefault(k);}
 function jobSave(k,o){const all=jobsSaved();all[k]=o;try{localStorage.setItem('dcsJobs',JSON.stringify(all));return true;}catch(e){return false;}}

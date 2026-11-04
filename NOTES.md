@@ -77,6 +77,10 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
   and palletizes one per layer. Denis sets up the rest (rotation, turning) himself. Blank outlines are simplified (no locking tabs / slits).
   Open: Denis said "cutting tool and cutout design don't match" – not yet located; ask him for a screenshot.
 
+- Tray 3P 590: 3 tray blanks 590 × 880 (1770 across), BC-flute (6.5 mm), batch 50 (325 mm, batch height 355, 5 bar), speed 6000 sheets/h,
+  shift waits for 2 bundles, 6 layers high, interleave boards on 2, 4, 5 (board 1180 × 880), palletizer 1180 × 880. Outline simplified (no hand holes).
+- Photocell second check point defaults to min(950, sheet length − 100) so short sheets do not trip.
+
 ## Still to do (Denis asked to keep for later)
 - Delivery settings: belt speed (default 50 %) and lifting-belt lower/raise time (default 0.5 s).
 - Line-full photocell that stops the infeed when covered.
