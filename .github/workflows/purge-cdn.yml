@@ -1,0 +1,17 @@
+# After every push, ask jsDelivr to drop its cached copy, so the launcher gets the new version
+# even on computers where github.io is blocked.
+name: Refresh jsDelivr copy
+on:
+  push:
+    branches: [main]
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge jsDelivr cache
+        run: |
+          sleep 20
+          for f in index.html Simulator-Launcher.html; do
+            curl -fsS "https://purge.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/$f" || true
+            echo
+          done
