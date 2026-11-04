@@ -10,33 +10,10 @@
 <body>
 <div class="box" id="msg"><b>Die-Cutter Simulator</b>Loading the newest version…</div>
 <script>
-/* Launcher: loads the newest simulator each time it is opened, so this file never has to be sent again.
-   jsDelivr first (it gets through company filters that block GitHub), GitHub Pages as the second choice. */
-var SRC=[
- 'https://cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/index.html',
- 'https://denisgaming01-dk.github.io/Simulator/index.html'
-];
-var notes=[];
-function show(h){document.open();document.write(h);document.close();}
-function fail(){document.getElementById('msg').innerHTML='<b>Die-Cutter Simulator</b>The simulator could not be loaded. Open this file in Microsoft Edge or Chrome (not in a preview window) and check the internet connection.<small>'+notes.join('\n')+'</small>';}
-function get(i){
- if(i>=SRC.length){fail();return;}
- var u=SRC[i],x=new XMLHttpRequest(),done=false;
- var t=setTimeout(function(){if(done)return;done=true;try{x.abort();}catch(e){}notes.push(u+': timed out');get(i+1);},12000);
- x.onload=function(){if(done)return;done=true;clearTimeout(t);
-  var h=x.responseText||'';
-  if(x.status>=200&&x.status<300&&h.indexOf('Flatbed Die-Cutter Simulator')>=0){show(h);}
-  else{notes.push(u+': '+x.status+(h.indexOf('Flatbed')<0?' (not the simulator, maybe a block page)':''));get(i+1);}};
- x.onerror=function(){if(done)return;done=true;clearTimeout(t);notes.push(u+': blocked or no connection');get(i+1);};
- try{x.open('GET',u,true);x.send();}catch(e){done=true;clearTimeout(t);notes.push(u+': '+e.message);get(i+1);}
-}
-/* every update gets a version tag (1.171.0 ...); ask jsDelivr which one is the newest and load exactly that one,
-   so a new version arrives within minutes instead of waiting for jsDelivr's branch cache */
-(function(){var x=new XMLHttpRequest(),done=false,go=function(){if(done)return;done=true;get(0);};
- setTimeout(go,6000);
- x.onload=function(){try{var v=JSON.parse(x.responseText).version;if(v&&!done)SRC.unshift('https://cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@'+v+'/index.html');}catch(e){}go();};
- x.onerror=go;
- try{x.open('GET','https://data.jsdelivr.com/v1/packages/gh/denisgaming01-dk/Simulator/resolved?specifier=latest&t='+Date.now(),true);x.send();}catch(e){go();}})();
+/* Send this file once. Each time it opens it loads loader.js fresh from jsDelivr, and loader.js loads the newest simulator. */
+(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/loader.js?t='+Date.now();
+ s.onerror=function(){document.getElementById('msg').innerHTML='<b>Die-Cutter Simulator</b>The simulator could not be loaded. Check the internet connection, or ask Denis.';};
+ document.head.appendChild(s);})();
 </script>
 </body>
 </html>
