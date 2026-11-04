@@ -303,7 +303,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v167 · 4 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v168 · 4 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1857,8 +1857,8 @@ function jobDraw(){const B=$('jobPopB'),F=$('jobPopF'),saved=jobsSaved();$('jobP
    b=`<img class="jphoto" src="${PAL_BG}" alt="">`;
    b+=`<button class="jg r" data-q="off" style="left:${gx+1}px;top:15px;width:94px;height:31px">0</button><button class="jg g" data-q="all" style="left:${gx+97}px;top:15px;width:94px;height:31px">1 - 24</button>`;
    for(let n=1;n<=30;n++){const c=(n-1)%6,r=Math.floor((n-1)/6);b+=`<button class="jg${D.palAlign[n]?' sel':''}" data-jg="palAlign" data-n="${n}" style="left:${gx+c*cw-1}px;top:${gy+r*ch-1}px;width:${cw+1}px;height:${ch+1}px">${n}</button>`;}
-   b+=`<div class="jon" style="left:330px;top:249px">${jNum('pal.L',100,2100,'Align length (the plates along the line)',44)}</div>
-   <div class="jon" style="left:462px;top:259px">${jNum('pal.W',100,2100,'Align width (the plates across)',44)}</div>
+   b+=`<div class="jon" style="left:330px;top:249px">${jNum('pal.W',100,2100,'Align width (the plates across the line)',44)}</div>
+   <div class="jon" style="left:462px;top:259px">${jNum('pal.L',100,2100,'Align length (the plates along the line)',44)}</div>
    <div class="jon" style="left:427px;top:402px">${jNum('pal.want',1,99,'Layers per pallet',28)}</div>
    <div class="jon" style="left:521px;top:475px">${jNum('pal.spd',10,100,'Palletizer speed %',34)}</div>`;}
  else{b+=`<div class="jf" style="position:absolute;left:60px;top:40px"><b>↑ X</b>${jNum('palLimit',1,999,'Pallets until the line stops',60)}<span>pallets</span></div>
