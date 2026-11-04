@@ -28,3 +28,10 @@ jobs:
             echo
           done
           curl -fsS "https://purge.jsdelivr.net/gh/denisgaming01-dk/Simulator@latest/index.html" || true
+      - name: Check what jsDelivr serves now
+        run: |
+          sleep 30
+          for u in "https://cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/index.html" "https://cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@latest/index.html"; do
+            echo "$u -> $(curl -fsS "$u" | grep -o 'class="ver"[^>]*>v[0-9]*' | grep -o 'v[0-9]*$')"
+          done
+          curl -fsS "https://data.jsdelivr.com/v1/packages/gh/denisgaming01-dk/Simulator/resolved?specifier=latest" || true
