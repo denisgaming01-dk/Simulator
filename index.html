@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v182 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v183 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -765,6 +765,7 @@ const VMIN=250,VMAX=6500,RAMP=(VMAX-VMIN)/10;let vSet=2500,vAct=VMIN;
 let exitBlk=false,infH=60,noRefill=false,infStandby=false,sbT=0,rsT=0,loading=false;const INF_MIN=16;let INF_OK=40,INF_FULL=60;   /* INF_OK: after standby the infeed starts again above this; kept below the set height */
 const setInfFull=v=>{INF_FULL=v;INF_OK=Math.min(40,v);};   /* set height below 40 mm: reaching the set height starts the infeed again */   /* infeed stack height the prefeeder keeps (set on the G-Cut feeder settings page, default 60 mm) */
 let STACK=JOB.batch,THK=2.7;const PXMM=VS,MAXH=398;
+let bedMan=0;   /* operator's manual correction of the lifting belt (px), kept until the stack change */
 let GAPN=1,gapDone=false,gapLeft=0,sCount=0,bCount=0,chg=null,bedCur=YEX-565*VS+3;const BED0=YEX-565*VS,FS=BED0-200*VS,FL=BED0,   /* small forks 200 mm above the big forks */   /* lifting belt top position 565 mm above the exit belts; at 0 it is level with them */SMAX=5,BSTEP=5;
 let count=0,outs=[],nout=0,total=0,removedN=0,faultN=0,cycles0=100;
 let feederOff=false,belt=[],wbelt=[],segs=[],alarm=null,blockPile=false;const det={};
@@ -776,7 +777,7 @@ const present=id=>!(F[id]&&(F[id].removed||F[id].type==='misfeed'));
 const hOf=n=>n*THK*PXMM;
 function pileSVG(n,xo,op,yb){yb=yb==null?YEX:yb;if(n<=0)return '';const h=Math.max(1.2,hOf(n));let o=sp(617+xo,yb-h,0,BL,0,OR,ORS,op,10,h);
  const step=hOf(Math.max(1,Math.round(25/THK)));if(h>4)for(let y=yb-h+step;y<yb-.5;y+=step)o+=ln(617+xo+TWL*KU-SLX,y,SZ0+10*KV,617+xo+(SHL-FWL)*KU-SLX,y,SZ0+10*KV,`stroke="${ORS}" stroke-width=".35" opacity="${op*.6}"`);return o;}
-const bedTarget=()=>BED0+hOf(BSTEP*Math.floor(count/BSTEP));
+const bedTarget=()=>Math.max(BED0,Math.min(YEX,BED0+hOf(BSTEP*Math.floor(count/BSTEP))+bedMan));
 /* stack change, in seconds of machine time (pauses when the machine stops):
    0.1-0.9 small top forks move in over the stack (the last sheet must have landed, the next one must not be falling)
    0.9-2.2 lifting belt lowers · big lower forks move in once the stack top is below them (1 s), then the small forks pull back (0.2 s) and drop their sheets on the big forks
@@ -796,7 +797,7 @@ function updChg(dt){if(!chg){const t=bedTarget();bedCur+=Math.max(-40*dt,Math.mi
  if(t>=T2.o0&&!chg.out){if(blockPile){chg.g0=k+p-T2.o0/chg.spc;/* stack change waits at the drive-out */if(!exitBlk){exitBlk=true;setFeed(true);log(`E450 Exit belt blocked: stack of ${chg.n} sheets cannot leave the lifting belt. Infeed stopped and locked`,'f');ui();}return;}
    if(!lFree('belt1')){chg.g0=k+p-T2.o0/chg.spc;if(!lineWait){lineWait=true;setFeed(true);log('E450 Exit belt blocked: the line after the G-Cut is not taking stacks, the full stack waits on the lowered lifting belt. Infeed stopped and locked','f');ui();}return;}
    chg.out=1;lineTake(lNew(JOB.np,count*THK));count=0;nout++;log(`Stack of ${chg.n} sheets driven out`,'ok');drawPile();}
- if(t>=T2.end){gapDone=false;count=bCount;bCount=0;chg=null;bedCur=BED0;log(count?`Stack change done, ${count} sheet${count>1?'s':''} set down from the forks onto the lifting belt`:'Stack change done, forks pulled back','ok');drawPile();}}
+ if(t>=T2.end){gapDone=false;count=bCount;bCount=0;chg=null;bedCur=BED0;bedMan=0;log(count?`Stack change done, ${count} sheet${count>1?'s':''} set down from the forks onto the lifting belt`:'Stack change done, forks pulled back','ok');drawPile();}}
 function drawPile(){$('count').textContent='Delivery pile: '+count+' / '+STACK+(sCount||bCount?` · on forks ${sCount+bCount}`:'');$('outc').textContent='Batches out: '+nout;}
 function addSeg(a,b,sh){segs.push([a,b,sh||0]);}
 function sheetSVG(x,y,a,o,run0,sh){
@@ -2010,8 +2011,8 @@ function gBodyBuild(){const B=$('gBody');{const mb=$('gMonBox');if(mb&&mb.parent
     ${bt(700,422,'<b style="font-size:16px">↓</b>','Lifting belt down (hold)','data-lift="-1"')}${bt(736,422,'<b style="font-size:16px">↑</b>','Lifting belt up (hold)','data-lift="1"')}
     <p id="gLiftMsg" style="position:absolute;left:560px;top:456px;width:280px;margin:0;font-size:10.5px;color:#56616C;text-align:right"></p>${pg}`;
    B.querySelectorAll('[data-lift]').forEach(x=>{let iv=null;const stop=()=>{clearInterval(iv);iv=null;};
-     x.onpointerdown=e=>{e.preventDefault();if(mode==='run'||chg){$('gLiftMsg').textContent='Stop the machine to move the lifting belt by hand.';return;}
-       const d=+x.dataset.lift;const step=()=>{bedCur=Math.max(BED0,Math.min(YEX,bedCur-d*10*VS));};step();iv=setInterval(step,60);};
+     x.onpointerdown=e=>{e.preventDefault();if(chg){$('gLiftMsg').textContent='Not during the stack change.';return;}$('gLiftMsg').textContent='';
+       const d=+x.dataset.lift;const step=()=>{const nb=Math.max(BED0,Math.min(YEX,bedCur-d*10*VS));bedMan+=nb-bedCur;bedCur=nb;};step();iv=setInterval(step,60);};
      x.onpointerup=x.onpointerleave=x.onpointercancel=()=>{if(iv){stop();log(`Lifting belt moved by hand to ${Math.round((YEX-bedY())/VS)} mm`);}};});}
   else if(gSetP==='feed'){/* feeder: photo only for now */
    B.innerHTML=`<div style="position:absolute;inset:0;background:url(${G_FEED}) 0 0/850px 476px"></div>${ttl('FEEDER')}
@@ -2065,7 +2066,7 @@ function gTick(){if(!$('gClk'))return;const d=new Date(),f=n=>String(n).padStart
  const on=(i,v)=>$('gs'+i).classList.toggle('on',!!v);on(1,mode!=='estop');on(2,mode==='run');on(3,!feederOff);on(4,mode==='run'&&!feederOff);
  const li=[...document.querySelectorAll('#log li')].slice(0,3);$('gM').innerHTML=li.map(l=>{const w=l.lastChild.className.includes('f');return `<div><i class="${w?'w':''}">${w?'':'i'}</i>${l.lastChild.textContent.replace(/</g,'&lt;')}</div>`;}).join('');
  if(gPage==='alr'&&$('gAl'))$('gAl').innerHTML=[...document.querySelectorAll('#log li')].map(l=>`<li>${l.firstChild.textContent} · ${l.lastChild.textContent.replace(/</g,'&lt;')}</li>`).join('');
- if(gPage==='set'&&$('gLiftPos')){$('gLiftPos').value=Math.round((YEX-bedY())/VS);if(mode!=='run'&&!chg&&$('gLiftMsg').textContent.startsWith('Stop'))$('gLiftMsg').textContent='';}
+ if(gPage==='set'&&$('gLiftPos')){$('gLiftPos').value=Math.round((YEX-bedY())/VS);if(!chg&&$('gLiftMsg').textContent.startsWith('Not'))$('gLiftMsg').textContent='';}
  if(gPage==='set'&&$('gInfSet')){if(document.activeElement!==$('gInfSet'))$('gInfSet').value=INF_FULL;$('gInfNow').value=Math.round(infH);}
  if(gPage==='set'&&$('gPcA')){const f=(id,k)=>{if(document.activeElement!==$(id))$(id).value=Math.round(SK[k].v-MID);};f('gPcA','ZA');f('gPcB','ZB');}
  if(gPage==='set'&&$('gBatch')){if(document.activeElement!==$('gBatch'))$('gBatch').value=STACK;$('gBatchNow').value=count;}
