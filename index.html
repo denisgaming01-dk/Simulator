@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v172 · 4 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v173 · 4 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1996,7 +1996,8 @@ function gTick(){if(!$('gClk'))return;const d=new Date(),f=n=>String(n).padStart
  const li=[...document.querySelectorAll('#log li')].slice(0,3);$('gM').innerHTML=li.map(l=>{const w=l.lastChild.className.includes('f');return `<div><i class="${w?'w':''}">${w?'':'i'}</i>${l.lastChild.textContent.replace(/</g,'&lt;')}</div>`;}).join('');
  if(gPage==='alr'&&$('gAl'))$('gAl').innerHTML=[...document.querySelectorAll('#log li')].map(l=>`<li>${l.firstChild.textContent} · ${l.lastChild.textContent.replace(/</g,'&lt;')}</li>`).join('');
  if(gPage!=='prod'||!$('gAct'))return;const sv=(id,v)=>{const e=$(id);if(!e||e===document.activeElement)return;if((id==='gTot'||id==='gBun')&&!e.readOnly)return;if(e.value!==String(v))e.value=v;};
- sv('gAct',Math.round(mode==='run'?vAct:0));sv('gSet',vSet);sv('gTot',total);sv('gBun',count);sv('gOut',Math.round(mode==='run'&&!feederOff?vAct:0));sv('gBlk',Math.round((mode==='run'&&!feederOff?vAct:0)*BL.length));sv('gGap',GAPN);
+ sv('gAct',Math.round(mode==='run'?vAct:0));sv('gSet',vSet);sv('gTot',total);sv('gBun',count);const outH=(mode==='run'&&!feederOff?vAct:0)*STACK/(STACK+GAPN);   /* output: machine speed less the empty cycles at each stack change */
+ sv('gOut',Math.round(outH));sv('gBlk',Math.round(outH*BL.length));sv('gGap',GAPN);
  sv('gPlt',(((k+p)%1)*360).toFixed(1));$('gFmt').textContent=`${SHL} × ${SHW} mm`;$('gThk').textContent=THK+' mm';$('gStk').textContent=STACK;$('gBar').style.width=(100*(mode==='run'?vAct:0)/6500)+'%';}
 function g1Fit(){const w=$('g1').clientWidth,k=Math.max(w,720)/1000;$('g1In').style.transform=`scale(${k})`;$('g1').style.height=(560*k)+'px';$('g1Wrap').style.overflowX=w<720?'auto':'hidden';}
 function hmiFit(){g1Fit();const w=$('hmi2').clientWidth,k=Math.max(w,720)/1000;$('hmi2In').style.transform=`scale(${k})`;$('hmi2').style.height=(640*k)+'px';$('hmi2Wrap').style.overflowX=w<720?'auto':'hidden';}
