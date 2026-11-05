@@ -64,7 +64,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   floor 3600 deep from the delivery end to the back stairs; a 4000 mm wide part reaching 5200 out (1600 beyond the floor) in front of
   delivery/stripping; behind it 2000 = 1000 floor + 1000 back stairs. The stairs are 1600 wide (outer band 2000..3600), run with the machine
   and end level with the back edge of the infeed doors (v215: whole layout moved 2000 = door width toward the infeed end); inside them a 2000 deep walkway continues along the stairs and the infeed door. PLAT holds the coordinates.
-  Not drawn yet: the delivery-end landing (the 1600 at the top-left of the photo).
+  v216: at the delivery end the last 1000 mm of floor is only 2000 deep (2000 + 1600 = 3600 notch). The lower landing beyond the machine end is not drawn.
 
 ## Prefeeder
 - True size, 3000 mm high. Belts 2100 wide. Stores board so the infeed does not run out during stack change.
