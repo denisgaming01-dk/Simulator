@@ -46,10 +46,10 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   Infeed work is on hold until the photos and measurements arrive.
 - v197: runs in the background. Machine logic is in simStep(dt); simCatchUp() runs it for all real time passed (100 ms steps, max 8 h). frame() calls it while visible; while the tab is hidden a Web Worker clock (250 ms, setInterval fallback) calls it, and it catches up again when the tab becomes visible. Drawing only happens while visible.
 - v198, measured by Denis (operator side, mm, from the delivery end): panel after the guillotine 1000, delivery 1190, HMI column 550,
-  stripping 1350, die-cutting 1690, infeed panel (feeder screen) 950. Windows: delivery 1000 x 420 (bottom edge level with the bottom chain),
+  stripping 1530 (rechecked by Denis, v202; was 1350), die-cutting 1690, infeed panel (feeder screen) 950. Windows: delivery 1000 x 420 (bottom edge level with the bottom chain),
   stripping 1440 x 1000 (two panes), die-cutting 1480 x 320 (centred on the bottom chain (v199), button panel above it in the dark band),
   infeed double doors 2000 x 2000 (dark glass upper part, white lower part, fixed panel above). Covers keep true size; guillotine (x 605) at the
-  end-panel/delivery joint, so covers run x 4.7 .. 709.8 (overhang past the platform end at 640). PNL_MM / U() in the code.
+  end-panel/delivery joint, so covers run x -14.2 .. 709.8 (overhang past the platform end at 640). PNL_MM / U() in the code.
   v200: black-grey painted band (Denis) across delivery, HMI column, stripping and die-cutting panels, from about 1.1 m below the top down to the lower panel line; windows cut out of it.
   v201: HMI column touch screen 320 x 220 mm (Denis), grey bezel.
   Still open: gripper bar spacing (sim station pitch 145 px ~ 1385 mm); internals do not yet line up with the measured panels

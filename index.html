@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v201 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v202 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -696,9 +696,9 @@ const YEX=210+(330+565)*VS;   /* gripper bar (y 210) 330 mm above the big forks,
 const GF=YEX+880*VS,GP=GF-650*VS,GT=GF-3000*VS;   /* machine 3000 mm high from the floor */
 let SOLID=false,WALLS='';
 /* solid covers, operator side, panel widths measured by Denis (mm, from the delivery end): panel after the guillotine 1000, delivery 1190,
-   HMI column 550, stripping 1350, die-cutting 1690, infeed (feeder screen) 950. The drawing was laid out from the photo in "u" units
+   HMI column 550, stripping 1530 (rechecked), die-cutting 1690, infeed (feeder screen) 950. The drawing was laid out from the photo in "u" units
    (old section edges below); U() maps them onto the measured widths, so windows and buttons keep their place inside each panel. */
-const PNL_MM=[1000,1190,550,1350,1690,950],PNL_U0=[0,87,203,247,386,548,640],PNL_U1=PNL_MM.reduce((a,m)=>(a.push(a[a.length-1]+m*VS),a),[0]);
+const PNL_MM=[1000,1190,550,1530,1690,950],PNL_U0=[0,87,203,247,386,548,640],PNL_U1=PNL_MM.reduce((a,m)=>(a.push(a[a.length-1]+m*VS),a),[0]);
 const U=u=>{for(let i=0;i<6;i++)if(u<=PNL_U0[i+1]||i===5)return PNL_U1[i]+(u-PNL_U0[i])*(PNL_U1[i+1]-PNL_U1[i])/(PNL_U0[i+1]-PNL_U0[i]);};
 const XE=605+PNL_U1[1],XS=XE-PNL_U1[6],XH=XS-2000*VS-20;   /* guillotine (x 605) at the joint between the end panel and the delivery panel; infeed guarding long enough for its 2000 mm door */
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
