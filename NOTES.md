@@ -54,6 +54,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v201: HMI column touch screen 320 x 220 mm (Denis), grey bezel.
   v203: recessed dark channels between the sections, 40 mm wide x 30 mm deep, light tubes in four of them (green x3, blue at the infeed joint).
   v204: infeed operator screen 480 x 290 mm (Denis), button panel below it.
+  v205: infeed table with suction belts 420 mm along the feed (Denis; was ~305), from the front stop back.
   Still open: gripper bar spacing (sim station pitch 145 px ~ 1385 mm); internals do not yet line up with the measured panels
   (stripping window x 282-433 vs stripping tool 352-462).
 

@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v204 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v205 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -786,7 +786,7 @@ $('L0').innerHTML=gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke=
 [182,617].map(x=>ln(x,210-CR0,ZF,x,210-CR0,ZN,'stroke="var(--faint)" stroke-width="3"')+ln(x,210-CR0-CHV,ZF,x,210-CR0-CHV,ZN,'stroke="var(--faint)" stroke-width="3"')).join('');
 let L1='';
 L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke-linecap="round"')+ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--panel)" stroke-width="10.5" stroke-linecap="round"');
-L1+=boxR(90,122,222,232,0,54,'c-blue');
+L1+=boxR(122-420*VS,122,222,232,0,54,'c-blue');   /* infeed table with the suction belts, 420 mm along the feed (Denis) */
 L1+=boxR(84,128,210,218,SZ0-2,SZ0+12,'c-gray')+boxR(84,128,210,218,SZ0+SZW-12,SZ0+SZW+2,'c-gray');   /* side lays at the sheet edges */
 L1+=ln(86,214,-2,126,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"');
 {/* infeed front stops, from Denis's photos: a white traverse beam with a ballscrew above, a rail across the machine,
