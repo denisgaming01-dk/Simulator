@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v206 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v207 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -707,7 +707,8 @@ let SOLID=false,WALLS='';
    (old section edges below); U() maps them onto the measured widths, so windows and buttons keep their place inside each panel. */
 const PNL_MM=[1000,1190,550,1530,1690,950],PNL_U0=[0,87,203,247,386,548,640],PNL_U1=PNL_MM.reduce((a,m)=>(a.push(a[a.length-1]+m*VS),a),[0]);
 const U=u=>{for(let i=0;i<6;i++)if(u<=PNL_U0[i+1]||i===5)return PNL_U1[i]+(u-PNL_U0[i])*(PNL_U1[i+1]-PNL_U1[i])/(PNL_U0[i+1]-PNL_U0[i]);};
-const XE=605+PNL_U1[1],XS=XE-PNL_U1[6],XH=XS-2000*VS-20;   /* guillotine (x 605) at the joint between the end panel and the delivery panel; infeed guarding long enough for its 2000 mm door */
+const XE=SS-2+(PNL_U1[3]+PNL_U1[4])/2-720*VS,   /* covers placed from Denis: at 0° the stripping gripper bar sits right after (delivery side of) the stripping window */
+      XE_OLD=605+PNL_U1[1],XS=XE-PNL_U1[6],XH=XS-2000*VS-20;   /* guillotine (x 605) at the joint between the end panel and the delivery panel; infeed guarding long enough for its 2000 mm door */
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
  /* look of the real machine, from the 3D views on the Safety screen: wooden platform deck, dark steel railings and stairs,
     light grey guard doors with blue door switches, dark lower panels at die-cutting and stripping, white roof covers */
