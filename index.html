@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v200 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v201 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -740,7 +740,8 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
      o+=`<path d="${R1(P1[4],P1[5],cv0-.11,cv1+.03)} ${R1(...WIN[3])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark band with the die-cutting window */
      o+=F(150,192,.14,.26,'fill="#1C1E21"');   /* small viewing window high up */
      o+=WIN.map((w,i)=>F1(...w,`fill="${i===3?'#3A4A58':'#BFD6E6'}" fill-opacity="${i===3?.35:.18}" stroke="#1C1E21" stroke-width="1"`)).join('');   /* glass: the running machine shows through */
-     o+=F(207,243,.35,.47,'fill="#C9CDD1" stroke="#1C1E21" stroke-width=".5"')+F(211,239,.365,.445,'fill="#3D7FC2"');   /* control column: small touch screen */
+     {const sw=mid(2,320),bw=mid(2,380),sh=220*VS/(GP-GT),bz=30*VS/(GP-GT),sc=.405;
+      o+=F1(bw[0],bw[1],sc-sh/2-bz,sc+sh/2+bz,'fill="#C9CDD1" stroke="#1C1E21" stroke-width=".5"')+F1(sw[0],sw[1],sc-sh/2,sc+sh/2,'fill="#3D7FC2"');}   /* HMI column: touch screen 320 x 220 mm (Denis) in a grey bezel */
      o+=F(207,243,.49,.66,'fill="#DCDFE2" stroke="#8A9096" stroke-width=".5"');
      for(let i=0;i<3;i++)for(let j=0;j<3;j++)o+=ell(X(214+j*11),Y(.52+i*.05),zp,1.8,1.8*c,`fill="${['#2B2E33','#1F5FD6','#C9302C'][(i+j)%3]}"`);   /* push buttons */
      o+=ell(X(236),Y(.47),zp,2.6,2.6*c,'fill="#D9282F" stroke="#F2D21B" stroke-width="1"');   /* emergency stop */

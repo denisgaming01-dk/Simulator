@@ -51,6 +51,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   infeed double doors 2000 x 2000 (dark glass upper part, white lower part, fixed panel above). Covers keep true size; guillotine (x 605) at the
   end-panel/delivery joint, so covers run x 4.7 .. 709.8 (overhang past the platform end at 640). PNL_MM / U() in the code.
   v200: black-grey painted band (Denis) across delivery, HMI column, stripping and die-cutting panels, from about 1.1 m below the top down to the lower panel line; windows cut out of it.
+  v201: HMI column touch screen 320 x 220 mm (Denis), grey bezel.
   Still open: gripper bar spacing (sim station pitch 145 px ~ 1385 mm); internals do not yet line up with the measured panels
   (stripping window x 282-433 vs stripping tool 352-462).
 
