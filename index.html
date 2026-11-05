@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v214 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v215 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -724,7 +724,7 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
    /* platform from Denis's marked photo (mm from the machine face): floor 3600 deep from the delivery end to the back stairs; a 4000 mm wide
       part reaching 5200 out (1600 beyond the floor); behind it 2000 = 1000 floor + 1000 stairs, the stairs (1600 wide, outer band) run with the
       machine down to the start of the infeed door; along the stairs and the infeed door a 2000 deep walkway remains */
-   const zM=ZN-8,z2=zM-2000*KV,zW=zM-3600*KV,zD=zM-5200*KV,xA=XS-3,xS1=xA+1000*VS,px0=xA+2000*VS,px1=px0+4000*VS,d0=xA-2000*VS;
+   const zM=ZN-8,z2=zM-2000*KV,zW=zM-3600*KV,zD=zM-5200*KV,xA=XS-3-2000*VS,xS1=xA+1000*VS,px0=xA+2000*VS,px1=px0+4000*VS,d0=xA-2000*VS;
    PLAT={zM,z2,zW,zD,xA,xS1,px0,px1,d0};
    o+=boxR(xS1,XE,GP,GF,zW,ZF+12,'c-wood')+boxR(px0,px1,GP,GF,zD,zW+.5,'c-wood')+boxR(d0,xS1+.5,GP,GF,z2,ZF+12,'c-wood');
    {const sm='stroke="#8A6236" stroke-width=".5" stroke-opacity=".6"';for(let x=XE-80;x>xS1;x-=80)o+=ln(x,GP,zW,x,GP,ZF+12,sm);for(let x=px1-80;x>px0;x-=80)o+=ln(x,GP,zD,x,GP,zW,sm);

@@ -63,7 +63,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
 - Platform (v214, from Denis's marked photo; railings left out for now), depths from the machine face:
   floor 3600 deep from the delivery end to the back stairs; a 4000 mm wide part reaching 5200 out (1600 beyond the floor) in front of
   delivery/stripping; behind it 2000 = 1000 floor + 1000 back stairs. The stairs are 1600 wide (outer band 2000..3600), run with the machine
-  and end at the start of the infeed door; inside them a 2000 deep walkway continues along the stairs and the infeed door. PLAT holds the coordinates.
+  and end level with the back edge of the infeed doors (v215: whole layout moved 2000 = door width toward the infeed end); inside them a 2000 deep walkway continues along the stairs and the infeed door. PLAT holds the coordinates.
   Not drawn yet: the delivery-end landing (the 1600 at the top-left of the photo).
 
 ## Prefeeder
