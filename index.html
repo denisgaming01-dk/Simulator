@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v208 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v209 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -597,16 +597,21 @@ const VS=110/1050;   /* heights in px per mm, the same scale as lengths */
 const PIT=1550*VS,SD=617,SS=SD-PIT,SC=SD-2*PIT,SI=SD-3*PIT,DI=SI-182,DC=SC-327,DS=SS-472;
 /* front-waste bar (Denis): at 0° the bar on the return run that drops the front waste stops at the start of the delivery window,
    x SF 520. That fixes the bottom run length CHL; the return run stays 880 mm above the bottom run, so the chain turns in tight corners. */
-const SF=520,CHL=SF+PIT-SI,NB=8,CR0=(8*PIT-2*CHL-2*880*VS)/(2*Math.PI-4),CHV=880*VS-2*CR0,CHT=210-2*CR0-CHV,CHC=210-CR0-CHV/2,DF=SF-472;
-function chainPt(q){const L=CHL,X0=SI,Y=210,Q=Math.PI/2*CR0,TOT=NB*PIT;q=((q%TOT)+TOT)%TOT;
- if(q<=L)return[X0+q,Y,0];q-=L;
- if(q<Q){const a=q/CR0;return[X0+L+CR0*Math.sin(a),Y-CR0+CR0*Math.cos(a),-a*180/Math.PI];}q-=Q;
- if(q<CHV)return[X0+L+CR0,Y-CR0-q,-90];q-=CHV;
- if(q<Q){const a=Math.PI/2+q/CR0;return[X0+L+CR0*Math.sin(a),Y-CR0-CHV+CR0*Math.cos(a),-a*180/Math.PI];}q-=Q;
- if(q<=L)return[X0+L-q,CHT,180];q-=L;
- if(q<Q){const a=q/CR0;return[X0-CR0*Math.sin(a),Y-CR0-CHV-CR0*Math.cos(a),180-a*180/Math.PI];}q-=Q;
- if(q<CHV)return[X0-CR0,Y-CR0-CHV+q,90];q-=CHV;
- const a=Math.PI/2+q/CR0;return[X0-CR0*Math.sin(a),Y-CR0-CR0*Math.cos(a),180-a*180/Math.PI];}
+const SF=520,NB=8,DF=SF-472,CHT=210-880*VS,CHC=(210+CHT)/2,CWR=15,CWIx=118;
+/* chain shape from Denis's sketch: the delivery wheel sits at the TOP (the return run leaves over it), the infeed wheel at the BOTTOM
+   (the bottom run starts under it); between them guides with sharp bends. Bars 1550 mm apart, 8 bars; the delivery wheel position and
+   the end of the return run (where the guide bends down to the infeed wheel) are solved so the stations and the front-waste bar fit. */
+const CHN=(()=>{const r=CWR,TOP=CHT,arc=(cx,cy,a0,a1,n,o)=>{for(let i=0;i<n;i++){const a=a0+(a1-a0)*i/n;o.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}};
+ const path=(WDx,T)=>{const o=[],WDy=TOP+r,WIy=210-r,line=(A,B,n)=>{for(let i=0;i<n;i++)o.push([A[0]+(B[0]-A[0])*i/n,A[1]+(B[1]-A[1])*i/n]);};
+  const g0=[WDx-10,210];line([CWIx,210],g0,60);line(g0,[WDx+r,WDy+18],12);line([WDx+r,WDy+18],[WDx+r,WDy],4);arc(WDx,WDy,0,-Math.PI/2,10,o);
+  line([WDx,TOP],[T,TOP],60);line([T,TOP],[CWIx-r,WIy-10],14);line([CWIx-r,WIy-10],[CWIx-r,WIy],3);arc(CWIx,WIy,Math.PI,Math.PI/2,10,o);return o;};
+ const cum=P=>{const c=[0];for(let i=1;i<=P.length;i++){const A=P[i-1],B=P[i%P.length];c.push(c[i-1]+Math.hypot(B[0]-A[0],B[1]-A[1]));}return c;};
+ const info=(WDx,T)=>{const P=path(WDx,T),C=cum(P),s0=SI-CWIx;const iF=P.findIndex(p=>Math.abs(p[1]-TOP)<1e-6&&p[0]<=SF);return{tot:C[P.length],dF:C[iF]+(P[iF][0]-SF)-s0};};
+ const bis=(fn,lo,hi)=>{for(let k=0;k<60;k++){const m=(lo+hi)/2;if(fn(m)>0)hi=m;else lo=m;}return(lo+hi)/2;};
+ const WDx=bis(x=>info(x,250).dF-5*PIT,600,800),T=bis(x=>-(info(WDx,x).tot-NB*PIT),110,500);
+ const P=path(WDx,T),C=cum(P);return{P,C,s0:SI-CWIx,WD:[WDx,TOP+r],WI:[CWIx,210-r],T};})();
+function chainPt(q){const TOT=NB*PIT,{P,C,s0}=CHN;q=(((q+s0)%TOT)+TOT)%TOT;let lo=0,hi=P.length;while(hi-lo>1){const m=(lo+hi)>>1;if(C[m]<=q)lo=m;else hi=m;}
+ const A=P[lo],B=P[(lo+1)%P.length],f=(q-C[lo])/((C[lo+1]-C[lo])||1);return[A[0]+(B[0]-A[0])*f,A[1]+(B[1]-A[1])*f,Math.atan2(B[1]-A[1],B[0]-A[0])*180/Math.PI];}
 /* the machine is built for the 2100 mm max sheet width: its frames, chains and bars run from ZN to ZF (about 2230 mm), the 1223 mm sheet runs centred from 0 to W */
 const ZN=-26,ZF=W+26;let CAM=35,c=Math.cos(CAM*D2R),s=Math.sin(CAM*D2R);
 const OR='#FAC775',ORS='#854F0B',ORE='#BA7517',CO='#F5C4B3',COS='#993C1D',COE='#D85A30',GR='#639922';
@@ -793,7 +798,7 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
 const DWC=XE-(PNL_U1[4]+PNL_U1[5])/2,PX0=DWC-740*VS,PXR=DWC+740*VS,PN0=Math.min(352+DS,SS-10-SLX-2);   /* platens and stripping tools cover the whole sheet */
 function buildStatic(){
 $('L0').innerHTML=gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
-[SI,SI+CHL].map(x=>ln(x,210-CR0,ZF,x,210-CR0,ZN,'stroke="var(--faint)" stroke-width="3"')+ln(x,210-CR0-CHV,ZF,x,210-CR0-CHV,ZN,'stroke="var(--faint)" stroke-width="3"')).join('');
+[CHN.WD,CHN.WI].map(([x,y])=>ln(x,y,ZF,x,y,ZN,'stroke="var(--faint)" stroke-width="3"')+ell(x,y,ZF,CWR,CWR*c,'fill="none" stroke="var(--faint)" stroke-width="2"')).join('');
 let L1='';XOF=DI;
 L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke-linecap="round"')+ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--panel)" stroke-width="10.5" stroke-linecap="round"');
 L1+=boxR(122-420*VS,122,222,232,0,54,'c-blue');   /* infeed table with the suction belts, 420 mm along the feed (Denis) */
@@ -830,7 +835,7 @@ $('knife').innerHTML=boxR(602.4,608.6,162,198,ZN,ZF,'c-gray')+boxR(596,612,152,1
 drawSens();
 $('belt').innerHTML=boxR(SF+15-150*VS,SF+15+150*VS,146,150,ZN-5,ZF+30,'c-gray')+'<g id="bdash"></g>';
 $('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+`<path d="${chainPath(ZN)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
-[SI,SI+CHL].map(x=>ell(x,210-CR0,ZN,4,4*c,'fill="var(--faint)"')+ell(x,210-CR0-CHV,ZN,4,4*c,'fill="var(--faint)"')).join('')+'';
+[CHN.WD,CHN.WI].map(([x,y])=>ell(x,y,ZN,CWR,CWR*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('')+'';
 $('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;   /* solid covers go over the chains and the ejector */
 $('scale').innerHTML=`<line x1="${SC}" y1="${scY}" x2="${SS}" y2="${scY}" stroke="var(--accent)" stroke-width="1"/><line x1="${SC}" y1="${scY-4}" x2="${SC}" y2="${scY+4}" stroke="var(--accent)"/><line x1="${(SC+SS)/2}" y1="${scY-3}" x2="${(SC+SS)/2}" y2="${scY+3}" stroke="var(--accent)"/><line x1="${SS}" y1="${scY-4}" x2="${SS}" y2="${scY+4}" stroke="var(--accent)"/><polygon id="mark" points="${SC},${scY-1} ${SC-5},${scY-9} ${SC+5},${scY-9}" fill="var(--accent)"/>`;
 }
@@ -857,7 +862,7 @@ $('camT').oninput=e=>setCam(+e.target.value,null);
 $('camY').oninput=e=>setCam(null,+e.target.value);
 $('camR').onclick=()=>{$('camT').value=35;$('camY').value=0;setCam(35,0);};
 /* ---------- machine model ---------- */
-const P=PIT,L=CHL,x0=SI,Y=210,TOT=NB*P;
+const P=PIT,x0=SI,Y=210,TOT=NB*P;
 const pos=chainPt;
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 let p=.46,k=100,last=null,mode='run',T=3600,stopAt=null,stop180=false,jog=false,stopReq=null;
