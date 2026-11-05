@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v202 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v204 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -746,10 +746,16 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
      for(let i=0;i<3;i++)for(let j=0;j<3;j++)o+=ell(X(214+j*11),Y(.52+i*.05),zp,1.8,1.8*c,`fill="${['#2B2E33','#1F5FD6','#C9302C'][(i+j)%3]}"`);   /* push buttons */
      o+=ell(X(236),Y(.47),zp,2.6,2.6*c,'fill="#D9282F" stroke="#F2D21B" stroke-width="1"');   /* emergency stop */
      {const bp=mid(4,1000),bv=cv0-.055;o+=F1(bp[0],bp[1],bv-.03,bv+.03,'fill="#DCDFE2" stroke="#8A9096" stroke-width=".5"');for(let j=0;j<5;j++)o+=ell(X1(bp[0]+12+j*(bp[1]-bp[0]-24)/4),Y(bv),zp,1.8,1.8*c,`fill="${j===4?'#D9282F':'#2B2E33'}"`);}   /* button panel above the die-cutting window */
-          o+=F(562,628,.30,.44,'fill="#2B2E33"')+F(566,624,.315,.425,'fill="#4E8FD0"');   /* feeder operator screen */
-     o+=F(566,624,.47,.58,'fill="#DCDFE2" stroke="#8A9096" stroke-width=".5"');for(let i=0;i<2;i++)for(let j=0;j<4;j++)o+=ell(X(574+j*14),Y(.50+i*.05),zp,1.7,1.7*c,'fill="#2B2E33"');
-     for(const [u,col] of [[88,'#35D04A'],[246,'#35D04A'],[387,'#35D04A'],[549,'#2E7BFF']])o+=F(u-1.6,u+1.6,.10,.26,`fill="${col}"`);   /* status light strips */
-     for(const u of [87,203,247,386,548,640])o+=ln(X(u),GT,zp,X(u),GP,zp,'stroke="#9AA0A6" stroke-width=".7"');   /* section joints */
+     {const sw=mid(5,480),bw=mid(5,540),sh=290*VS/(GP-GT),bz=30*VS/(GP-GT),sc=.37,bp=mid(5,480),b0=sc+sh/2+bz+.03,b1=b0+.12;   /* infeed operator screen 480 x 290 mm (Denis), button panel below */
+      o+=F1(bw[0],bw[1],sc-sh/2-bz,sc+sh/2+bz,'fill="#2B2E33"')+F1(sw[0],sw[1],sc-sh/2,sc+sh/2,'fill="#4E8FD0"');
+      o+=F1(bp[0],bp[1],b0,b1,'fill="#DCDFE2" stroke="#8A9096" stroke-width=".5"');for(let i=0;i<2;i++)for(let j=0;j<5;j++)o+=ell(X1(bp[0]+8+j*(bp[1]-bp[0]-16)/4),Y(b0+.03+i*.06),zp,1.7,1.7*c,`fill="${i===0&&j===4?'#D9282F':'#2B2E33'}"`);}
+     {/* recessed channels between the sections, 40 mm wide and 30 mm deep (Denis), dark; a light tube sits in the channel at four joints */
+      const cw=40*VS/2,cd=30*KV,lt=[[1,'#35D04A'],[3,'#35D04A'],[4,'#35D04A'],[5,'#2E7BFF']];
+      for(let i=1;i<=5;i++){const x=X1(P1[i]);
+       o+=quad([[x-cw,GT,zp],[x+cw,GT,zp],[x+cw,GP,zp],[x-cw,GP,zp]],'fill="#24272B"')+quad([[x+cw,GT,zp],[x+cw,GT,zp+cd],[x+cw,GP,zp+cd],[x+cw,GP,zp]],'fill="#3A3D42"');}   /* channel opening and its side wall */
+      for(const [i,col] of lt){const x=X1(P1[i]),w=cw*.62;
+       o+=quad([[x-cw,Y(.10),zp],[x+cw,Y(.10),zp],[x+cw,Y(.26),zp],[x-cw,Y(.26),zp]],`fill="${col}" fill-opacity=".35"`)   /* glow in the channel */
+        +quad([[x-w,Y(.105),zp],[x+w,Y(.105),zp],[x+w,Y(.255),zp],[x-w,Y(.255),zp]],`fill="${col}"`)+quad([[x-w*.35,Y(.11),zp],[x+w*.35,Y(.11),zp],[x+w*.35,Y(.25),zp],[x-w*.35,Y(.25),zp]],'fill="#FFFFFF" fill-opacity=".55"');}}   /* light tube */
      o+=ln(X(0),Y(.8),zp,XS,Y(.8),zp,'stroke="#B4B9BE" stroke-width=".5"');
      {/* infeed guarding after the feeder section, from Denis's photo: dark corner post, white top beam across the machine,
          guard door with a big glass window (dark frame, blue light) and a white lower half; the stack and back stop show through the glass */
