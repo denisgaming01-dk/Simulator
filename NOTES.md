@@ -57,6 +57,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v205: infeed table with suction belts 420 mm along the feed (Denis; was ~305), from the front stop back.
   v206: gripper bar pitch 1550 mm (Denis): PIT=1550*VS; delivery station stays at x 617 (SD), stripping SS, die-cutting SC, infeed SI one pitch apart (455, 292, 130). Chain sprocket radius 440 mm, bottom run CHL. Infeed parts drawn with XOF=DI offset, prefeeder shifted by DI, platform extended at the infeed. Labels and zoom presets moved.
   v207: covers positioned from Denis: at 0° the stripping gripper bar (x SS 455) sits right after the stripping window (delivery side). XE=744, covers x 20..744; end panel starts at 640 = platform end. Windows: delivery 525-630, stripping 302-453, die-cutting 131-286.
+  v208: guillotine position confirmed (set per job). Platens as long as the die-cutting window (1480 mm, PX0..PXR). Front-waste bar on the return run stops at x SF 520 (start of the delivery window, Denis); this fixes the bottom run CHL, return run still 880 mm up, tight corners. Front waste drop, ejector and front waste belt (300 mm wide) moved there (DF); glass window above the belt in the delivery panel.
   (stripping window x 282-433 vs stripping tool 352-462).
 
 ## Prefeeder
