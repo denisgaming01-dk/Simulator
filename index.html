@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v212 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v213 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -721,18 +721,19 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
     light grey guard doors with blue door switches, dark lower panels at die-cutting and stripping, white roof covers */
  if(!front){/* operator platform shape (Denis's measurements, railings left out for now): a 1600 mm walkway along the whole machine,
      and in front of the delivery and stripping a 4000 mm wide area that reaches 5200 mm out from the machine */
-   const zM=ZN-8,zW=zM-1600*KV,zD=zM-5200*KV,px1=XE-1000*VS,px0=px1-4000*VS;PLAT={zM,zW,zD,px0,px1};
-   o+=boxR(XH,XE,GP,GF,zW,ZF+12,'c-wood')+boxR(px0,px1,GP,GF,zD,zW+.5,'c-wood');
-   {const sm='stroke="#8A6236" stroke-width=".5" stroke-opacity=".6"';for(let x=XE-80;x>XH;x-=80)o+=ln(x,GP,zW,x,GP,ZF+12,sm);for(let x=px1-80;x>px0;x-=80)o+=ln(x,GP,zD,x,GP,zW,sm);
-    for(let z=zW+40;z<ZF+12;z+=40)o+=ln(XH,GP,z,XE,GP,z,sm);for(let z=zD+40;z<zW;z+=40)o+=ln(px0,GP,z,px1,GP,z,sm);}
+   /* from the back (Denis): the stairs start at the start of the infeed door, 1000 mm of stairs, then 1000 mm of floor, then the wide area */
+   const zM=ZN-8,zW=zM-1600*KV,zD=zM-5200*KV,xA=XS-3-2000*VS,xW0=xA+1000*VS,px0=xA+2000*VS,px1=px0+4000*VS;PLAT={zM,zW,zD,px0,px1,xA,xW0};
+   o+=boxR(xW0,XE,GP,GF,zW,ZF+12,'c-wood')+boxR(px0,px1,GP,GF,zD,zW+.5,'c-wood');
+   {const sm='stroke="#8A6236" stroke-width=".5" stroke-opacity=".6"';for(let x=XE-80;x>xW0;x-=80)o+=ln(x,GP,zW,x,GP,ZF+12,sm);for(let x=px1-80;x>px0;x-=80)o+=ln(x,GP,zD,x,GP,zW,sm);
+    for(let z=zW+40;z<ZF+12;z+=40)o+=ln(xW0,GP,z,XE,GP,z,sm);for(let z=zD+40;z<zW;z+=40)o+=ln(px0,GP,z,px1,GP,z,sm);}
    o+=SOLID?boxR(XH,XE,GT,GP,ZF+12,ZF+16,'c-white')+quad([[XH,GT,ZF+12],[XE,GT,ZF+12],[XE,GP,ZF+12],[XH,GP,ZF+12]],'fill="#E2E5E8" stroke="#9AA0A6" stroke-width=".5"'):`<g opacity=".22">`+boxR(0,640,GT,GP,ZF+12,ZF+16,'c-gray')+`</g>`;   /* drive-side frame wall; solid: light inside face, so the machine shows up against it in dark mode too */
    if(!SOLID)o+=quad([[0,GT,ZN-6],[640,GT,ZN-6],[640,GT,ZF+12],[0,GT,ZF+12]],'fill="#EEF0F2" fill-opacity=".45" stroke="#9AA0A6" stroke-width=".6"');   /* roof covers */
    if(!SOLID){for(const x of [150,315,475])o+=ln(x,GT,ZN-6,x,GT,ZF+12,'stroke="#7E848B" stroke-width=".7"');
    o+=ln(0,GT,(ZN+ZF)/2,640,GT,(ZN+ZF)/2,'stroke="#9AA0A6" stroke-width=".5"');}}
  else{let p=o;o='';const st='stroke="#3B3F45" stroke-width="1.8" stroke-linecap="round"',st2='stroke="#3B3F45" stroke-width="1.1"';
-   {const P=PLAT,sx=2000*VS/4,z1=P.zW,z0=P.zW-1600*KV;   /* stairs 1600 mm wide, 2000 mm long, running WITH the machine: from the side of the wide area down toward the infeed */
-    for(let i=0;i<4;i++)o+=boxR(P.px0-(i+1)*sx,P.px0-i*sx,GP+(i+1)*(GF-GP)/5,GF,z0,z1,'c-wood');
-    for(const z of [z0-1,z1+1])o+=ln(P.px0,GP,z,P.px0-4*sx,GF,z,'stroke="#3B3F45" stroke-width="2.2"');}
+   {const P=PLAT,sx=1000*VS/4,z0=P.zW,z1=P.zM;   /* back stairs: 1000 mm long, the walkway's 1600 mm wide, running with the machine down toward the infeed end */
+    for(let i=0;i<4;i++)o+=boxR(P.xW0-(i+1)*sx,P.xW0-i*sx,GP+(i+1)*(GF-GP)/5,GF,z0,z1,'c-wood');
+    o+=ln(P.xW0,GP,z0-1,P.xA,GF,z0-1,'stroke="#3B3F45" stroke-width="2.2"');}
    o+=`<g opacity=".45">`+ln(0,GP,ZN-6,0,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GP,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,0,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GT,ZN-6,640,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+`</g>`;rail=o;o=p;}   /* operator-side frame outline, 3000 mm high (drawn after the guards) */
    if(front&&SOLID&&cyw<0){/* seen from the drive side: solid drive-side wall and roof in front of everything */
     const zt=ZF+12;let o=quad([[XS,GT,ZN-8],[XE,GT,ZN-8],[XE,GT,zt],[XS,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+quad([[XH,GT,ZF+16],[XE,GT,ZF+16],[XE,GP,ZF+16],[XH,GP,ZF+16]],'fill="#D9DCDF" stroke="#9AA0A6" stroke-width=".6"');
