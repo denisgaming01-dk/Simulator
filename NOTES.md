@@ -77,7 +77,9 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
   Default pressure 4.5 bar breaks a 270 mm bundle; press time 2.5 s default.
 - Separators can break along the line between blanks (stack turned 90°) or between rows of blanks (not turned) – needed for 4-piece jobs.
 - Rotation drum: turns the stack over 180° forward/backward (axis across the line), opening 432 mm, takes up to 2100 × 1300,
-  10% slower on request. A turned stack is drawn darker brown and its outline mirrored; printed underside then shows on top.
+  10% slower on request.
+  v210 (Denis): the drum has a belt at the bottom AND at the top; it clamps from both sides (bottom belt lifts the stack while the top belt
+  comes down, stack clamped in the middle of the drum), turns, then both belts open fully (bottom back to line level) before the stack may leave. A turned stack is drawn darker brown and its outline mirrored; printed underside then shows on top.
 - Palletizer: blue belt strips on the carriage with steel forks between them; align plates are 3 white perforated panels per side.
   Sequence per batch: carriage to 200 mm above the stack → forks extend → lower until forks are 20 mm above the stack →
   align plates square the batch → forks pull out (batch drops) → plates open → carriage returns. Speed slowed 5% on request.

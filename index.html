@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v209 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v210 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1453,11 +1453,13 @@ function lAlign(dt){const st=LS.align,S=LSET.align;
 function lPress(dt){const st=LS.press;if(!st.its.length)return;const its=st.its;
  switch(st.ph){
   case 'in':if(lAllAt(its)){const hmax=Math.max(...its.map(q=>q.h));
-     st.ph=LSET.rotAt[lStackNo(st.cnt)]?'close':'out';st.t=0;st.ml=its.reduce((a,q)=>a+q.l,0)/its.length;st.ms=its.reduce((a,q)=>a+q.s,0)/its.length;its.forEach(q=>{q.l0=q.l;q.s0=q.s;});}break;
-  case 'close':st.t+=dt;st.cl=ease(Math.min(1,st.t/.44));if(st.t>=.44){st.ph='roll';st.t=0;}break;
+     st.ph=LSET.rotAt[lStackNo(st.cnt)]?'close':'out';st.t=0;st.ml=its.reduce((a,q)=>a+q.l,0)/its.length;st.ms=its.reduce((a,q)=>a+q.s,0)/its.length;its.forEach(q=>{q.l0=q.l;q.s0=q.s;q.y0=q.y;});st.hmax=hmax;}break;
+  /* the drum squeezes from below AND above (Denis): the bottom belt lifts the stack while the top belt comes down, so the stack is clamped
+     in the middle of the drum; after turning, both belts open fully (bottom back down to the line) before the stack may leave */
+  case 'close':st.t+=dt;st.cl=ease(Math.min(1,st.t/.44));st.lift=Math.max(0,(PR_OPEN-st.hmax)/2)*st.cl;its.forEach(q=>q.y=q.y0+st.lift);if(st.t>=.44){st.ph='roll';st.t=0;}break;
   case 'roll':{st.t+=dt;const f=ease(Math.min(1,st.t/1.32)),   /* drum 10% slower */R=180*f*D2R;its.forEach(q=>{q.pitch=180*f;q.s=st.ms+(q.s0-st.ms)*Math.cos(R);q.piv=q.s;q.pivY=q.y+q.h/2;});   /* the drum turns over forward, about an axis across the line */
      if(st.t>=1.32){its.forEach(q=>{q.pitch=0;q.inv=!q.inv;q.s=2*st.ms-q.s0;if(q.board){q.board=false;}});st.ph='open';st.t=0;}}break;
-  case 'open':st.t+=dt;st.cl=1-ease(Math.min(1,st.t/.44));if(st.t>=.44){st.cl=0;st.ph='out';}break;
+  case 'open':st.t+=dt;st.cl=1-ease(Math.min(1,st.t/.44));st.lift=Math.max(0,(PR_OPEN-st.hmax)/2)*st.cl;its.forEach(q=>q.y=q.y0+st.lift);if(st.t>=.44){st.cl=0;st.lift=0;its.forEach(q=>q.y=q.y0);st.ph='out';}break;
   case 'out':if(lSendOn('press'))st.ph='idle';break;}}
 const lColTop=()=>LPB+(lSheet.col.length?6:0)+lCol.reduce((a,L)=>a+Math.max(...L.its.map(q=>q.h+(q.board?6:0))),0);
 let lColAdj=0;   /* operator correction of the bundle count on the pallet (a stack taken off or put on by hand) */
@@ -1579,7 +1581,7 @@ function lineSVG(){let back='',mid='',front='';const st=LS;
    const hq=lpt(cc,ly,0);back+=`<ellipse cx="${f1(hq[0])}" cy="${f1(hq[1])}" rx="7" ry="2.8" fill="#F4F3EE" stroke="#77756E" stroke-width=".7"/>`;});
  back+=lbelt(LC.align-HS("align"),LC.align+HS("align"));
  back+=lslab(LC.align-560,LC.align+560,-LHW-1700,-LHW-600,-90,-20)+lbox({s:LC.align,l:-LHW-1150,y:-20,du:520,dv:540,h:60,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4});
- back+=lbelt(LC.press-HS("press"),LC.press+HS("press"));
+ back+=lbelt(LC.press-HS("press"),LC.press+HS("press"),(LS.press&&LS.press.lift)||0);   /* bottom belt lifts while the drum clamps */
  {const fh=PR_OPEN+200,cc=LC.press;back+=lslab(cc-HS("press")-60,cc-HS("press")-20,LHW,LHW+60,-90,fh)+lslab(cc+HS("press")+20,cc+HS("press")+60,LHW,LHW+60,-90,fh)+lslab(cc-HS("press")-60,cc+HS("press")+60,LHW,LHW+60,fh,fh+50);}
  /* palletizer: mast on the drive side, yellow carriage with belts; white forks drive out over the column; red align plates */
  {const S=st.pal,cc=LC.pal,cy=S.cy||0,fx=(S.fx||0)*LPITCH;
@@ -1614,8 +1616,8 @@ function lineSVG(){let back='',mid='',front='';const st=LS;
  front+=lRobotS(LREADY,LSTORE,LCOL,lBot.rb,LPB+6,LPB-20);
  /* rotation press */
  {const S=st.press,cc=LC.press,bi=S.its,cl=S.cl||0;const top=bi.length?Math.max(...bi.map(q=>q.y+q.h)):0;const py=lerp(PR_OPEN,top,cl);   /* top belt: open at 432 mm, closes onto the stack */
-   if(S.ph==='roll'&&bi.length){const hh=top;
-     front+=lbox({s:cc,l:0,y:-40,du:PR_L/2,dv:PR_W/2,h:hh+80,pitch:bi[0].pitch,piv:cc,pivY:hh/2,top:'#3E3F42',side:'#4B4C50',stroke:'var(--m-stroke)',sw:.8,op:.35});}
+   if(S.ph==='roll'&&bi.length){const bot=Math.min(...bi.map(q=>q.y)),hh=top-bot;
+     front+=lbox({s:cc,l:0,y:bot-40,du:PR_L/2,dv:PR_W/2,h:hh+80,pitch:bi[0].pitch,piv:cc,pivY:bot+hh/2,top:'#3E3F42',side:'#4B4C50',stroke:'var(--m-stroke)',sw:.8,op:.35});}
    else front+=lslab(cc-PR_L/2,cc+PR_L/2,-PR_W/2,PR_W/2,py,py+40,1,'belt')+lslab(cc-PR_L/2-20,cc+PR_L/2+20,-PR_W/2-20,PR_W/2+20,py+40,py+110,1,'white');   /* upper mesh belt on its frame */
    /* the drum: a big ring on each side of the line; the whole drum turns the stack over */
    {const Rr=760,yc=PR_OPEN/2,rl=((bi.length&&S.ph==='roll')?bi[0].pitch:0)*D2R;
