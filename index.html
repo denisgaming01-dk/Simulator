@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v196 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v197 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1699,7 +1699,12 @@ function pfUI(){const S=PF;$('pfL1').textContent=`Stored board ${pfN(S.st)} shee
 window.__line={LS,LSET,get items(){return lItems},get col(){return lCol},step:lineStep,take:(n,h)=>lineTake(lNew(n,h)),get colN(){return lColN},get fault(){return lineFault},reset:lineReset,get sheet(){return lSheet}};
 
 /* ---------- loop ---------- */
-function frame(ts){if(last===null)last=ts;const dt=Math.min(ts-last,100);last=ts;
+/* simulation step (machine logic only, no drawing); simCatchUp runs it for all real time that passed, in steps of max 100 ms,
+   so the machine keeps producing while the tab is in the background (browsers pause drawing then) */
+let simLast=null;
+function simCatchUp(){const now=performance.now();if(simLast===null){simLast=now;return;}let el=Math.min(now-simLast,8*3600e3);simLast=now;
+ while(el>0){const d=Math.min(100,el);simStep(d);el-=d;}}
+function simStep(dt){
  if(loading){infH=Math.min(INF_FULL,infH+15*dt/1000);if(infH>=INF_FULL)loading=false;if(!infStandby)ui();}
  if(infStandby&&mode==='run'){sbT+=dt;rsT=infH>=INF_OK-.01&&(INF_OK<40||infH>INF_OK)?rsT+dt:0;
    if(rsT>=1500){infStandby=false;log(INF_OK<40?`Stack at the set height ${INF_OK} mm: infeed back in operation`:`Stack above ${INF_OK} mm: infeed back in operation`,'ok');}
@@ -1710,7 +1715,8 @@ function frame(ts){if(last===null)last=ts;const dt=Math.min(ts-last,100);last=ts
    T=3600000/vAct;advance(dt/T);
    if(mode!=='run')feedStopAuto(mode==='stop'?'machine stopped':mode==='fault'?'fault':'emergency stop');
  }else vAct=VMIN;
- if(mode!=='estop'){lineStep(dt/1000);pfStep(dt/1000);}
+ if(mode!=='estop'){lineStep(dt/1000);pfStep(dt/1000);}}
+function frame(ts){simCatchUp();
  lineUI();
  if(tw){const q=Math.min(1,(ts-tw.t0)/tw.dur),e=ease(q);vb=tw.from.map((v,i)=>v+(tw.to[i]-v)*e);setVB();if(q>=1)tw=null;}
  render(ts);ui();if(!(frame.gn=(frame.gn||0)+1)%10||frame.gn%10===0)gTick();requestAnimationFrame(frame);}
@@ -2239,6 +2245,11 @@ function gcutApply(g){if(!g)return;if(g.infFull)setInfFull(g.infFull);const set=
 gcutApply(jobGet(JOBK).gcut);
 document.querySelectorAll('.shl').forEach(e=>e.textContent=SHL);gBuild();new ResizeObserver(()=>g1Fit()).observe($('g1'));g1Fit();
 setSpd();drawPile();buildMon();buildEvents();pick('overview');log('Machine running','ok');requestAnimationFrame(frame);
+/* background: drawing stops when the tab is hidden, so a worker clock keeps the machine logic running (timer fallback if workers are blocked) */
+{const bg=()=>{if(document.hidden)simCatchUp();};let ok=false;
+ try{const w=new Worker(URL.createObjectURL(new Blob(['setInterval(()=>postMessage(0),250)'],{type:'text/javascript'})));w.onmessage=()=>{ok=true;bg();};w.onerror=()=>{};}catch(e){}
+ setInterval(()=>{if(!ok)bg();},250);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)simCatchUp();});}
 </script>
 
 </body>

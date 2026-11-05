@@ -44,6 +44,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
 - Infeed plan (Denis, for later): he will photograph the EMPTY infeed; build the infeed structure first without board, then add the board on top.
   The prefeeder is also in the wrong position relative to the G-Cut and its infeed; fix that together with the infeed.
   Infeed work is on hold until the photos and measurements arrive.
+- v197: runs in the background. Machine logic is in simStep(dt); simCatchUp() runs it for all real time passed (100 ms steps, max 8 h). frame() calls it while visible; while the tab is hidden a Web Worker clock (250 ms, setInterval fallback) calls it, and it catches up again when the tab becomes visible. Drawing only happens while visible.
 
 ## Prefeeder
 - True size, 3000 mm high. Belts 2100 wide. Stores board so the infeed does not run out during stack change.
