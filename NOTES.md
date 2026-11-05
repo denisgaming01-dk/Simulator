@@ -50,6 +50,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   stripping 1440 x 1000 (two panes), die-cutting 1480 x 320 (centred on the bottom chain (v199), button panel above it in the dark band),
   infeed double doors 2000 x 2000 (dark glass upper part, white lower part, fixed panel above). Covers keep true size; guillotine (x 605) at the
   end-panel/delivery joint, so covers run x 4.7 .. 709.8 (overhang past the platform end at 640). PNL_MM / U() in the code.
+  v200: black-grey painted band (Denis) across delivery, HMI column, stripping and die-cutting panels, from about 1.1 m below the top down to the lower panel line; windows cut out of it.
   Still open: gripper bar spacing (sim station pitch 145 px ~ 1385 mm); internals do not yet line up with the measured panels
   (stripping window x 282-433 vs stripping tool 352-462).
 

@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v199 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v200 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -734,6 +734,7 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
      const WIN=[[...dW,dv0,WC],[...sW,sv0,sm-.01],[...sW,sm+.01,sv1],[...cW,cv0,cv1]];
      o+=`<path d="${rp(XS,XE,GT,GP)} ${WIN.map(w=>R1(...w)).join(' ')}" fill="#E8EAEC" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".6"/>`;   /* white panels */
      o+=`<path d="${R1(P1[1],P1[2],.06,dv0-.04)}" fill="#D2D5D8"/>`+`<path d="${R1(P1[4],P1[5],.06,cv0-.11)}" fill="#D2D5D8"/>`;   /* grey upper covers */
+     o+=`<path d="${R1(P1[1],P1[5],.316,.805)} ${WIN.map(w=>R1(...w)).join(' ')}" fill="#2E3136" fill-rule="evenodd"/>`;   /* black-grey painted band from the delivery to the end of die-cutting (Denis) */
      o+=`<path d="${R1(P1[1],P1[2],dv0-.04,WC+.15)} ${R1(...WIN[0])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame round the delivery window */
      o+=`<path d="${R1(sW[0]-5,sW[1]+5,.16,sv1+.04)} ${R1(...WIN[1])} ${R1(...WIN[2])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame, stripping windows */
      o+=`<path d="${R1(P1[4],P1[5],cv0-.11,cv1+.03)} ${R1(...WIN[3])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark band with the die-cutting window */
