@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v198 · 5 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v199 · 5 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -730,7 +730,7 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
         (two panes), die-cutting 1480 x 320 (dark glass band). Placed in the middle of their panels; m = mm from the delivery end. */
      const P1=PNL_U1,X1=m=>XE-m,R1=(m0,m1,v0,v1)=>rp(X1(m1),X1(m0),Y(v0),Y(v1)),F1=(m0,m1,v0,v1,f)=>Q(X1(m1),X1(m0),Y(v0),Y(v1),f),
       mid=(i,w)=>{const c=(P1[i]+P1[i+1])/2;return[c-w*VS/2,c+w*VS/2];},Vy=y=>(y-GT)/(GP-GT),WC=Vy(210);
-     const dW=mid(1,1000),sW=mid(3,1440),cW=mid(4,1480),dv0=Vy(210-420*VS),sv0=.327,sv1=sv0+1000*VS/(GP-GT),sm=(sv0+sv1)/2,cv0=Vy(210-CR0-160*VS),cv1=cv0+320*VS/(GP-GT);   /* die-cutting window centred on the middle of the chain loop */
+     const dW=mid(1,1000),sW=mid(3,1440),cW=mid(4,1480),dv0=Vy(210-420*VS),sv0=.327,sv1=sv0+1000*VS/(GP-GT),sm=(sv0+sv1)/2,cv0=Vy(210-160*VS),cv1=cv0+320*VS/(GP-GT);   /* die-cutting window centred on the bottom chain */
      const WIN=[[...dW,dv0,WC],[...sW,sv0,sm-.01],[...sW,sm+.01,sv1],[...cW,cv0,cv1]];
      o+=`<path d="${rp(XS,XE,GT,GP)} ${WIN.map(w=>R1(...w)).join(' ')}" fill="#E8EAEC" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".6"/>`;   /* white panels */
      o+=`<path d="${R1(P1[1],P1[2],.06,dv0-.04)}" fill="#D2D5D8"/>`+`<path d="${R1(P1[4],P1[5],.06,cv0-.11)}" fill="#D2D5D8"/>`;   /* grey upper covers */
