@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v216 · 6 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v217 · 6 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -726,10 +726,10 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
       machine down to the start of the infeed door; along the stairs and the infeed door a 2000 deep walkway remains */
    const zM=ZN-8,z2=zM-2000*KV,zW=zM-3600*KV,zD=zM-5200*KV,xA=XS-3-2000*VS,xS1=xA+1000*VS,px0=xA+2000*VS,px1=px0+4000*VS,d0=xA-2000*VS;
    PLAT={zM,z2,zW,zD,xA,xS1,px0,px1,d0};
-   const xN=XE-1000*VS;PLAT.xN=xN;   /* delivery end: the last 1000 mm is only 2000 deep (Denis: 2000 + 1600 = 3600) */
-   o+=boxR(xS1,xN,GP,GF,zW,ZF+12,'c-wood')+boxR(xN-.5,XE,GP,GF,z2,ZF+12,'c-wood')+boxR(px0,px1,GP,GF,zD,zW+.5,'c-wood')+boxR(d0,xS1+.5,GP,GF,z2,ZF+12,'c-wood');
-   {const sm='stroke="#8A6236" stroke-width=".5" stroke-opacity=".6"';for(let x=XE-80;x>xS1;x-=80)o+=ln(x,GP,x>xN?z2:zW,x,GP,ZF+12,sm);for(let x=px1-80;x>px0;x-=80)o+=ln(x,GP,zD,x,GP,zW,sm);
-    for(let z=zW+40;z<ZF+12;z+=40)o+=ln(xS1,GP,z,z<z2?xN:XE,GP,z,sm);for(let z=zD+40;z<zW;z+=40)o+=ln(px0,GP,z,px1,GP,z,sm);for(let z=z2+40;z<ZF+12;z+=40)o+=ln(d0,GP,z,xS1,GP,z,sm);}
+   const xN=XE,xE2=XE+1000*VS;PLAT.xN=xN;   /* past the end of the covers (after the delivery) the floor goes on 1000 mm, only 2000 deep (Denis: 2000 + 1600 = 3600) */
+   o+=boxR(xS1,xN,GP,GF,zW,ZF+12,'c-wood')+boxR(xN-.5,xE2,GP,GF,z2,ZF+12,'c-wood')+boxR(px0,px1,GP,GF,zD,zW+.5,'c-wood')+boxR(d0,xS1+.5,GP,GF,z2,ZF+12,'c-wood');
+   {const sm='stroke="#8A6236" stroke-width=".5" stroke-opacity=".6"';for(let x=xE2-40;x>xS1;x-=80)o+=ln(x,GP,x>xN?z2:zW,x,GP,ZF+12,sm);for(let x=px1-80;x>px0;x-=80)o+=ln(x,GP,zD,x,GP,zW,sm);
+    for(let z=zW+40;z<ZF+12;z+=40)o+=ln(xS1,GP,z,z<z2?xN:xE2,GP,z,sm);for(let z=zD+40;z<zW;z+=40)o+=ln(px0,GP,z,px1,GP,z,sm);for(let z=z2+40;z<ZF+12;z+=40)o+=ln(d0,GP,z,xS1,GP,z,sm);}
    o+=SOLID?boxR(XH,XE,GT,GP,ZF+12,ZF+16,'c-white')+quad([[XH,GT,ZF+12],[XE,GT,ZF+12],[XE,GP,ZF+12],[XH,GP,ZF+12]],'fill="#E2E5E8" stroke="#9AA0A6" stroke-width=".5"'):`<g opacity=".22">`+boxR(0,640,GT,GP,ZF+12,ZF+16,'c-gray')+`</g>`;   /* drive-side frame wall; solid: light inside face, so the machine shows up against it in dark mode too */
    if(!SOLID)o+=quad([[0,GT,ZN-6],[640,GT,ZN-6],[640,GT,ZF+12],[0,GT,ZF+12]],'fill="#EEF0F2" fill-opacity=".45" stroke="#9AA0A6" stroke-width=".6"');   /* roof covers */
    if(!SOLID){for(const x of [150,315,475])o+=ln(x,GT,ZN-6,x,GT,ZF+12,'stroke="#7E848B" stroke-width=".7"');
