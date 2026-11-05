@@ -45,6 +45,13 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   The prefeeder is also in the wrong position relative to the G-Cut and its infeed; fix that together with the infeed.
   Infeed work is on hold until the photos and measurements arrive.
 - v197: runs in the background. Machine logic is in simStep(dt); simCatchUp() runs it for all real time passed (100 ms steps, max 8 h). frame() calls it while visible; while the tab is hidden a Web Worker clock (250 ms, setInterval fallback) calls it, and it catches up again when the tab becomes visible. Drawing only happens while visible.
+- v198, measured by Denis (operator side, mm, from the delivery end): panel after the guillotine 1000, delivery 1190, HMI column 550,
+  stripping 1350, die-cutting 1690, infeed panel (feeder screen) 950. Windows: delivery 1000 x 420 (bottom edge level with the bottom chain),
+  stripping 1440 x 1000 (two panes), die-cutting 1480 x 320 (centred on the middle of the chain loop, button panel above it in the dark band),
+  infeed double doors 2000 x 2000 (dark glass upper part, white lower part, fixed panel above). Covers keep true size; guillotine (x 605) at the
+  end-panel/delivery joint, so covers run x 4.7 .. 709.8 (overhang past the platform end at 640). PNL_MM / U() in the code.
+  Still open: gripper bar spacing (sim station pitch 145 px ~ 1385 mm); internals do not yet line up with the measured panels
+  (stripping window x 282-433 vs stripping tool 352-462).
 
 ## Prefeeder
 - True size, 3000 mm high. Belts 2100 wide. Stores board so the infeed does not run out during stack change.
