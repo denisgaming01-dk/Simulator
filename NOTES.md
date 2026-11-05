@@ -60,10 +60,11 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v208: guillotine position confirmed (set per job). Platens as long as the die-cutting window (1480 mm, PX0..PXR). Front-waste bar on the return run stops at x SF 520 (start of the delivery window, Denis); this fixes the bottom run CHL, return run still 880 mm up, tight corners. Front waste drop, ejector and front waste belt (300 mm wide) moved there (DF); glass window above the belt in the delivery panel.
   v209: chain shape from Denis's sketch (CHN, chainPt follows a polyline): delivery wheel at the TOP (x ~683, return run leaves over it), infeed wheel at the BOTTOM (x 118, bottom run starts under it), guides with sharp bends between. Delivery wheel x and the return-run end (x ~182, where the guide bends down to the infeed wheel) are solved so 8 bars x 1550 mm fit with the stations and the front-waste bar at SF 520. Wheels drawn red.
   (stripping window x 282-433 vs stripping tool 352-462).
-- Platform (v213, Denis's measurements, railings left out for now), from the back (infeed end): back stairs start at the start of the infeed door,
-  1000 mm long (running with the machine, down toward the infeed end, 1600 mm wide = walkway depth), then 1000 mm of floor, then a 4000 mm wide
-  area reaching 5200 mm out from the machine, then the 1600 mm walkway on to the delivery end. PLAT holds the coordinates.
-  Still open: the platform at the delivery end (stairs up past the machine end).
+- Platform (v214, from Denis's marked photo; railings left out for now), depths from the machine face:
+  floor 3600 deep from the delivery end to the back stairs; a 4000 mm wide part reaching 5200 out (1600 beyond the floor) in front of
+  delivery/stripping; behind it 2000 = 1000 floor + 1000 back stairs. The stairs are 1600 wide (outer band 2000..3600), run with the machine
+  and end at the start of the infeed door; inside them a 2000 deep walkway continues along the stairs and the infeed door. PLAT holds the coordinates.
+  Not drawn yet: the delivery-end landing (the 1600 at the top-left of the photo).
 
 ## Prefeeder
 - True size, 3000 mm high. Belts 2100 wide. Stores board so the infeed does not run out during stack change.
