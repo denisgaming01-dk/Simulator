@@ -78,6 +78,12 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   (260 × 650 mm) cycle every 3 s; separating knife plate ~900 × 450 mm with hangers.
 - Overhead pusher redrawn from Denis's photo: dark grey columns, white box beam with rack, geared motor, carriage, hanging push plate.
 
+- v224 prefeeder position (Denis): one inclined belt; its main (fixed-length) frame is 3000 long and starts 1500 behind the infeed panel (the
+  one with the HMI); the adjustable part runs from there to the board at the infeed. Tilted by 2 support cylinders 1200 behind the infeed doors.
+  Knife: one sheet length (along the feed) + 20 mm in front of the transfer (delivery) belt; stored board between them. Transfer belt 1500,
+  lifting bed, pusher and waiting stack moved with the fixed frame (PFD shift, ~1700 mm further back). Belt slope recomputed so the tail
+  height stays the same. Prefeeder logic unchanged (checked: same phases and amounts as before).
+
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
 Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2, 1410 shift, 1720 TT2, 1510 align,
