@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v229 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v230 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -594,7 +594,8 @@ const D2R=Math.PI/180,W=64,B=40;
    is a little longer than three pitches: the delivery sprocket sits just past the delivery station. DI/DC/DS: how far the infeed,
    die-cutting and stripping stations moved from the old 1385 mm layout. */
 const VS=110/1050;   /* heights in px per mm, the same scale as lengths */
-const PIT=1550*VS,SD=617,SS=SD-PIT,SC=SD-2*PIT,SI=SD-3*PIT,DI=SI-182,DC=SC-327,DS=SS-472;
+const PIT=(1550+120)*VS,   /* bar pitch: 1550 mm gap between the bars + 120 mm bar width (Denis) */
+ SD=617,SS=SD-PIT,SC=SD-2*PIT,SI=SD-3*PIT,DI=SI-182,DC=SC-327,DS=SS-472;
 /* front-waste bar (Denis): at 0° the bar on the return run that drops the front waste stops at the start of the delivery window,
    x SF 520. That fixes the bottom run length CHL; the return run stays 880 mm above the bottom run, so the chain turns in tight corners. */
 const SF=520,NB=8,DF=SF-472,CHT=210-880*VS,CHC=(210+CHT)/2,CWR=225*VS;
@@ -610,7 +611,7 @@ const CHN=(()=>{const r=CWR,TOP=CHT,arc=(cx,cy,a0,a1,n,o)=>{for(let i=0;i<n;i++)
  const cum=P=>{const c=[0];for(let i=1;i<=P.length;i++){const A=P[i-1],B=P[i%P.length];c.push(c[i-1]+Math.hypot(B[0]-A[0],B[1]-A[1]));}return c;};
  const info=(WDx,WI,T)=>{const P=path(WDx,WI,T),C=cum(P),s0=SI-WI;const iF=P.findIndex(p=>Math.abs(p[1]-TOP)<1e-6&&p[0]<=SF);return{tot:C[P.length],dF:C[iF]+(P[iF][0]-SF)-s0};};
  const bis=(fn,lo,hi)=>{for(let k=0;k<60;k++){const m=(lo+hi)/2;if(fn(m)>0)hi=m;else lo=m;}return(lo+hi)/2;};
- const WI=SI-4,WDx=bis(x=>info(x,WI,200).dF-5*PIT,600,800),T=bis(x=>NB*PIT-info(WDx,WI,x).tot,WI,400);   /* infeed wheel just before the infeed station; the return run's end T is solved */
+ const T=SC+40,WDx=bis(x=>info(x,SI-30,T).dF-5*PIT,600,800),WI=bis(x=>NB*PIT-info(WDx,x,T).tot,0,SI);   /* return run ends just past the die-cutting station, the infeed wheel position is solved */
  const P=path(WDx,WI,T),C=cum(P);return{P,C,s0:SI-WI,WD:[WDx,TOP+r],WI:[WI,210-r],T,tot:C[P.length]};})();
 function chainPt(q){const TOT=NB*PIT,{P,C,s0}=CHN;q=(((q+s0)%TOT)+TOT)%TOT;let lo=0,hi=P.length;while(hi-lo>1){const m=(lo+hi)>>1;if(C[m]<=q)lo=m;else hi=m;}
  const A=P[lo],B=P[(lo+1)%P.length],f=(q-C[lo])/((C[lo+1]-C[lo])||1);return[A[0]+(B[0]-A[0])*f,A[1]+(B[1]-A[1])*f,Math.atan2(B[1]-A[1],B[0]-A[0])*180/Math.PI];}
