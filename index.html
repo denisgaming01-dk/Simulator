@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v241 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v242 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -768,13 +768,14 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
       mid=(i,w)=>{const c=(P1[i]+P1[i+1])/2;return[c-w*VS/2,c+w*VS/2];},Vy=y=>(y-GT)/(GP-GT),WC=Vy(210);
      const dW=mid(1,1000),sW=mid(3,1440),cW=mid(4,1480),dv0=Vy(210-420*VS),sv0=.327,sv1=sv0+1000*VS/(GP-GT),sm=(sv0+sv1)/2,cv0=Vy(210-160*VS),cv1=cv0+320*VS/(GP-GT);   /* die-cutting window centred on the bottom chain */
      const WIN=[[...dW,dv0,WC],[...sW,sv0,sm-.01],[...sW,sm+.01,sv1],[...cW,cv0,cv1]];
-     o+=`<path d="${rp(XS,XE,GT,GP)} ${WIN.map(w=>R1(...w)).join(' ')}" fill="#E8EAEC" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".6"/>`;   /* white panels */
-     o+=`<path d="${R1(P1[1],P1[2],.06,dv0-.04)}" fill="#D2D5D8"/>`+`<path d="${R1(P1[4],P1[5],.06,cv0-.11)}" fill="#D2D5D8"/>`;   /* grey upper covers */
+     const FWW=[XE-(SF+15)-150*VS,XE-(SF+15)+150*VS,.21-190*VS/(GP-GT),.21+190*VS/(GP-GT)];   /* window over the front waste belt, 300 x 380 mm (Denis), a real opening */
+     o+=`<path d="${rp(XS,XE,GT,GP)} ${WIN.map(w=>R1(...w)).join(' ')} ${R1(...FWW)}" fill="#E8EAEC" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".6"/>`;   /* white panels */
+     o+=`<path d="${R1(P1[1],P1[2],.06,dv0-.04)} ${R1(...FWW)}" fill="#D2D5D8" fill-rule="evenodd"/>`+`<path d="${R1(P1[4],P1[5],.06,cv0-.11)}" fill="#D2D5D8"/>`;   /* grey upper covers */
      o+=`<path d="${R1(P1[1],P1[5],.316,.805)} ${WIN.map(w=>R1(...w)).join(' ')}" fill="#2E3136" fill-rule="evenodd"/>`;   /* black-grey painted band from the delivery to the end of die-cutting (Denis) */
      o+=`<path d="${R1(P1[1],P1[2],dv0-.04,WC+.15)} ${R1(...WIN[0])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame round the delivery window */
      o+=`<path d="${R1(sW[0]-5,sW[1]+5,.16,sv1+.04)} ${R1(...WIN[1])} ${R1(...WIN[2])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame, stripping windows */
      o+=`<path d="${R1(P1[4],P1[5],cv0-.11,cv1+.03)} ${R1(...WIN[3])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark band with the die-cutting window */
-     o+=F1(XE-(SF+15)-150*VS,XE-(SF+15)+150*VS,.21-190*VS/(GP-GT),.21+190*VS/(GP-GT),'fill="#1C1E21" fill-opacity=".45" stroke="#1C1E21" stroke-width="1.2"');   /* window over the front waste belt (glass), 300 x 380 mm (Denis) */
+     o+=F1(...FWW,'fill="#BFD6E6" fill-opacity=".18" stroke="#1C1E21" stroke-width="1.2"');   /* glass of the front-waste window */
      o+=WIN.map((w,i)=>F1(...w,`fill="${i===3?'#3A4A58':'#BFD6E6'}" fill-opacity="${i===3?.35:.18}" stroke="#1C1E21" stroke-width="1"`)).join('');   /* glass: the running machine shows through */
      {const sw=mid(2,320),bw=mid(2,380),sh=220*VS/(GP-GT),bz=30*VS/(GP-GT),sc=.405;
       o+=F1(bw[0],bw[1],sc-sh/2-bz,sc+sh/2+bz,'fill="#C9CDD1" stroke="#1C1E21" stroke-width=".5"')+F1(sw[0],sw[1],sc-sh/2,sc+sh/2,'fill="#3D7FC2"');}   /* HMI column: touch screen 320 x 220 mm (Denis) in a grey bezel */
