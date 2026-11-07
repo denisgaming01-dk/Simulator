@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v231 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v232 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -720,6 +720,8 @@ const PNL_MM=[1000,1190,550,1530,1690,950],PNL_U0=[0,87,203,247,386,548,640],PNL
 const U=u=>{for(let i=0;i<6;i++)if(u<=PNL_U0[i+1]||i===5)return PNL_U1[i]+(u-PNL_U0[i])*(PNL_U1[i+1]-PNL_U1[i])/(PNL_U0[i+1]-PNL_U0[i]);};
 const XE=SS-2+(PNL_U1[3]+PNL_U1[4])/2-720*VS,   /* covers placed from Denis: at 0° the stripping gripper bar sits right after (delivery side of) the stripping window */
       XE_OLD=605+PNL_U1[1],XS=XE-PNL_U1[6],XH=XS-2000*VS-20;   /* guillotine (x 605) at the joint between the end panel and the delivery panel; infeed guarding long enough for its 2000 mm door */
+/* infeed front stops 700 mm from the end of the infeed panel, where the doors start (Denis); the stack, stops, suction table and back stop move together (DIF) */
+const DIF=(XE-PNL_U1[6])+700*VS-130;SENS.find(o=>o.k==='LB').x=134+DIF;
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
  /* look of the real machine, from the 3D views on the Safety screen: wooden platform deck, dark steel railings and stairs,
     light grey guard doors with blue door switches, dark lower panels at die-cutting and stripping, white roof covers */
@@ -816,7 +818,7 @@ const DWC=XE-(PNL_U1[4]+PNL_U1[5])/2,PX0=DWC-740*VS,PXR=DWC+740*VS,PN0=Math.min(
 function buildStatic(){
 $('L0').innerHTML=gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
 [CHN.WD,CHN.WI].map(([x,y])=>ln(x,y,ZF,x,y,ZN,'stroke="var(--faint)" stroke-width="3"')+ell(x,y,ZF,CWR,CWR*c,'fill="none" stroke="var(--faint)" stroke-width="2"')).join('');
-let L1='';XOF=DI;
+let L1='';XOF=DIF;
 L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke-linecap="round"')+ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--panel)" stroke-width="10.5" stroke-linecap="round"');
 L1+=boxR(122-420*VS,122,222,232,0,54,'c-blue');   /* infeed table with the suction belts, 420 mm along the feed (Denis) */
 L1+=boxR(84,128,210,218,SZ0-2,SZ0+12,'c-gray')+boxR(84,128,210,218,SZ0+SZW-12,SZ0+SZW+2,'c-gray');   /* side lays at the sheet edges */
@@ -1031,13 +1033,13 @@ const fwOnly={cut:1,wasteGone:1,blankGone:1};
 const d=moving&&present(k-1)?seg(.24,.3):0;
 let low='',stk='';
 /* infeed stack to scale: 100 mm (normal full stack) = 54 px, sheets as thick as the chosen board */
-{XOF=DI;const S=VS,ts=Math.max(1.2,THK*S),hb=Math.max(0,infH-THK)*S,top=210-ts-hb+ts*d;$('infL').textContent=Math.round(infH)+' mm';
+{XOF=DIF;const S=VS,ts=Math.max(1.2,THK*S),hb=Math.max(0,infH-THK)*S,top=210-ts-hb+ts*d;$('infL').textContent=Math.round(infH)+' mm';
  if(d<1)stk+=sp(125,210-ts,0,[SHEET],0,OR,ORS,1,0,ts);
  if(hb>0){stk+=sp(125,top,0,[SHEET],0,OR,ORS,1,0,hb);const every=Math.max(1,Math.ceil(1.6/ts));for(let n=every;n*THK<infH-THK;n+=every){const y=top+hb-n*THK*S-SHT();stk+=ln(125-SLX,y,SZ0,125,y,SZ0,`stroke="${ORS}" stroke-width=".35" opacity=".55"`);}}
  XOF=0;}
 const fe=ease(seg(.3,.45));
 const feedOK=present(k);
-if(p>=.3&&p<.5&&feedOK){const fx=lerp(15+DI,72+DI,fe),fsh=F[k]&&F[k].type==='skew'?SKEW:0;low+=sheetW(fx+SLX,210,0,0,1,fsh);addSeg(fx,fx+SLX,fsh);}
+if(p>=.3&&p<.5&&feedOK){const fx=lerp(15+DIF,72+DI,fe),fsh=F[k]&&F[k].type==='skew'?SKEW:0;low+=sheetW(fx+SLX,210,0,0,1,fsh);addSeg(fx,fx+SLX,fsh);}
 let top='',barsLow='',barsTop='';
 for(let j=0;j<NB;j++){const [x,y,a]=pos((j+m)*P);
  let o=null,id,stage;
@@ -1664,7 +1666,7 @@ function lineSVG(){let back='',mid='',front='';const st=LS;
    Everything behind the belt (transfer belt, lifting bed, pusher, waiting stack) moves with the fixed frame: PFD is that shift. */
 const smX=x=>(x-680-DI)/KU,PF_FIX0=smX(XS)-1500,PF_CYL=smX(XS-3)-2000-1200,PFD=(PF_FIX0-3000)-(-8600);
 const PFB=PFD+820;   /* back group (transfer belt, lifting-bed frame, pusher, waiting stack): the belt tail runs under the transfer belt and ends 300 mm from the lifting-bed frame (Denis) */
-const PF_HEAD=smX(125+DI-SLX)-50,   /* belt head (adjustable part) stops 50 mm behind the back of the infeed stack, not over the sheets (Denis) */
+const PF_HEAD=smX(125+DIF-SLX)-50,   /* belt head (adjustable part) stops 50 mm behind the back of the infeed stack, not over the sheets (Denis) */
  PF_HY=(YEX-197)/VS,PF_A=Math.atan(140/(PF_FIX0-3000-PF_HEAD))/D2R,PF_TA=Math.tan(PF_A*D2R),PF_KN=(-8450+PFB)+SHL+20,PF_SC=PF_KN-10-SHL/2,   /* knife: one sheet length (along the feed) in front of the transfer (delivery) belt */
  PF_TAIL=(-8600+PFD),PF_TY=(YEX-197)/VS+540,PF_T0=(-9950+PFB),PF_T1=(-8450+PFB),PF_TE=(-8975+PFB),
  PF_BC=(-10525+PFB),PF_WC=(-11990+PFB),PF_PH=(-10525+PFB)-SHL/2-70,PF_LO=LGND+100,PF_STK=1600;
