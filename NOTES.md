@@ -102,6 +102,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v247: delivery end face (solid mode, seen when turned toward the delivery end): dark grey panel, window 2000 x 500 starting 1150 mm above the platform (v248), dark ledge under it, two switches and a blue button above (Denis photo). v249: open below 450 mm above the exit belt (stacks drive out).
   v250: view can pan further right (BX1 1340 -> 1800) so the prefeeder waiting stack is visible; Prefeeder zoom preset widened.
   v251: the platform is one solid (outline polygon extruded deck to floor; only side faces turned to the camera, far to near) instead of 4 overlapping boxes, so no seams or clipping when the camera turns.
+  v252: both staircases are one solid each (stairs(): step profile extruded across the stair width, faces to the camera only, far to near) instead of 4 overlapping boxes.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

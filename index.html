@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v251 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v252 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -724,6 +724,13 @@ const XE=(617-1640*VS)-2+(PNL_U1[3]+PNL_U1[4])/2-720*VS,   /* covers are fixed n
       XE_OLD=605+PNL_U1[1],XS=XE-PNL_U1[6],XH=XS-2000*VS-20;   /* guillotine (x 605) at the joint between the end panel and the delivery panel; infeed guarding long enough for its 2000 mm door */
 /* infeed front stops 700 mm from the end of the infeed panel, where the doors start (Denis); the stack, stops, suction table and back stop move together (DIF) */
 const DIF=(CHN.WI[0]-CWRI)-20*VS-134;   /* infeed stops: their rail (the part nearest the chain) 20 mm from the infeed wheel (Denis, v239) */SENS.find(o=>o.k==='LB').x=134+DIF;
+/* a whole staircase as ONE solid: the step profile (x,y) extruded across z0..z1; only faces turned to the camera, far to near */
+function stairs(x0,sx,z0,z1){const P=[[x0,GF]];for(let i=0;i<4;i++){const h=GP+(i+1)*(GF-GP)/5;P.push([x0+i*sx,h],[x0+(i+1)*sx,h]);}P.push([x0+4*sx,GF]);
+ let ar=0;P.forEach(([x,y],i)=>{const [x2,y2]=P[(i+1)%P.length];ar+=x*y2-x2*y;});const sg=ar>0?1:-1,v=VV(),F=[];
+ P.forEach(([x,y],i)=>{const [xb,yb]=P[(i+1)%P.length],nx=sg*(yb-y),ny=-sg*(xb-x);if(nx*v[0]+ny*v[1]>=-1e-9)return;
+   F.push({k:PDEP((x+xb)/2,(z0+z1)/2),d:`M${pt(x,y,z0)} L${pt(xb,yb,z0)} L${pt(xb,yb,z1)} L${pt(x,y,z1)} Z`,side:ny===0});});
+ for(const [z,n] of [[z0,-1],[z1,1]])if(n*v[2]<-1e-9)F.push({k:PDEP(x0+2*sx,z)+(n>0?0:0),d:'M'+P.map(([x,y])=>pt(x,y,z)).join(' L')+' Z',side:true});
+ return F.sort((a,b)=>b.k-a.k).map(f=>`<path class="c-wood" d="${f.d}" stroke-width="0.5"/>`+(f.side?`<path d="${f.d}" fill="#000" fill-opacity="0.15"/>`:'')).join('');}
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
  /* look of the real machine, from the 3D views on the Safety screen: wooden platform deck, dark steel railings and stairs,
     light grey guard doors with blue door switches, dark lower panels at die-cutting and stripping, white roof covers */
@@ -752,11 +759,11 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
    o+=ln(0,GT,(ZN+ZF)/2,640,GT,(ZN+ZF)/2,'stroke="#9AA0A6" stroke-width=".5"');}}
  else{let p=o;o='';const st='stroke="#3B3F45" stroke-width="1.8" stroke-linecap="round"',st2='stroke="#3B3F45" stroke-width="1.1"';
    {const P=PLAT,sx=1000*VS/4,z0=P.zW,z1=P.z2;   /* back stairs: 1000 mm long, 1600 mm wide, running with the machine down to the start of the infeed door */
-    for(let i=0;i<4;i++)o+=boxR(P.xS1-(i+1)*sx,P.xS1-i*sx,GP+(i+1)*(GF-GP)/5,GF,z0,z1,'c-wood');
+    o+=stairs(P.xS1,-sx,z0,z1);
     o+=ln(P.xS1,GP,z0-1,P.xA,GF,z0-1,'stroke="#3B3F45" stroke-width="2.2"');}
    {const P=PLAT,sx=1000*VS/4,z0=P.zW,z1=P.z2;   /* front stairs at the delivery end, the same as the back stairs: 1000 mm long, 1600 wide in the
     outer band beside the 2000-deep floor past the covers, running with the machine down away from the delivery */
-    for(let i=0;i<4;i++)o+=boxR(P.xN+i*sx,P.xN+(i+1)*sx,GP+(i+1)*(GF-GP)/5,GF,z0,z1,'c-wood');
+    o+=stairs(P.xN,sx,z0,z1);
     o+=ln(P.xN,GP,z0-1,P.xN+4*sx,GF,z0-1,'stroke="#3B3F45" stroke-width="2.2"');}
    o+=`<g opacity=".45">`+ln(0,GP,ZN-6,0,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GP,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,0,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GT,ZN-6,640,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+`</g>`;rail=o;o=p;}   /* operator-side frame outline, 3000 mm high (drawn after the guards) */
    if(front&&SOLID&&cyw<0){/* seen from the drive side: solid drive-side wall and roof in front of everything */
