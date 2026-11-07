@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v246 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v247 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -859,7 +859,15 @@ drawSens();
 $('belt').innerHTML=boxR(SF+15-150*VS,SF+15+150*VS,146,150,ZN-5,ZF+30,'c-gray')+'<g id="bdash"></g>';
 $('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+`<path d="${chainPath(ZN)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
 '';
-$('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;   /* solid covers go over the chains and the ejector */
+$('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;
+/* delivery end face of the machine (solid covers, seen when the view is turned toward the delivery end): dark grey panel, window 2000 x 500 mm
+   starting 800 mm above the platform, three controls above it (Denis's photo) */
+if(SOLID&&syw<0){const x=XE,z0=ZN-8,z1=ZF+12,zc=(z0+z1)/2,ww=1000*KV,yb=GP-800*VS,yt=yb-500*VS,P=(a)=>'M'+a.map(([y,z])=>pt(x,y,z)).join(' L')+' Z';
+ let e=`<path d="${P([[GT,z0],[GT,z1],[GP,z1],[GP,z0]])} ${P([[yt,zc-ww],[yt,zc+ww],[yb,zc+ww],[yb,zc-ww]])}" fill="#3A3D42" fill-rule="evenodd" stroke="#24272B" stroke-width=".6"/>`;
+ e+=`<path d="${P([[yt,zc-ww],[yt,zc+ww],[yb,zc+ww],[yb,zc-ww]])}" fill="#BFD6E6" fill-opacity=".15" stroke="#C9CED3" stroke-width="1"/>`;   /* glass, light frame */
+ e+=`<path d="${P([[yb,zc-ww-8],[yb,zc+ww+8],[yb+6,zc+ww+8],[yb+6,zc-ww-8]])}" fill="#2A2D31"/>`;   /* dark ledge under the window */
+ [-.35,0,.35].forEach((f,i)=>{const q=PJ(x,yt-14,zc+f*ww*2);e+=`<circle cx="${f1(q[0])}" cy="${f1(q[1])}" r="1.8" fill="${i===1?'#2E7BFF':'#C9CED3'}" stroke="#1C1E21" stroke-width=".4"/>`;});   /* two switches and a blue button */
+ $('L5').insertAdjacentHTML('beforeend',e);}   /* solid covers go over the chains and the ejector */
 $('scale').innerHTML=`<line x1="${SC}" y1="${scY}" x2="${SS}" y2="${scY}" stroke="var(--accent)" stroke-width="1"/><line x1="${SC}" y1="${scY-4}" x2="${SC}" y2="${scY+4}" stroke="var(--accent)"/><line x1="${(SC+SS)/2}" y1="${scY-3}" x2="${(SC+SS)/2}" y2="${scY+3}" stroke="var(--accent)"/><line x1="${SS}" y1="${scY-4}" x2="${SS}" y2="${scY+4}" stroke="var(--accent)"/><polygon id="mark" points="${SC},${scY-1} ${SC-5},${scY-9} ${SC+5},${scY-9}" fill="var(--accent)"/>`;
 }
 buildStatic();

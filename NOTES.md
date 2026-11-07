@@ -99,6 +99,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v241: front-waste window (above the delivery window) 300 wide x 380 high (Denis). v242: it is a real see-through opening like the other windows.
   v245: front-waste ejector moved 60 mm backward (toward the infeed) from its v242 place.
   v246: front waste lands ~90 mm further toward the infeed on the front-waste belt (Denis).
+  v247: delivery end face (solid mode, seen when turned toward the delivery end): dark grey panel, window 2000 x 500 starting 800 mm above the platform, dark ledge under it, two switches and a blue button above (Denis photo).
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
