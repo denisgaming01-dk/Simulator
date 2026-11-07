@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v219 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v220 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -597,19 +597,20 @@ const VS=110/1050;   /* heights in px per mm, the same scale as lengths */
 const PIT=1550*VS,SD=617,SS=SD-PIT,SC=SD-2*PIT,SI=SD-3*PIT,DI=SI-182,DC=SC-327,DS=SS-472;
 /* front-waste bar (Denis): at 0° the bar on the return run that drops the front waste stops at the start of the delivery window,
    x SF 520. That fixes the bottom run length CHL; the return run stays 880 mm above the bottom run, so the chain turns in tight corners. */
-const SF=520,NB=8,DF=SF-472,CHT=210-880*VS,CHC=(210+CHT)/2,CWR=15,CWIx=118;
+const SF=520,NB=8,DF=SF-472,CHT=210-880*VS,CHC=(210+CHT)/2,CWR=225*VS;
 /* chain shape from Denis's sketch: the delivery wheel sits at the TOP (the return run leaves over it), the infeed wheel at the BOTTOM
    (the bottom run starts under it); between them guides with sharp bends. Bars 1550 mm apart, 8 bars; the delivery wheel position and
    the end of the return run (where the guide bends down to the infeed wheel) are solved so the stations and the front-waste bar fit. */
-const CHN=(()=>{const r=CWR,TOP=CHT,arc=(cx,cy,a0,a1,n,o)=>{for(let i=0;i<n;i++){const a=a0+(a1-a0)*i/n;o.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}};
- const path=(WDx,T)=>{const o=[],WDy=TOP+r,WIy=210-r,line=(A,B,n)=>{for(let i=0;i<n;i++)o.push([A[0]+(B[0]-A[0])*i/n,A[1]+(B[1]-A[1])*i/n]);};
-  const g0=[WDx-10,210];line([CWIx,210],g0,60);line(g0,[WDx+r,WDy+18],12);line([WDx+r,WDy+18],[WDx+r,WDy],4);arc(WDx,WDy,0,-Math.PI/2,10,o);
-  line([WDx,TOP],[T,TOP],60);line([T,TOP],[CWIx-r,WIy-10],14);line([CWIx-r,WIy-10],[CWIx-r,WIy],3);arc(CWIx,WIy,Math.PI,Math.PI/2,10,o);return o;};
+const CHN=(()=>{const r=CWR,TOP=CHT,T=182,arc=(cx,cy,a0,a1,n,o)=>{for(let i=0;i<n;i++){const a=a0+(a1-a0)*i/n;o.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}};
+ /* WDx: delivery wheel position, WI: infeed wheel position (the bottom run starts under it); the return run ends at x T and the guide bends down to the infeed wheel */
+ const path=(WDx,WI)=>{const o=[],WDy=TOP+r,WIy=210-r,line=(A,B,n)=>{for(let i=0;i<n;i++)o.push([A[0]+(B[0]-A[0])*i/n,A[1]+(B[1]-A[1])*i/n]);};
+  const g0=[WDx-10,210];line([WI,210],g0,60);line(g0,[WDx+r,WDy+18],12);line([WDx+r,WDy+18],[WDx+r,WDy],4);arc(WDx,WDy,0,-Math.PI/2,12,o);
+  line([WDx,TOP],[T,TOP],60);line([T,TOP],[WI-r,WIy-10],14);line([WI-r,WIy-10],[WI-r,WIy],3);arc(WI,WIy,Math.PI,Math.PI/2,12,o);return o;};
  const cum=P=>{const c=[0];for(let i=1;i<=P.length;i++){const A=P[i-1],B=P[i%P.length];c.push(c[i-1]+Math.hypot(B[0]-A[0],B[1]-A[1]));}return c;};
- const info=(WDx,T)=>{const P=path(WDx,T),C=cum(P),s0=SI-CWIx;const iF=P.findIndex(p=>Math.abs(p[1]-TOP)<1e-6&&p[0]<=SF);return{tot:C[P.length],dF:C[iF]+(P[iF][0]-SF)-s0};};
+ const info=(WDx,WI)=>{const P=path(WDx,WI),C=cum(P),s0=SI-WI;const iF=P.findIndex(p=>Math.abs(p[1]-TOP)<1e-6&&p[0]<=SF);return{tot:C[P.length],dF:C[iF]+(P[iF][0]-SF)-s0};};
  const bis=(fn,lo,hi)=>{for(let k=0;k<60;k++){const m=(lo+hi)/2;if(fn(m)>0)hi=m;else lo=m;}return(lo+hi)/2;};
- const WDx=bis(x=>info(x,250).dF-5*PIT,600,800),T=bis(x=>-(info(WDx,x).tot-NB*PIT),110,500);
- const P=path(WDx,T),C=cum(P);return{P,C,s0:SI-CWIx,WD:[WDx,TOP+r],WI:[CWIx,210-r],T};})();
+ const WDx=bis(x=>info(x,SI-5).dF-5*PIT,600,800),WI=bis(x=>NB*PIT-info(WDx,x).tot,40,SI);
+ const P=path(WDx,WI),C=cum(P);return{P,C,s0:SI-WI,WD:[WDx,TOP+r],WI:[WI,210-r],T,tot:C[P.length]};})();
 function chainPt(q){const TOT=NB*PIT,{P,C,s0}=CHN;q=(((q+s0)%TOT)+TOT)%TOT;let lo=0,hi=P.length;while(hi-lo>1){const m=(lo+hi)>>1;if(C[m]<=q)lo=m;else hi=m;}
  const A=P[lo],B=P[(lo+1)%P.length],f=(q-C[lo])/((C[lo+1]-C[lo])||1);return[A[0]+(B[0]-A[0])*f,A[1]+(B[1]-A[1])*f,Math.atan2(B[1]-A[1],B[0]-A[0])*180/Math.PI];}
 /* the machine is built for the 2100 mm max sheet width: its frames, chains and bars run from ZN to ZF (about 2230 mm), the 1223 mm sheet runs centred from 0 to W */
@@ -933,7 +934,9 @@ const GZ=Array.from({length:12},(_,i)=>ZN+3+i*(ZF-ZN-6)/11);   /* 12 grippers sp
 /* gripper bar: the bar sits just ahead of the sheet, the grippers bite 10 mm into the 15 mm front waste */
 const GBITE=10*KU;
 const bar=(x,y,a)=>{const A=a*D2R,ca=Math.cos(A),sa=Math.sin(A),R=(lx,ly)=>[x+lx*ca-ly*sa,y+lx*sa+ly*ca];const q0=R(-GBITE,-4),q1=R(5,-4),bc=R(2.6,-4);
-let o=ln(bc[0],bc[1],ZF+4,bc[0],bc[1],ZN-4,'stroke="var(--ink)" stroke-width="4" stroke-linecap="round"');
+const BW=120*KU,b0=R(0,-6),b1=R(BW,-6),b2=R(BW,-1.5),b3=R(0,-1.5);   /* gripper bar 120 mm wide (Denis) */
+let o=quad([[b0[0],b0[1],ZF+4],[b1[0],b1[1],ZF+4],[b1[0],b1[1],ZN-4],[b0[0],b0[1],ZN-4]],'fill="#3A3D42" stroke="#1E2125" stroke-width=".5"')
+ +quad([[b0[0],b0[1],ZN-4],[b1[0],b1[1],ZN-4],[b2[0],b2[1],ZN-4],[b3[0],b3[1],ZN-4]],'fill="#25282C" stroke="#1E2125" stroke-width=".5"');
 GZ.forEach(z=>o+=ln(q0[0],q0[1],z,q1[0],q1[1],z,'stroke="#D85A30" stroke-width="2.6" stroke-linecap="round"'));return o;};
 function arc(f){if(f<=0)return '';if(f>=.999)f=.999;const a=f*2*Math.PI,x=60+44*Math.sin(a),y=60-44*Math.cos(a);return `M60 16 A44 44 0 ${f>.5?1:0} 1 ${x} ${y}`;}
 /* ---------- faults ---------- */
