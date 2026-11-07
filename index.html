@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v222 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v223 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -837,6 +837,7 @@ L1+=ln(86,214,-2,126,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1
 }
 XOF=0;
 L1+=boxR(608.8,615,210,242,ZN,ZF,'c-gray')+boxR(604,621,242,250,ZN,ZF,'c-gray');
+L1+=[CHN.WD,CHN.WI].map(([x,y])=>ell(x,y,ZN,CWR,CWR*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('');   /* chain wheels drawn behind the gripper bars and photocells */
 $('L1').innerHTML=L1;
 $('lower').innerHTML=boxR(PX0,PXR,220,260,ZN-6,ZF+6,'c-gray');
 let creaseD='';BOFF.forEach(o=>CRS(o).forEach(([u0,v0,u1,v1])=>creaseD+=seg3(SC,194,u0,v0,u1,v1)+' '));
@@ -851,7 +852,7 @@ $('knife').innerHTML=boxR(602.4,608.6,162,198,ZN,ZF,'c-gray')+boxR(596,612,152,1
 drawSens();
 $('belt').innerHTML=boxR(SF+15-150*VS,SF+15+150*VS,146,150,ZN-5,ZF+30,'c-gray')+'<g id="bdash"></g>';
 $('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+`<path d="${chainPath(ZN)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
-[CHN.WD,CHN.WI].map(([x,y])=>ell(x,y,ZN,CWR,CWR*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('')+'';
+'';
 $('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;   /* solid covers go over the chains and the ejector */
 $('scale').innerHTML=`<line x1="${SC}" y1="${scY}" x2="${SS}" y2="${scY}" stroke="var(--accent)" stroke-width="1"/><line x1="${SC}" y1="${scY-4}" x2="${SC}" y2="${scY+4}" stroke="var(--accent)"/><line x1="${(SC+SS)/2}" y1="${scY-3}" x2="${(SC+SS)/2}" y2="${scY+3}" stroke="var(--accent)"/><line x1="${SS}" y1="${scY-4}" x2="${SS}" y2="${scY+4}" stroke="var(--accent)"/><polygon id="mark" points="${SC},${scY-1} ${SC-5},${scY-9} ${SC+5},${scY-9}" fill="var(--accent)"/>`;
 }

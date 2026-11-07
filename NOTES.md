@@ -62,6 +62,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v220: wheels 450 mm across (Denis), gripper bars drawn 120 mm wide. With the bigger wheels the return run ends at x 182 (T fixed) and the infeed wheel x is solved instead (~126, just before the infeed station) so 8 bars x 1550 still fit.
   v221: smooth guide curves (quadratic curves instead of sharp bends) at both ends; infeed wheel fixed just before the infeed station (SI-4), the return-run end T solved (~304) so the chain is exactly 8 x 1550.
   v222: exit photocells (delivery, stripping, die-cut, sheet transfer) sit over the middle of the gripper bar at 0° (PCB = 60 mm past the station). Checks still at the same distances from the sheet front edge.
+  v223: chain wheels drawn behind the gripper bars and photocells (the infeed bar and the sheet-transfer photocells sit over the infeed wheel at 0° and were hidden). Moving the infeed wheel behind the station is not possible: the chain would be ~38 px too long for 8 x 1550.
   (stripping window x 282-433 vs stripping tool 352-462).
 - Platform (v214, from Denis's marked photo; railings left out for now), depths from the machine face:
   floor 3600 deep from the delivery end to the back stairs; a 4000 mm wide part reaching 5200 out (1600 beyond the floor) in front of
