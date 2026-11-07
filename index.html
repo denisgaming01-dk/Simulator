@@ -330,7 +330,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* SVG */
 #mach .th{font-family:var(--f-label);font-weight:600;font-size:13px;fill:var(--ink)}
 #mach .ts{font-family:var(--f-body);font-size:11px;fill:var(--muted)}
-.c-gray{fill:var(--m-fill);stroke:var(--m-stroke)} .c-wood{fill:#C89A62;stroke:#7A5530} .c-inox{fill:#C9CED3;stroke:#7D848B} .c-white{fill:#F2F3F4;stroke:#9AA0A6} .c-steel{fill:#4A4E55;stroke:#2A2D31} .c-blue{fill:var(--mb-fill);stroke:var(--mb-stroke)} .c-purple{fill:var(--mp-fill);stroke:var(--mp-stroke)}
+.c-gray{fill:var(--m-fill);stroke:var(--m-stroke)} .c-wood{fill:#C89A62;stroke:#7A5530} .c-red{fill:#E07070;stroke:#A84848} .c-inox{fill:#C9CED3;stroke:#7D848B} .c-white{fill:#F2F3F4;stroke:#9AA0A6} .c-steel{fill:#4A4E55;stroke:#2A2D31} .c-blue{fill:var(--mb-fill);stroke:var(--mb-stroke)} .c-purple{fill:var(--mp-fill);stroke:var(--mp-stroke)}
 </style>
 </head>
 <body>
@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v253 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v254 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -745,7 +745,7 @@ if(!front){/* operator platform shape (Denis's measurements, railings left out f
    PLAT={zM,z2,zW,zD,xA,xS1,px0,px1,d0};
    const xN=XE,xE2=XE+1000*VS;PLAT.xN=xN;   /* past the end of the covers (after the delivery) the floor goes on 1000 mm, only 2000 deep (Denis: 2000 + 1600 = 3600) */
    {const o0=o;o='';/* the whole platform as ONE solid (outline in x,z extruded from the deck down to the floor), so no seams or clipping when the camera turns */
-    const OL=[[d0,zM],[xE2,zM],[xE2,z2],[xN,z2],[xN,zW],[px1,zW],[px1,zD],[px0,zD],[px0,zW],[xS1,zW],[xS1,z2],[d0,z2]];
+    const OL=[[d0,zM],[xE2,zM],[xE2,z2],[xN,z2],[xN,zW],[px1,zW],[px1,zD],[px0,zD],[px0,zW],[xS1,zW],[xS1,z2],[xA,z2],[d0,z2]];   /* split at the stair end so the wall behind the stairs sorts with them */
     let ar=0;OL.forEach(([x,z],i)=>{const [x2,z2_]=OL[(i+1)%OL.length];ar+=x*z2_*DZ-x2*z*DZ;});const sg=ar>0?1:-1;
     const F=[];OL.forEach(([x,z],i)=>{const [xb,zb]=OL[(i+1)%OL.length],dx=xb-x,dz=(zb-z)*DZ,nx=sg*dz,nz=-sg*dx;
       if(nx*syw+nz*cyw>=-1e-9)return;   /* faces turned away are not drawn */
@@ -834,22 +834,32 @@ $('L0').innerHTML=gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke=
 [[...CHN.WD,CWR],[...CHN.WI,CWRI]].map(([x,y,rr])=>ln(x,y,ZF,x,y,ZN,'stroke="var(--faint)" stroke-width="3"')+ell(x,y,ZF,rr,rr*c,'fill="none" stroke="var(--faint)" stroke-width="2"')).join('');
 let L1='';XOF=DIF;
 L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke-linecap="round"')+ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--panel)" stroke-width="10.5" stroke-linecap="round"');
-L1+=boxR(122-420*VS,122,222,232,0,54,'c-blue');   /* infeed table with the suction belts, 420 mm along the feed (Denis) */
-L1+=boxR(84,128,210,218,SZ0-2,SZ0+12,'c-gray')+boxR(84,128,210,218,SZ0+SZW-12,SZ0+SZW+2,'c-gray');   /* side lays at the sheet edges */
-L1+=ln(86,214,-2,126,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"');
-{/* infeed front stops, from Denis's photos: a white traverse beam with a ballscrew above, a rail across the machine,
-   two narrow stainless front-stop plates with angled flaps leaning back over the stack, a wide stainless plate at the drive side, photocells on top */
- const zw=mm=>mm*KV,fp=[[W*.36,200],[W*.53,200],[W*.74,380]];
+{/* infeed, from Denis's photo of the empty infeed (seen from the stack side):
+   - suction table 420 mm along the feed: white frame, red suction belt strips across the whole width, blue chain edges at both sides
+   - two narrow stainless front stops (knives) in the middle with angled flaps leaning back over the stack, photocells on their holders
+   - two side tampers (align plates) at the sheet edges: stainless plates along the feed with a bent lead-in at the back, white holders outside
+   - white traverse beam above with two ballscrews (left and right of a centre bearing), a carriage over each stop, a centre photocell */
+ const zw=mm=>mm*KV,x1=122,x0=x1-420*VS,zc=SZ0+SZW/2;
+ L1+=boxR(x0,x1,224,234,ZN+2,ZF-2,'c-white');   /* table frame */
+ for(let z=ZN+6;z<ZF-6;z+=zw(70))L1+=boxR(x0+1,x1-1,221,224,z,Math.min(z+zw(45),ZF-6),'c-red');   /* red suction belts */
+ for(const [a,b] of [[ZN+2,ZN+6],[ZF-6,ZF-2]])L1+=boxR(x0,x1,220,224,a,b,'c-blue');   /* blue chain edges */
+ L1+=ln(x0+2,214,-2,x1-4,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"');
  L1+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */
- L1+=ln(120,127,ZN,120,127,ZF,'stroke="#8E949A" stroke-width="2.4"')+ln(120,127,ZN,120,127,ZF,'stroke="#C9CED3" stroke-width="1" stroke-dasharray="1.2 1"');   /* ballscrew */
- L1+=boxR(118,134,124,136,W*.36-zw(40),W*.36+zw(240),'c-white');   /* carriage on the screw */
- L1+=boxR(130,134,176,184,ZN,ZF,'c-inox');   /* rail the stops sit on */
- fp.forEach(([z0,w],i)=>{const z1=z0+zw(w);
-   L1+=boxR(126,130,i===2?140:150,203,z0,z1,'c-inox');   /* stainless front-stop plate; the sheet runs out under it */
-   if(i<2)L1+=quad([[127,150,z0],[127,150,z1],[113,131,z1],[113,131,z0]],'fill="#B9967A" stroke="#7D6B5A" stroke-width=".5"');   /* angled flap leaning back over the stack */
-   else L1+=quad([[127,140,z0],[127,140,z0+zw(60)],[121,132,z0+zw(60)],[121,132,z0]],'fill="#C9CED3" stroke="#7D848B" stroke-width=".5"');   /* bent lip of the wide plate */
-   if(i<2)L1+=boxR(128,133,141,148,z0+zw(20),z0+zw(60),'c-blue');});   /* photocells on the stop holders */
- {const xb=125-SLX,zc=W*.45,zh=zw(70);   /* back stop: white column on the floor, arm and a white plate against the back of the stack */
+ for(const [a,b] of [[ZN,zc-zw(60)],[zc+zw(60),ZF]])L1+=ln(120,127,a,120,127,b,'stroke="#8E949A" stroke-width="2.4"')+ln(120,127,a,120,127,b,'stroke="#C9CED3" stroke-width="1" stroke-dasharray="1.2 1"');   /* two ballscrews */
+ L1+=boxR(117,135,118,138,zc-zw(60),zc+zw(60),'c-white')+boxR(128,132,138,146,zc-zw(15),zc+zw(15),'c-blue');   /* centre bearing block, centre photocell */
+ L1+=boxR(130,134,176,184,ZN+6,ZF-6,'c-inox');   /* rail the stops sit on */
+ const fp=[zc-SZW*.17-zw(100),zc+SZW*.17-zw(100)];
+ fp.forEach(z0=>{const z1=z0+zw(200);
+   L1+=boxR(117,135,124,138,z0-zw(20),z1+zw(20),'c-white');   /* carriage on the screw */
+   L1+=boxR(126,130,150,203,z0,z1,'c-inox');   /* stainless front stop; the sheet runs out under it */
+   L1+=quad([[127,150,z0],[127,150,z1],[113,131,z1],[113,131,z0]],'fill="#C3C8CD" stroke="#7D848B" stroke-width=".5"');   /* angled flap leaning back over the stack */
+   L1+=boxR(128,133,141,148,z0+zw(20),z0+zw(60),'c-blue');});   /* photocell on the stop holder */
+ {const tx0=125-560*VS,tx1=125-20*VS,ty=150;   /* side tampers at the sheet edges */
+  for(const [zi,dir] of [[SZ0-zw(6),-1],[SZ0+SZW+zw(6),1]]){const za=Math.min(zi,zi+dir*zw(18)),zb=Math.max(zi,zi+dir*zw(18));
+   L1+=boxR(tx0,tx1,ty,214,za,zb,'c-inox');   /* stainless tamper plate */
+   L1+=quad([[tx0,ty,zi],[tx0,214,zi],[tx0-60*VS,214,zi+dir*zw(80)],[tx0-60*VS,ty,zi+dir*zw(80)]],'fill="#C3C8CD" stroke="#7D848B" stroke-width=".5"');   /* bent lead-in at the back */
+   const zo=dir<0?[za-zw(160),za]:[zb,zb+zw(160)];L1+=boxR(tx0+20*VS,tx1-80*VS,ty+6,ty+40,...zo,'c-white');}}   /* white tamper holder outside */
+ {const xb=125-SLX,zh=zw(70);   /* back stop: white column on the floor, arm and a white plate against the back of the stack */
   L1+=boxR(xb-16,xb-8,214,GP,zc-zh,zc+zh,'c-white')+boxR(xb-16,xb-2,206,214,zc-zh,zc+zh,'c-white')+boxR(xb-4,xb-1,192,212,zc-zw(150),zc+zw(150),'c-white');}
 }
 XOF=0;
