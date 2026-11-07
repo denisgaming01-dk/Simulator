@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v226 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v227 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1716,8 +1716,11 @@ function pfSVG(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o
  o+=lslab(PF_T0,PF_T1,-1070,1070,PF_TY-80,PF_TY-15)+lslab(PF_T0+10,PF_T1-10,-1050,1050,PF_TY-15,PF_TY,1,'green');put(kTr);
  /* inclined prefeeder belt on its frame, cylinder to set the head height */
  const tl=pfInc(PF_TAIL);
- o+=lslab(PF_TAIL+60,PF_TAIL+140,-1070,-1010,LGND,tl-70);put(K(PF_TAIL+100,-1090));o+=lslab(PF_CYL-40,PF_CYL+40,-1070,-1010,LGND,pfInc(PF_CYL)-260);put(K(PF_CYL,-1090));
- {const a=lpt(PF_CYL,pfInc(PF_CYL)-260,-1050),b2=lpt(PF_CYL+560,pfInc(PF_CYL+560)-70,-1050);o+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b2[0])}" y2="${f1(b2[1])}" stroke="#5F5E5A" stroke-width="3.2" stroke-linecap="round"/><line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1((a[0]+b2[0])/2)}" y2="${f1((a[1]+b2[1])/2)}" stroke="#2C2C2A" stroke-width="5" stroke-linecap="round"/>`;}put(K(-6800,-1100));
+ o+=lslab(PF_TAIL+60,PF_TAIL+140,-1070,-1010,LGND,tl-70);put(K(PF_TAIL+100,-1090));
+ /* two big hydraulic cylinders ARE the supports (Denis): body on the floor, rod up to the belt frame; they tilt the belt */
+ {const yb=pfInc(PF_CYL)-70,ym=LGND+(yb-LGND)*.62,cyl=(l0,op)=>lslab(PF_CYL-110,PF_CYL+110,l0-110,l0+110,LGND,LGND+60,op,'gph')+lslab(PF_CYL-85,PF_CYL+85,l0-85,l0+85,LGND+60,ym,op,'gph')
+   +lslab(PF_CYL-100,PF_CYL+100,l0-100,l0+100,ym-40,ym,op,'dark')+lslab(PF_CYL-38,PF_CYL+38,l0-38,l0+38,ym,yb-50,op,'steel')+lslab(PF_CYL-80,PF_CYL+80,l0-80,l0+80,yb-50,yb,op,'gph');
+  o+=cyl(1000,1);put(K(PF_CYL,1100));o+=cyl(-1000,1);put(K(PF_CYL,-1100));}
  const mid=(PF_HEAD+PF_TAIL)/2,hl=(PF_HEAD-PF_TAIL)/2/Math.cos(PF_A*D2R);
  o+=lbox({s:mid,l:0,y:pfInc(mid)-70,du:hl,dv:1070,h:55,pitch:PF_A,piv:mid,pivY:pfInc(mid),top:'var(--m-fill)',side:'var(--m-fill)',stroke:'var(--m-stroke)',sw:.5,shade:true});
  o+=lbox({s:mid,l:0,y:pfInc(mid)-15,du:hl-10,dv:1050,h:15,pitch:PF_A,piv:mid,pivY:pfInc(mid),top:'#2E9B4A',side:'#23793A',stroke:'var(--m-stroke)',sw:.4,

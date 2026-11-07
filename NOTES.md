@@ -84,6 +84,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   lifting bed, pusher and waiting stack moved with the fixed frame (PFD shift, ~1700 mm further back). Belt slope recomputed so the tail
   height stays the same. Prefeeder logic unchanged (checked: same phases and amounts as before).
   v226: both hold: fixed frame 3000 from 1500 behind the infeed panel; the back group (transfer belt, lifting-bed frame, pusher, waiting stack) moved forward (PFB = PFD + 820) so the belt tail runs under the transfer belt and ends 300 mm from the lifting-bed frame. Knife follows the transfer belt.
+  v227: the two cylinders ARE the supports (Denis): big hydraulic cylinders on both sides (body ~170 mm, rod ~76 mm) from the floor up to the belt frame, 1200 behind the infeed doors; the old column + diagonal strut removed.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
