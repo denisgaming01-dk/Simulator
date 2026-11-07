@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v221 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v222 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -686,11 +686,12 @@ BOFF.forEach(o=>{RCR.forEach(u=>{PINS.push([TWL+u,o+RT/2]);PINS.push([TWL+u,o+JO
 PINS.sort((a,b)=>b[1]-a[1]);
 /* photocells: AS = drive side (far), BS = operator side (near) */
 const ST={odl:{n:'Sheet delivery',e:'after the guillotine'},izv:{n:'Stripping exit',e:'stripping station',ex:2},izt:{n:'Die-cut exit',e:'die-cutting station',ex:1},pred:{n:'Sheet transfer',e:'gripper takes the sheet',ex:0},lays:{n:'Front lays',e:'infeed front stop'}};
+const PCB=60*KU;   /* photocells sit over the middle of the gripper bar (120 mm wide) when the chain stops at 0° (Denis) */
 const SENS=[
- {k:'OA',st:'odl',side:'AS',x:612,mm:null},{k:'OB',st:'odl',side:'BS',x:612,mm:null},
- {k:'ZA',st:'izv',side:'AS',x:SS,mm:[100,Math.min(950,SHL-100)]},{k:'ZB',st:'izv',side:'BS',x:SS,mm:[100,Math.min(950,SHL-100)]},
- {k:'IA',st:'izt',side:'AS',x:SC,mm:[100,Math.min(950,SHL-100)]},{k:'IB',st:'izt',side:'BS',x:SC,mm:null},
- {k:'PA',st:'pred',side:'AS',x:SI,mm:[100,Math.min(950,SHL-100)]},{k:'PB',st:'pred',side:'BS',x:SI,mm:null},
+ {k:'OA',st:'odl',side:'AS',x:SD+PCB,mm:null},{k:'OB',st:'odl',side:'BS',x:SD+PCB,mm:null},
+ {k:'ZA',st:'izv',side:'AS',x:SS+PCB,mm:[100,Math.min(950,SHL-100)]},{k:'ZB',st:'izv',side:'BS',x:SS+PCB,mm:[100,Math.min(950,SHL-100)]},
+ {k:'IA',st:'izt',side:'AS',x:SC+PCB,mm:[100,Math.min(950,SHL-100)]},{k:'IB',st:'izt',side:'BS',x:SC+PCB,mm:null},
+ {k:'PA',st:'pred',side:'AS',x:SI+PCB,mm:[100,Math.min(950,SHL-100)]},{k:'PB',st:'pred',side:'BS',x:SI+PCB,mm:null},
  {k:'LB',st:'lays',side:'BS',x:134+DI,mm:null,below:true}];
 const MID=SHW/2;/* sheet centre line */
 const VPOS={OA:MID+168.5,OB:MID-171.5,ZA:MID+400,ZB:MID-400,IA:MID+168.5,IB:MID-171.5,PA:MID+168.5,PB:MID-171.5,LB:MID};
@@ -1009,7 +1010,7 @@ function buildEvents(){
      if(chg){const ct=chgT(),f0=ct-.14*chg.spc;if(f0<CH.s1&&ct>CH.s0){trip({kind:'forks',id:null,sensors:[],code:'E461',name:'Sheet fell into the small forks',msg:`A sheet was still falling onto the stack while the small forks moved in, and it caught on the forks. Set more empty cycles at stack change so the gap reaches the delivery first, or run slower. Clear the delivery, then reset.`});return;}
      if(!chg.sDrop){sCount++;drawPile();if(sCount>SMAX)trip({kind:'fingers',id:null,sensors:[],code:'E460',name:'Too many sheets on the small forks',msg:`${sCount} sheets landed on the small top forks before the big lower forks took over. They hold about ${SMAX} sheets. Set more empty cycles at stack change, or run slower. Clear the forks, then reset.`});}else{bCount++;drawPile();}return;}
      count++;if(count>=STACK){chg={g0:k+.84,spc:T/1000,b0:bedCur,n:count};log(`Stack full at ${count}: small forks out, lifting belt lowers`);}drawPile();}}},
-  {p:.45*easeInv((612-617+250*KU)/PIT),s:1,f:()=>{const id=k-4,f=F[id];if(!f||f.type!=='guil'||f.removed)return;['OA','OB'].forEach(key=>{const o=SK[key];if(o.on&&sameCheck())sensTrip(o,null,id,true);});}},
+  {p:.45*easeInv((PCB+250*KU)/PIT),s:1,f:()=>{const id=k-4,f=F[id];if(!f||f.type!=='guil'||f.removed)return;['OA','OB'].forEach(key=>{const o=SK[key];if(o.on&&sameCheck())sensTrip(o,null,id,true);});}},
   {p:.2,f:()=>{const f=F[k-4];if(f&&f.type==='guil'&&!f.removed&&!f.trig)jam(k-4,'blanks not separated, carried into the front waste ejector');}},
   {p:1,f:()=>{p=0;k++;}}];
  SENS.forEach(o=>{const ps=pts(o);if(ST[o.st].ex==null||!ps||!o.on)return;ps.forEach(d=>{const m=mOf(o,d);if(m<=0||m>=1)return;
