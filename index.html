@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v218 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v219 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -739,6 +739,10 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
    {const P=PLAT,sx=1000*VS/4,z0=P.zW,z1=P.z2;   /* back stairs: 1000 mm long, 1600 mm wide, running with the machine down to the start of the infeed door */
     for(let i=0;i<4;i++)o+=boxR(P.xS1-(i+1)*sx,P.xS1-i*sx,GP+(i+1)*(GF-GP)/5,GF,z0,z1,'c-wood');
     o+=ln(P.xS1,GP,z0-1,P.xA,GF,z0-1,'stroke="#3B3F45" stroke-width="2.2"');}
+   {const P=PLAT,sx=1000*VS/4,z0=P.zW,z1=P.z2;   /* front stairs at the delivery end, the same as the back stairs: 1000 mm long, 1600 wide in the
+    outer band beside the 2000-deep floor past the covers, running with the machine down away from the delivery */
+    for(let i=0;i<4;i++)o+=boxR(P.xN+i*sx,P.xN+(i+1)*sx,GP+(i+1)*(GF-GP)/5,GF,z0,z1,'c-wood');
+    o+=ln(P.xN,GP,z0-1,P.xN+4*sx,GF,z0-1,'stroke="#3B3F45" stroke-width="2.2"');}
    o+=`<g opacity=".45">`+ln(0,GP,ZN-6,0,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GP,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,0,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GT,ZN-6,640,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+`</g>`;rail=o;o=p;}   /* operator-side frame outline, 3000 mm high (drawn after the guards) */
    if(front&&SOLID&&cyw<0){/* seen from the drive side: solid drive-side wall and roof in front of everything */
     const zt=ZF+12;let o=quad([[XS,GT,ZN-8],[XE,GT,ZN-8],[XE,GT,zt],[XS,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+quad([[XH,GT,ZF+16],[XE,GT,ZF+16],[XE,GP,ZF+16],[XH,GP,ZF+16]],'fill="#D9DCDF" stroke="#9AA0A6" stroke-width=".6"');
