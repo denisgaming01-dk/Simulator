@@ -90,7 +90,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v230: bar pitch = 1550 gap + 120 bar = 1670 mm (Denis); chain 8 x 1670 = 13360. Stations 1670 apart (delivery stays at x 617); return run ends just past die-cutting, infeed wheel solved (only ~50 mm behind the infeed station: all extra chain goes into the wider station spacing). Moving the back wheel further back costs 2 mm of chain per mm.
   v231: return run stays straight until ~760 mm before the infeed wheel, then curves down (Denis); wheel position solved (now right at the infeed station).
   v232: infeed front stops 700 mm from the end of the infeed panel (door joint) (Denis). Stack, stops, suction table, back stop, front-lays photocell and the prefeeder belt head move with DIF; the feed now travels ~100 mm from the stops into the grippers (was ~500).
-  v233: bar pitch 1650 mm (Denis). Delivery bar (SD 617) is the reference; stripping, die-cutting and infeed stations, their photocells, covers (anchored to the stripping bar) and the infeed follow. Chain 8 x 1650 = 13200; front stops still 700 from the door joint.
+  v234: bar pitch 1640 mm (Denis, was 1650 in v233). Delivery bar (SD 617) is the reference; stripping, die-cutting and infeed stations, their photocells, covers (anchored to the stripping bar) and the infeed follow. Chain 8 x 1650 = 13200; front stops still 700 from the door joint.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
