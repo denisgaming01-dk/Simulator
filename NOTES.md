@@ -100,6 +100,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v245: front-waste ejector moved 60 mm backward (toward the infeed) from its v242 place.
   v246: front waste lands ~90 mm further toward the infeed on the front-waste belt (Denis).
   v247: delivery end face (solid mode, seen when turned toward the delivery end): dark grey panel, window 2000 x 500 starting 1150 mm above the platform (v248), dark ledge under it, two switches and a blue button above (Denis photo). v249: open below 450 mm above the exit belt (stacks drive out).
+  v250: view can pan further right (BX1 1340 -> 1800) so the prefeeder waiting stack is visible; Prefeeder zoom preset widened.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

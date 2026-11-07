@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v249 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v250 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1210,7 +1210,7 @@ $('pfBun').oninput=e=>{PF.bun=+e.target.value;$('pfBunO').textContent=PF.bun+' m
 $('gap').oninput=e=>{GAPN=+e.target.value;$('gapO').textContent=GAPN;};$('gap').onchange=()=>log(`Empty cycles at stack change set to ${GAPN}`);
 /* ---------- zoom & pan ---------- */
 const VW=680,VH=445,AR=VH/VW;
-const Z={overview:[-20,20,780,510],infeed:[482,85,250,164],die:[340,72,200,131],strip:[157,95,260,170],delivery:[0,150,280,183],layout:[275,258,240,157],line:[-2680,-90,4020,2628],pref:[605,-120,1060,693],seps:[-1060,60,1000,654],finish:[-1840,60,1000,654],pal:[-2680,-20,1020,667]};
+const Z={overview:[-20,20,780,510],infeed:[482,85,250,164],die:[340,72,200,131],strip:[157,95,260,170],delivery:[0,150,280,183],layout:[275,258,240,157],line:[-2680,-90,4020,2628],pref:[690,-120,1100,720],seps:[-1060,60,1000,654],finish:[-1840,60,1000,654],pal:[-2680,-20,1020,667]};
 const INFO={
  pref:['Prefeeder','A board stack up to 2000 mm high (it has to pass under the pusher) rolls from the floor conveyor onto the lifting bed. The bed lifts the stack so the top bundle stands above the transfer belt, and the pusher pushes it off. The transfer belt runs it forward off its end onto the stored board, then the pneumatic pusher underneath (behind the stored board) and the two side panels square it up against the knife. The stored board sits on the inclined prefeeder belt against the separating knife: the belt pulls the bottom sheets out under the knife as a shingle stream up into the G-Cut infeed and keeps that stack full. A cylinder holds the belt head at the right height. While the lifting bed lowers and takes the next stack, only the stored board feeds the G-Cut, so set enough of it to cover the stack change.',['Stored board set in mm','Bundle size','Stack change on the lifting bed','Fault: prefeeder runs empty → E120']],
  line:['Line after the G-Cut','Each stack that drives out of the G-Cut runs down the line: transfer belt, separator 1, turntable 1, separator 2, shift belt, turntable 2, align table, rotation press and palletizer, then onto the stacking belt. The line control panel under the machine view works like the line screen: sections 1–6 on or off, piece tables, wait counts, shifts, angles and speeds. A station only takes stacks when it is free. If the first transfer belt is still occupied when a stack is ready, it waits on the lowered lifting belt and the infeed is locked (Line full).',['Sections 1–6','Line control panel']],
@@ -1227,7 +1227,7 @@ const INFO={
 let vb=[...Z.overview],tw=null;
 const svg=$('mach');
 const setVB=()=>svg.setAttribute('viewBox',vb.map(f1).join(' '));
-const BX0=-2680,BX1=1340;let BY0=-140,BY1=720,camDy=0;
+const BX0=-2680,BX1=1800;   /* right edge: room for the prefeeder and its waiting stack (moved back in v224-226) */let BY0=-140,BY1=720,camDy=0;
 function clampVB(v){const w=Math.max(110,Math.min(BX1-BX0,v[2])),h=w*AR;const x=Math.max(BX0,Math.min(BX1-w,v[0]));const y=h>=BY1-BY0?(BY0+BY1)/2-h/2:Math.max(BY0,Math.min(BY1-h,v[1]));return[x,y,w,h];}
 function zoomTo(t){const from=[...vb],to=clampVB(t),t0=performance.now(),dur=matchMedia('(prefers-reduced-motion: reduce)').matches?1:450;tw={from,to,t0,dur};}
 function pick(name){document.querySelectorAll('#zoomBtns button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.z===name?'true':'false'));if(name){const z=Z[name];let cx=z[0]+z[2]/2,cy=z[1]+z[3]/2+camDy;if(YAW){const X=680-cx,yy=(cy-B+32*s)/c,q=PJ(X,yy,32);cx=680-q[0];cy=q[1];}zoomTo([cx-z[2]/2,cy-z[3]/2,z[2],z[3]]);const[h,pp,tags]=INFO[name];$('infoH').textContent=h;$('infoP').textContent=pp;$('infoT').innerHTML='';tags.forEach(t=>{const s=document.createElement('span');s.className='tag';s.textContent=t;$('infoT').appendChild(s);});}}
