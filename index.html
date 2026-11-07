@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v252 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v253 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -383,7 +383,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <div class="stage" id="stage">
         <svg id="mach" viewBox="0 0 680 445" role="img" aria-label="3D view of the die-cutter">
           <g id="world" transform="matrix(-1 0 0 1 680 0)">
-          <g id="L0"></g><g id="L1"></g><g id="lower"></g><g id="pdash"></g><g id="bed"></g><g id="pile"></g><g id="outs"></g><g id="fing"></g><g id="wbItems"></g><g id="lstrip"></g>
+          <g id="LP"></g><g id="L0"></g><g id="L1"></g><g id="lower"></g><g id="pdash"></g><g id="bed"></g><g id="pile"></g><g id="outs"></g><g id="fing"></g><g id="wbItems"></g><g id="lstrip"></g>
           <g id="dyn"></g>
           <g id="L4u"></g><g id="pins"></g><g id="knife"></g><g id="sens"></g>
           <g id="belt"></g><g id="beltItems"></g>
@@ -730,11 +730,12 @@ function stairs(x0,sx,z0,z1){const P=[[x0,GF]];for(let i=0;i<4;i++){const h=GP+(
  P.forEach(([x,y],i)=>{const [xb,yb]=P[(i+1)%P.length],nx=sg*(yb-y),ny=-sg*(xb-x);if(nx*v[0]+ny*v[1]>=-1e-9)return;
    F.push({k:PDEP((x+xb)/2,(z0+z1)/2),d:`M${pt(x,y,z0)} L${pt(xb,yb,z0)} L${pt(xb,yb,z1)} L${pt(x,y,z1)} Z`,side:ny===0});});
  for(const [z,n] of [[z0,-1],[z1,1]])if(n*v[2]<-1e-9)F.push({k:PDEP(x0+2*sx,z)+(n>0?0:0),d:'M'+P.map(([x,y])=>pt(x,y,z)).join(' L')+' Z',side:true});
- return F.sort((a,b)=>b.k-a.k).map(f=>`<path class="c-wood" d="${f.d}" stroke-width="0.5"/>`+(f.side?`<path d="${f.d}" fill="#000" fill-opacity="0.15"/>`:'')).join('');}
+ return F;}
+let LPSVG='';
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
  /* look of the real machine, from the 3D views on the Safety screen: wooden platform deck, dark steel railings and stairs,
     light grey guard doors with blue door switches, dark lower panels at die-cutting and stripping, white roof covers */
- if(!front){/* operator platform shape (Denis's measurements, railings left out for now): a 1600 mm walkway along the whole machine,
+if(!front){/* operator platform shape (Denis's measurements, railings left out for now): a 1600 mm walkway along the whole machine,
      and in front of the delivery and stripping a 4000 mm wide area that reaches 5200 mm out from the machine */
    /* platform from Denis's marked photo (mm from the machine face): floor 3600 deep from the delivery end to the back stairs; a 4000 mm wide
       part reaching 5200 out (1600 beyond the floor); behind it 2000 = 1000 floor + 1000 stairs, the stairs (1600 wide, outer band) run with the
@@ -743,28 +744,24 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
    /* the floor stops at the machine face: no flooring under the machine */
    PLAT={zM,z2,zW,zD,xA,xS1,px0,px1,d0};
    const xN=XE,xE2=XE+1000*VS;PLAT.xN=xN;   /* past the end of the covers (after the delivery) the floor goes on 1000 mm, only 2000 deep (Denis: 2000 + 1600 = 3600) */
-   {/* the whole platform as ONE solid (outline in x,z extruded from the deck down to the floor), so no seams or clipping when the camera turns */
+   {const o0=o;o='';/* the whole platform as ONE solid (outline in x,z extruded from the deck down to the floor), so no seams or clipping when the camera turns */
     const OL=[[d0,zM],[xE2,zM],[xE2,z2],[xN,z2],[xN,zW],[px1,zW],[px1,zD],[px0,zD],[px0,zW],[xS1,zW],[xS1,z2],[d0,z2]];
     let ar=0;OL.forEach(([x,z],i)=>{const [x2,z2_]=OL[(i+1)%OL.length];ar+=x*z2_*DZ-x2*z*DZ;});const sg=ar>0?1:-1;
     const F=[];OL.forEach(([x,z],i)=>{const [xb,zb]=OL[(i+1)%OL.length],dx=xb-x,dz=(zb-z)*DZ,nx=sg*dz,nz=-sg*dx;
       if(nx*syw+nz*cyw>=-1e-9)return;   /* faces turned away are not drawn */
-      F.push({k:PDEP((x+xb)/2,(z+zb)/2),d:`M${pt(x,GP,z)} L${pt(xb,GP,zb)} L${pt(xb,GF,zb)} L${pt(x,GF,z)} Z`});});
-    F.sort((a,b)=>b.k-a.k).forEach(f=>o+=`<path class="c-wood" d="${f.d}" stroke-width="0.5"/><path d="${f.d}" fill="#000" fill-opacity="0.15"/>`);
-    o+=`<path class="c-wood" d="M${OL.map(([x,z])=>pt(x,GP,z)).join(' L')} Z" stroke-width="0.5"/>`;}
-   {const sm='stroke="#8A6236" stroke-width=".5" stroke-opacity=".6"';for(let x=xE2-40;x>xS1;x-=80)o+=ln(x,GP,x>xN?z2:zW,x,GP,zM,sm);for(let x=px1-80;x>px0;x-=80)o+=ln(x,GP,zD,x,GP,zW,sm);
+      F.push({k:PDEP((x+xb)/2,(z+zb)/2),d:`M${pt(x,GP,z)} L${pt(xb,GP,zb)} L${pt(xb,GF,zb)} L${pt(x,GF,z)} Z`,side:true});});
+    const sx=1000*VS/4;F.push(...stairs(xS1,-sx,zW,z2),...stairs(xN,sx,zW,z2));   /* both staircases sorted together with the platform sides */
+    F.sort((a,b)=>b.k-a.k).forEach(f=>o+=`<path class="c-wood" d="${f.d}" stroke-width="0.5"/>`+(f.side?`<path d="${f.d}" fill="#000" fill-opacity="0.15"/>`:''));
+    o+=`<path class="c-wood" d="M${OL.map(([x,z])=>pt(x,GP,z)).join(' L')} Z" stroke-width="0.5"/>`;   /* deck on top */
+    o+=ln(xS1,GP,zW-1,xA,GF,zW-1,'stroke="#3B3F45" stroke-width="2.2"')+ln(xN,GP,zW-1,xN+4*sx,GF,zW-1,'stroke="#3B3F45" stroke-width="2.2"');LPSVG=o;o=o0;}   /* stair rails */
+   {const oL=o.length;{const sm='stroke="#8A6236" stroke-width=".5" stroke-opacity=".6"';for(let x=xE2-40;x>xS1;x-=80)o+=ln(x,GP,x>xN?z2:zW,x,GP,zM,sm);for(let x=px1-80;x>px0;x-=80)o+=ln(x,GP,zD,x,GP,zW,sm);
     for(let z=zW+40;z<zM;z+=40)o+=ln(xS1,GP,z,z<z2?xN:xE2,GP,z,sm);for(let z=zD+40;z<zW;z+=40)o+=ln(px0,GP,z,px1,GP,z,sm);for(let z=z2+40;z<zM;z+=40)o+=ln(d0,GP,z,xS1,GP,z,sm);}
+   LPSVG+=o.slice(oL);o=o.slice(0,oL);}
    o+=SOLID?boxR(XH,XE,GT,GP,ZF+12,ZF+16,'c-white')+quad([[XH,GT,ZF+12],[XE,GT,ZF+12],[XE,GP,ZF+12],[XH,GP,ZF+12]],'fill="#E2E5E8" stroke="#9AA0A6" stroke-width=".5"'):`<g opacity=".22">`+boxR(0,640,GT,GP,ZF+12,ZF+16,'c-gray')+`</g>`;   /* drive-side frame wall; solid: light inside face, so the machine shows up against it in dark mode too */
    if(!SOLID)o+=quad([[0,GT,ZN-6],[640,GT,ZN-6],[640,GT,ZF+12],[0,GT,ZF+12]],'fill="#EEF0F2" fill-opacity=".45" stroke="#9AA0A6" stroke-width=".6"');   /* roof covers */
    if(!SOLID){for(const x of [150,315,475])o+=ln(x,GT,ZN-6,x,GT,ZF+12,'stroke="#7E848B" stroke-width=".7"');
    o+=ln(0,GT,(ZN+ZF)/2,640,GT,(ZN+ZF)/2,'stroke="#9AA0A6" stroke-width=".5"');}}
  else{let p=o;o='';const st='stroke="#3B3F45" stroke-width="1.8" stroke-linecap="round"',st2='stroke="#3B3F45" stroke-width="1.1"';
-   {const P=PLAT,sx=1000*VS/4,z0=P.zW,z1=P.z2;   /* back stairs: 1000 mm long, 1600 mm wide, running with the machine down to the start of the infeed door */
-    o+=stairs(P.xS1,-sx,z0,z1);
-    o+=ln(P.xS1,GP,z0-1,P.xA,GF,z0-1,'stroke="#3B3F45" stroke-width="2.2"');}
-   {const P=PLAT,sx=1000*VS/4,z0=P.zW,z1=P.z2;   /* front stairs at the delivery end, the same as the back stairs: 1000 mm long, 1600 wide in the
-    outer band beside the 2000-deep floor past the covers, running with the machine down away from the delivery */
-    o+=stairs(P.xN,sx,z0,z1);
-    o+=ln(P.xN,GP,z0-1,P.xN+4*sx,GF,z0-1,'stroke="#3B3F45" stroke-width="2.2"');}
    o+=`<g opacity=".45">`+ln(0,GP,ZN-6,0,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GP,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,0,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GT,ZN-6,640,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+`</g>`;rail=o;o=p;}   /* operator-side frame outline, 3000 mm high (drawn after the guards) */
    if(front&&SOLID&&cyw<0){/* seen from the drive side: solid drive-side wall and roof in front of everything */
     const zt=ZF+12;let o=quad([[XS,GT,ZN-8],[XE,GT,ZN-8],[XE,GT,zt],[XS,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+quad([[XH,GT,ZF+16],[XE,GT,ZF+16],[XE,GP,ZF+16],[XH,GP,ZF+16]],'fill="#D9DCDF" stroke="#9AA0A6" stroke-width=".6"');
@@ -858,7 +855,7 @@ L1+=ln(86,214,-2,126,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1
 XOF=0;
 {const g=SD-617;L1+=boxR(608.8+g,615+g,210,242,ZN,ZF,'c-gray')+boxR(604+g,621+g,242,250,ZN,ZF,'c-gray');}   /* guillotine moves with the chain (Denis) */
 L1+=[[...CHN.WD,CWR],[...CHN.WI,CWRI]].map(([x,y,rr])=>ell(x,y,ZN,rr,rr*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('');   /* chain wheels drawn behind the gripper bars and photocells */
-$('L1').innerHTML=L1;
+$('L1').innerHTML=L1;$('LP').innerHTML=LPSVG;
 $('lower').innerHTML=boxR(PX0,PXR,220,260,ZN-6,ZF+6,'c-gray');
 let creaseD='';BOFF.forEach(o=>CRS(o).forEach(([u0,v0,u1,v1])=>creaseD+=seg3(SC,194,u0,v0,u1,v1)+' '));
 let U=`<g opacity=".42">`+boxR(PX0,PXR,128,174,ZN-6,ZF+6,'c-gray')+quad([[PX0+2,174,ZN-4],[PXR-2,174,ZN-4],[PXR-2,182,ZN-4],[PX0+2,182,ZN-4]],'fill="#888780" stroke="#5F5E5A" stroke-width="0.5"')+`</g>`;
@@ -893,6 +890,7 @@ function orderWorld(){const wd=$('world');if(!WORLD0)WORLD0=[...wd.children];con
  let dc=WORLD0.filter(e=>!ov.includes(e)&&e!==ln_&&e!==pf);if(cyw<0)dc=dc.reverse();dc=dc.filter(e=>e.id!=='L5').concat(dc.filter(e=>e.id==='L5'));   /* solid covers always on top */
  const parts=[{k:PDEP(340,32),e:dc},{k:PDEP(680+(1300+10*2400)/2*KU,32),e:[ln_]},{k:PDEP(-120,32),e:[pf]}].sort((a,b)=>b.k-a.k);
  parts.forEach(q=>q.e.forEach(e=>wd.appendChild(e)));
+ wd.insertBefore($('LP'),wd.firstChild);   /* the platform is the ground: always drawn first */
  if(SOLID&&cyw>=0)wd.appendChild($('L5'));   /* solid covers: nothing behind them (prefeeder head, infeed stack) shows through, only through the windows */ov.forEach(e=>{wd.appendChild(e);e.style.display=YAW?'none':'';});}
 /* camera: tilt from side view (0°) to top view (90°); the turn swivels the whole picture a little left or right */
 function setCam(tilt,yaw){if(tilt!=null){CAM=tilt;const y0=SY(270,32);const a=Math.min(88.5,Math.max(1.5,tilt))*D2R;c=Math.cos(a);s=Math.sin(a);LVY=-s*KV/(c*LVPX);buildStatic();
@@ -1728,7 +1726,7 @@ function pfStep(dt){const S=PF,B=S.bed;const mvB=(to,v)=>{const d=to-B.y,st=v*dt
 function pfSVG(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o='';
  /* parts are drawn far to near; anything standing on a belt or bed goes right after it */
  const Zs=[],put=k=>{if(o)Zs.push({k,o});o='';},K=(s,l)=>lDep(pfS(s),l),on=(sup,s,l)=>sup-1+(K(s,l)-sup)*1e-4;
- const kConv=K(PF_WC,0),kBed=K(PF_BC,0),kTr=K((-9200+PFB),0),kInc=K((PF_HEAD+PF_TAIL)/2,0);
+ const kConv=K(PF_WC,0),kBed=K(PF_BC,0),kInc=K((PF_HEAD+PF_TAIL)/2,0),kTr=Math.min(K((-9200+PFB),0),kInc-.5);   /* the inclined belt's tail runs UNDER the transfer belt: the transfer belt is always drawn after it */
  const stk=(s,y,h,pt,op,l)=>{if(h<=.5)return '';const box={s,l:l||0,y,du:SHL/2,dv:SHW/2,h,pitch:pt||0,piv:s,pivY:y,...ORB,op};
    return lbox({...box,lines:(P,vis)=>{if(!vis[4])return "";let L="";const n=Math.min(40,Math.floor(h/12));for(let i=1;i<n;i++){const yy=h*i/n,a=lpt(...P(-SHL/2,yy,-SHW/2)),c2=lpt(...P(SHL/2,yy,-SHW/2));L+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(c2[0])}" y2="${f1(c2[1])}" stroke="${ORS}" stroke-width=".3" opacity=".5"/>`;}return L;}});};
  /* waiting stack on the floor roller conveyor, lifting bed with its columns, pusher on top */
@@ -1747,11 +1745,11 @@ function pfSVG(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o
  o+=lslab(PF_T0,PF_T1,-1070,1070,PF_TY-80,PF_TY-15)+lslab(PF_T0+10,PF_T1-10,-1050,1050,PF_TY-15,PF_TY,1,'green');put(kTr);
  /* inclined prefeeder belt on its frame, cylinder to set the head height */
  const tl=pfInc(PF_TAIL);
- o+=lslab(PF_TAIL+60,PF_TAIL+140,-1070,-1010,LGND,tl-70);put(K(PF_TAIL+100,-1090));
+ o+=lslab(PF_TAIL+60,PF_TAIL+140,-1070,-1010,LGND,tl-70);put(kInc+.5);   /* tail leg: under the belt, drawn before it */
  /* two big hydraulic cylinders ARE the supports (Denis): body on the floor, rod up to the belt frame; they tilt the belt */
  {const yb=pfInc(PF_CYL)-70,ym=LGND+(yb-LGND)*.62,cyl=(l0,op)=>lslab(PF_CYL-110,PF_CYL+110,l0-110,l0+110,LGND,LGND+60,op,'gph')+lslab(PF_CYL-85,PF_CYL+85,l0-85,l0+85,LGND+60,ym,op,'gph')
    +lslab(PF_CYL-100,PF_CYL+100,l0-100,l0+100,ym-40,ym,op,'dark')+lslab(PF_CYL-38,PF_CYL+38,l0-38,l0+38,ym,yb-50,op,'steel')+lslab(PF_CYL-80,PF_CYL+80,l0-80,l0+80,yb-50,yb,op,'gph');
-  o+=cyl(1000,1);put(K(PF_CYL,1100));o+=cyl(-1000,1);put(K(PF_CYL,-1100));}
+  o+=cyl(1000,1);put(Math.max(K(PF_CYL,1100),kInc+.5));o+=cyl(-1000,1);put(Math.max(K(PF_CYL,-1100),kInc+.4));   /* cylinders stand under the belt: drawn before it */}
  const mid=(PF_HEAD+PF_TAIL)/2,hl=(PF_HEAD-PF_TAIL)/2/Math.cos(PF_A*D2R);
  o+=lbox({s:mid,l:0,y:pfInc(mid)-70,du:hl,dv:1070,h:55,pitch:PF_A,piv:mid,pivY:pfInc(mid),top:'var(--m-fill)',side:'var(--m-fill)',stroke:'var(--m-stroke)',sw:.5,shade:true});
  o+=lbox({s:mid,l:0,y:pfInc(mid)-15,du:hl-10,dv:1050,h:15,pitch:PF_A,piv:mid,pivY:pfInc(mid),top:'#2E9B4A',side:'#23793A',stroke:'var(--m-stroke)',sw:.4,

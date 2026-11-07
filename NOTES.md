@@ -103,6 +103,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v250: view can pan further right (BX1 1340 -> 1800) so the prefeeder waiting stack is visible; Prefeeder zoom preset widened.
   v251: the platform is one solid (outline polygon extruded deck to floor; only side faces turned to the camera, far to near) instead of 4 overlapping boxes, so no seams or clipping when the camera turns.
   v252: both staircases are one solid each (stairs(): step profile extruded across the stair width, faces to the camera only, far to near) instead of 4 overlapping boxes.
+  v253: platform + both staircases in one group (LP), all side/stair faces depth-sorted together, deck on top; LP is always drawn first (ground). Prefeeder: transfer belt always drawn after the inclined belt (its tail runs under it); cylinders and tail leg drawn before the belt.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
