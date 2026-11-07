@@ -95,6 +95,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v237: infeed wheel 380 mm across (CWRI), delivery wheel stays 450 (CWR).
   v238: bar pitch 1630 mm (Denis); reference = guillotine / delivery bar (unchanged). Covers fixed.
   v239: infeed stops placed from the infeed wheel: their rail 20 mm from the wheel edge (plates 58 mm); stops now 651 mm from the door joint (was 700).
+  v240: guillotine half as high (blade bottom unchanged); upper stripping tool 60% lower in height (pin tips unchanged).
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

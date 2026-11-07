@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v239 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v240 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -680,7 +680,7 @@ $('inset').innerHTML=`<rect id="insSheet" x="190" y="${IY(SHW)}" width="${f1(SHL
 const tx=(S,u)=>S+u*KU-SLX;
 const rulePath=(S,y,pl)=>'M'+pl.map(([u,v])=>pt(tx(S,u),y,v*KV+SZ0)).join(' L')+' Z';
 const seg3=(S,y,u0,v0,u1,v1)=>`M${pt(tx(S,u0),y,v0*KV+SZ0)} L${pt(tx(S,u1),y,v1*KV+SZ0)}`;
-/* stripping tool: pins sit over the waste only (trailing edge, gaps between blanks, flap slots, beside the glue flap) */
+/* upper stripping tool 60% lower (Denis, v240). stripping tool: pins sit over the waste only (trailing edge, gaps between blanks, flap slots, beside the glue flap) */
 const PINS=[];
 [.12,.49,.86].forEach(k=>PINS.push([5,SHW*k]));
 [5,SHW-5].forEach(v=>[200,500,800].forEach(u=>PINS.push([TWL+u*JOB.pl/950,v])));
@@ -852,8 +852,8 @@ U+=`<path d="${creaseD}" fill="none" stroke="#B8650F" stroke-width="0.9" stroke-
 $('L4u').innerHTML=U;
 $('lstrip').innerHTML=`<path d="${BL.map(pl=>rulePath(SS,212,pl)).join(' ')}" fill="var(--m-fill)" stroke="var(--m-stroke)" stroke-width="0.6" fill-rule="nonzero"/><path d="${BL.map(pl=>rulePath(SS,212,pl)).join(' ')}" fill="#000" fill-opacity="0.08"/>`+
  quad([[tx(SS,TWL),212,BOFF[0]*KV+SZ0],[tx(SS,SHL-FWL),212,BOFF[0]*KV+SZ0],[tx(SS,SHL-FWL),220,BOFF[0]*KV+SZ0],[tx(SS,TWL),220,BOFF[0]*KV+SZ0]],'fill="var(--m-stroke)" opacity=".55"');
-$('pins').innerHTML=`<g opacity=".42">`+boxR(PN0,SS-10,164,172,ZN-4,ZF+4,'c-gray')+`</g>`+`<path d="${BL.map(pl=>rulePath(SS,164,pl)).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="0.6" stroke-dasharray="2 1.5"/>`+PINS.map(([u,v])=>{const x=tx(SS,u),z=v*KV+SZ0;return ln(x,172,z,x,196,z,'stroke="#5F5E5A" stroke-width="1.6" stroke-linecap="round"')+ell(x,197,z,1.8,1.3,'fill="#5F5E5A"');}).join('');
-{const g=SD-617;$('knife').innerHTML=boxR(602.4+g,608.6+g,162,198,ZN,ZF,'c-gray')+boxR(596+g,612+g,152,162,ZN,ZF,'c-gray');}
+$('pins').innerHTML=`<g opacity=".42">`+boxR(PN0,SS-10,183.2,186.4,ZN-4,ZF+4,'c-gray')+`</g>`+`<path d="${BL.map(pl=>rulePath(SS,183.2,pl)).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="0.6" stroke-dasharray="2 1.5"/>`+PINS.map(([u,v])=>{const x=tx(SS,u),z=v*KV+SZ0;return ln(x,186.4,z,x,196,z,'stroke="#5F5E5A" stroke-width="1.6" stroke-linecap="round"')+ell(x,197,z,1.8,1.3,'fill="#5F5E5A"');}).join('');
+{const g=SD-617;$('knife').innerHTML=boxR(602.4+g,608.6+g,180,198,ZN,ZF,'c-gray')+boxR(596+g,612+g,175,180,ZN,ZF,'c-gray');   /* guillotine half as high (Denis) */}
 drawSens();
 $('belt').innerHTML=boxR(SF+15-150*VS,SF+15+150*VS,146,150,ZN-5,ZF+30,'c-gray')+'<g id="bdash"></g>';
 $('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+`<path d="${chainPath(ZN)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
