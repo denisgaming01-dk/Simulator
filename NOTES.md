@@ -83,6 +83,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   Knife: one sheet length (along the feed) + 20 mm in front of the transfer (delivery) belt; stored board between them. Transfer belt 1500,
   lifting bed, pusher and waiting stack moved with the fixed frame (PFD shift, ~1700 mm further back). Belt slope recomputed so the tail
   height stays the same. Prefeeder logic unchanged (checked: same phases and amounts as before).
+  v225: the belt tail runs on under the transfer (delivery) belt to 300 mm from the lifting-bed frame (Denis); slope recomputed.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
