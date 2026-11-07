@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v228 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v229 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -857,13 +857,15 @@ $('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;   /* solid covers go ove
 $('scale').innerHTML=`<line x1="${SC}" y1="${scY}" x2="${SS}" y2="${scY}" stroke="var(--accent)" stroke-width="1"/><line x1="${SC}" y1="${scY-4}" x2="${SC}" y2="${scY+4}" stroke="var(--accent)"/><line x1="${(SC+SS)/2}" y1="${scY-3}" x2="${(SC+SS)/2}" y2="${scY+3}" stroke="var(--accent)"/><line x1="${SS}" y1="${scY-4}" x2="${SS}" y2="${scY+4}" stroke="var(--accent)"/><polygon id="mark" points="${SC},${scY-1} ${SC-5},${scY-9} ${SC+5},${scY-9}" fill="var(--accent)"/>`;
 }
 buildStatic();
-$('solidB').onclick=()=>{SOLID=!SOLID;const b=$('solidB');b.setAttribute('aria-pressed',SOLID);b.textContent='Covers: '+(SOLID?'solid':'see-through');buildStatic();};
+$('solidB').onclick=()=>{SOLID=!SOLID;const b=$('solidB');b.setAttribute('aria-pressed',SOLID);b.textContent='Covers: '+(SOLID?'solid':'see-through');buildStatic();orderWorld();
+ [...$('mach').querySelectorAll('text.ts')].filter(e=>/^(Ejector axle|Guillotine|Front waste belt|Gripper chains|Board stack|Support roller|Suction belts|\d+ mm)/.test(e.textContent)||e.id==='infL').forEach(e=>e.style.display=SOLID?'none':'');};   /* labels of parts inside the machine hide behind solid covers */
 /* drawing order of the big parts: the G-Cut layers (back to front the other way round when seen from behind), the line and the prefeeder by distance */
 let WORLD0=null;
 function orderWorld(){const wd=$('world');if(!WORLD0)WORLD0=[...wd.children];const ov=WORLD0.filter(e=>e.id==='inset'||e.id==='scale'),ln_=$('line'),pf=$('pref');
  let dc=WORLD0.filter(e=>!ov.includes(e)&&e!==ln_&&e!==pf);if(cyw<0)dc=dc.reverse();dc=dc.filter(e=>e.id!=='L5').concat(dc.filter(e=>e.id==='L5'));   /* solid covers always on top */
  const parts=[{k:PDEP(340,32),e:dc},{k:PDEP(680+(1300+10*2400)/2*KU,32),e:[ln_]},{k:PDEP(-120,32),e:[pf]}].sort((a,b)=>b.k-a.k);
- parts.forEach(q=>q.e.forEach(e=>wd.appendChild(e)));ov.forEach(e=>{wd.appendChild(e);e.style.display=YAW?'none':'';});}
+ parts.forEach(q=>q.e.forEach(e=>wd.appendChild(e)));
+ if(SOLID&&cyw>=0)wd.appendChild($('L5'));   /* solid covers: nothing behind them (prefeeder head, infeed stack) shows through, only through the windows */ov.forEach(e=>{wd.appendChild(e);e.style.display=YAW?'none':'';});}
 /* camera: tilt from side view (0°) to top view (90°); the turn swivels the whole picture a little left or right */
 function setCam(tilt,yaw){if(tilt!=null){CAM=tilt;const y0=SY(270,32);const a=Math.min(88.5,Math.max(1.5,tilt))*D2R;c=Math.cos(a);s=Math.sin(a);LVY=-s*KV/(c*LVPX);buildStatic();
    /* keep the machine where it was on screen, and keep the die-layout panel below the machine */
