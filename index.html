@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v235 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v236 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -719,7 +719,8 @@ let PLAT=null,SOLID=false,WALLS='';
    (old section edges below); U() maps them onto the measured widths, so windows and buttons keep their place inside each panel. */
 const PNL_MM=[1000,1190,550,1530,1690,950],PNL_U0=[0,87,203,247,386,548,640],PNL_U1=PNL_MM.reduce((a,m)=>(a.push(a[a.length-1]+m*VS),a),[0]);
 const U=u=>{for(let i=0;i<6;i++)if(u<=PNL_U0[i+1]||i===5)return PNL_U1[i]+(u-PNL_U0[i])*(PNL_U1[i+1]-PNL_U1[i])/(PNL_U0[i+1]-PNL_U0[i]);};
-const XE=SS-2+(PNL_U1[3]+PNL_U1[4])/2-720*VS,   /* covers placed from Denis: at 0° the stripping gripper bar sits right after (delivery side of) the stripping window */
+const XE=(617-1640*VS)-2+(PNL_U1[3]+PNL_U1[4])/2-720*VS,   /* covers are fixed now (Denis, v236): they no longer follow the chain */
+         /* covers placed from Denis: at 0° the stripping gripper bar sits right after (delivery side of) the stripping window */
       XE_OLD=605+PNL_U1[1],XS=XE-PNL_U1[6],XH=XS-2000*VS-20;   /* guillotine (x 605) at the joint between the end panel and the delivery panel; infeed guarding long enough for its 2000 mm door */
 /* infeed front stops 700 mm from the end of the infeed panel, where the doors start (Denis); the stack, stops, suction table and back stop move together (DIF) */
 const DIF=(XE-PNL_U1[6])+700*VS-130;SENS.find(o=>o.k==='LB').x=134+DIF;
@@ -840,7 +841,7 @@ L1+=ln(86,214,-2,126,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1
   L1+=boxR(xb-16,xb-8,214,GP,zc-zh,zc+zh,'c-white')+boxR(xb-16,xb-2,206,214,zc-zh,zc+zh,'c-white')+boxR(xb-4,xb-1,192,212,zc-zw(150),zc+zw(150),'c-white');}
 }
 XOF=0;
-L1+=boxR(608.8,615,210,242,ZN,ZF,'c-gray')+boxR(604,621,242,250,ZN,ZF,'c-gray');
+{const g=SD-617;L1+=boxR(608.8+g,615+g,210,242,ZN,ZF,'c-gray')+boxR(604+g,621+g,242,250,ZN,ZF,'c-gray');}   /* guillotine moves with the chain (Denis) */
 L1+=[CHN.WD,CHN.WI].map(([x,y])=>ell(x,y,ZN,CWR,CWR*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('');   /* chain wheels drawn behind the gripper bars and photocells */
 $('L1').innerHTML=L1;
 $('lower').innerHTML=boxR(PX0,PXR,220,260,ZN-6,ZF+6,'c-gray');
@@ -852,7 +853,7 @@ $('L4u').innerHTML=U;
 $('lstrip').innerHTML=`<path d="${BL.map(pl=>rulePath(SS,212,pl)).join(' ')}" fill="var(--m-fill)" stroke="var(--m-stroke)" stroke-width="0.6" fill-rule="nonzero"/><path d="${BL.map(pl=>rulePath(SS,212,pl)).join(' ')}" fill="#000" fill-opacity="0.08"/>`+
  quad([[tx(SS,TWL),212,BOFF[0]*KV+SZ0],[tx(SS,SHL-FWL),212,BOFF[0]*KV+SZ0],[tx(SS,SHL-FWL),220,BOFF[0]*KV+SZ0],[tx(SS,TWL),220,BOFF[0]*KV+SZ0]],'fill="var(--m-stroke)" opacity=".55"');
 $('pins').innerHTML=`<g opacity=".42">`+boxR(PN0,SS-10,164,172,ZN-4,ZF+4,'c-gray')+`</g>`+`<path d="${BL.map(pl=>rulePath(SS,164,pl)).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="0.6" stroke-dasharray="2 1.5"/>`+PINS.map(([u,v])=>{const x=tx(SS,u),z=v*KV+SZ0;return ln(x,172,z,x,196,z,'stroke="#5F5E5A" stroke-width="1.6" stroke-linecap="round"')+ell(x,197,z,1.8,1.3,'fill="#5F5E5A"');}).join('');
-$('knife').innerHTML=boxR(602.4,608.6,162,198,ZN,ZF,'c-gray')+boxR(596,612,152,162,ZN,ZF,'c-gray');
+{const g=SD-617;$('knife').innerHTML=boxR(602.4+g,608.6+g,162,198,ZN,ZF,'c-gray')+boxR(596+g,612+g,152,162,ZN,ZF,'c-gray');}
 drawSens();
 $('belt').innerHTML=boxR(SF+15-150*VS,SF+15+150*VS,146,150,ZN-5,ZF+30,'c-gray')+'<g id="bdash"></g>';
 $('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+`<path d="${chainPath(ZN)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
@@ -1074,8 +1075,8 @@ const by=bedY(),se=smallE(),be=bigE();
 $('bed').innerHTML=quad([[558,by+5,W/2],[564,by+5,W/2],[564,YEX+55,W/2],[558,YEX+55,W/2]],'fill="#888780"')+boxR(505,622,by,by+5,ZN-4,ZF+4,'c-gray');
 $('pile').innerHTML=chg&&chg.out?'':pileSVG(count,0,1,by);
 const forks=(y,x0,x1,hx)=>{let h='';for(const z of [ZN+6,ZN+22,4,16,28,40,52,62,ZF-22,ZF-6])h+=ln(x0,y,z,x1,y,z,'stroke="#444441" stroke-width="2.2" stroke-linecap="round"');return h+ln(hx,y,ZF+4,hx,y,ZN-4,'stroke="#444441" stroke-width="4" stroke-linecap="round"');};
-let fg='';if(be>0){fg+=forks(FL,644-be*136,644,646);fg+=pileSVG(bCount,0,1,FL-.5);}
-if(se>0){fg+=forks(FS,630-se*30,630,632)+forks(FS,496,496+se*30,494);fg+=pileSVG(sCount,0,1,FS-.5);}
+const fo=SD-617;let fg='';if(be>0){fg+=forks(FL,644+fo-be*136,644+fo,646+fo);fg+=pileSVG(bCount,fo,1,FL-.5);}   /* forks move with the chain (Denis) */
+if(se>0){fg+=forks(FS,630+fo-se*30,630+fo,632+fo)+forks(FS,496+fo,496+fo+se*30,494+fo);fg+=pileSVG(sCount,fo,1,FS-.5);}
 $('fing').innerHTML=fg;
 let pd='';const po=lExitOff%20;for(let x=508+po%20;x<620;x+=20)pd+=ln(x,by,ZF+4,x,by,ZN-4,'stroke="var(--faint)" stroke-width="1"');$('pdash').innerHTML=pd;
 let bd='';const off=(g*80)%22;for(let z=ZN-5+off;z<ZF+30;z+=22)bd+=ln(SF+15-150*VS,146,z,SF+15+150*VS,146,z,'stroke="var(--faint)" stroke-width="1"');$('bdash').innerHTML=bd;
