@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v225 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v226 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1194,7 +1194,7 @@ $('pfBun').oninput=e=>{PF.bun=+e.target.value;$('pfBunO').textContent=PF.bun+' m
 $('gap').oninput=e=>{GAPN=+e.target.value;$('gapO').textContent=GAPN;};$('gap').onchange=()=>log(`Empty cycles at stack change set to ${GAPN}`);
 /* ---------- zoom & pan ---------- */
 const VW=680,VH=445,AR=VH/VW;
-const Z={overview:[-20,20,780,510],infeed:[482,85,250,164],die:[340,72,200,131],strip:[157,95,260,170],delivery:[0,150,280,183],layout:[275,258,240,157],line:[-2680,-90,4020,2628],pref:[690,-120,1060,693],seps:[-1060,60,1000,654],finish:[-1840,60,1000,654],pal:[-2680,-20,1020,667]};
+const Z={overview:[-20,20,780,510],infeed:[482,85,250,164],die:[340,72,200,131],strip:[157,95,260,170],delivery:[0,150,280,183],layout:[275,258,240,157],line:[-2680,-90,4020,2628],pref:[605,-120,1060,693],seps:[-1060,60,1000,654],finish:[-1840,60,1000,654],pal:[-2680,-20,1020,667]};
 const INFO={
  pref:['Prefeeder','A board stack up to 2000 mm high (it has to pass under the pusher) rolls from the floor conveyor onto the lifting bed. The bed lifts the stack so the top bundle stands above the transfer belt, and the pusher pushes it off. The transfer belt runs it forward off its end onto the stored board, then the pneumatic pusher underneath (behind the stored board) and the two side panels square it up against the knife. The stored board sits on the inclined prefeeder belt against the separating knife: the belt pulls the bottom sheets out under the knife as a shingle stream up into the G-Cut infeed and keeps that stack full. A cylinder holds the belt head at the right height. While the lifting bed lowers and takes the next stack, only the stored board feeds the G-Cut, so set enough of it to cover the stack change.',['Stored board set in mm','Bundle size','Stack change on the lifting bed','Fault: prefeeder runs empty → E120']],
  line:['Line after the G-Cut','Each stack that drives out of the G-Cut runs down the line: transfer belt, separator 1, turntable 1, separator 2, shift belt, turntable 2, align table, rotation press and palletizer, then onto the stacking belt. The line control panel under the machine view works like the line screen: sections 1–6 on or off, piece tables, wait counts, shifts, angles and speeds. A station only takes stacks when it is free. If the first transfer belt is still occupied when a stack is ready, it waits on the lowered lifting belt and the infeed is locked (Line full).',['Sections 1–6','Line control panel']],
@@ -1660,10 +1660,10 @@ function lineSVG(){let back='',mid='',front='';const st=LS;
    the HMI); the adjustable part runs from there to the board at the infeed (one belt, tilted by 2 cylinders 1200 behind the infeed doors).
    Everything behind the belt (transfer belt, lifting bed, pusher, waiting stack) moves with the fixed frame: PFD is that shift. */
 const smX=x=>(x-680-DI)/KU,PF_FIX0=smX(XS)-1500,PF_CYL=smX(XS-3)-2000-1200,PFD=(PF_FIX0-3000)-(-8600);
-const PF_HEAD=-6250,PF_HY=(YEX-197)/VS,PF_A=Math.atan(140/((-9720+PFD)+300-(-6250)))/D2R,PF_TA=Math.tan(PF_A*D2R),PF_KN=(-8450+PFD)+SHL+20,PF_SC=PF_KN-10-SHL/2,   /* knife: one sheet length (along the feed) in front of the transfer (delivery) belt */
- PF_TAIL=(-9720+PFD)+300,   /* belt tail runs on under the transfer (delivery) belt to 300 mm from the lifting-bed frame (Denis) */
- PF_TY=(YEX-197)/VS+540,PF_T0=(-9950+PFD),PF_T1=(-8450+PFD),PF_TE=(-8975+PFD),
- PF_BC=(-10525+PFD),PF_WC=(-11990+PFD),PF_PH=(-10525+PFD)-SHL/2-70,PF_LO=LGND+100,PF_STK=1600;
+const PFB=PFD+820;   /* back group (transfer belt, lifting-bed frame, pusher, waiting stack): the belt tail runs under the transfer belt and ends 300 mm from the lifting-bed frame (Denis) */
+const PF_HEAD=-6250,PF_HY=(YEX-197)/VS,PF_A=Math.atan(140/(PF_FIX0-3000-(-6250)))/D2R,PF_TA=Math.tan(PF_A*D2R),PF_KN=(-8450+PFB)+SHL+20,PF_SC=PF_KN-10-SHL/2,   /* knife: one sheet length (along the feed) in front of the transfer (delivery) belt */
+ PF_TAIL=(-8600+PFD),PF_TY=(YEX-197)/VS+540,PF_T0=(-9950+PFB),PF_T1=(-8450+PFB),PF_TE=(-8975+PFB),
+ PF_BC=(-10525+PFB),PF_WC=(-11990+PFB),PF_PH=(-10525+PFB)-SHL/2-70,PF_LO=LGND+100,PF_STK=1600;
 /* the prefeeder is drawn at a smaller scale about its belt head, so it matches the size of the G-Cut drawing */
 /* the prefeeder can be drawn smaller about its belt head (PF_K); it is now at true size */
 const PF_K=1;   /* true size: board of the job, stacks 1600 mm high */let LPF=false;const pfS=sm=>PF_HEAD+(sm-PF_HEAD)*PF_K,pfY=ym=>PF_HY+(ym-PF_HY)*PF_K;
@@ -1697,20 +1697,20 @@ function pfStep(dt){const S=PF,B=S.bed;const mvB=(to,v)=>{const d=to-B.y,st=v*dt
 function pfSVG(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o='';
  /* parts are drawn far to near; anything standing on a belt or bed goes right after it */
  const Zs=[],put=k=>{if(o)Zs.push({k,o});o='';},K=(s,l)=>lDep(pfS(s),l),on=(sup,s,l)=>sup-1+(K(s,l)-sup)*1e-4;
- const kConv=K(PF_WC,0),kBed=K(PF_BC,0),kTr=K((-9200+PFD),0),kInc=K((PF_HEAD+PF_TAIL)/2,0);
+ const kConv=K(PF_WC,0),kBed=K(PF_BC,0),kTr=K((-9200+PFB),0),kInc=K((PF_HEAD+PF_TAIL)/2,0);
  const stk=(s,y,h,pt,op,l)=>{if(h<=.5)return '';const box={s,l:l||0,y,du:SHL/2,dv:SHW/2,h,pitch:pt||0,piv:s,pivY:y,...ORB,op};
    return lbox({...box,lines:(P,vis)=>{if(!vis[4])return "";let L="";const n=Math.min(40,Math.floor(h/12));for(let i=1;i<n;i++){const yy=h*i/n,a=lpt(...P(-SHL/2,yy,-SHW/2)),c2=lpt(...P(SHL/2,yy,-SHW/2));L+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(c2[0])}" y2="${f1(c2[1])}" stroke="${ORS}" stroke-width=".3" opacity=".5"/>`;}return L;}});};
  /* waiting stack on the floor roller conveyor, lifting bed with its columns, pusher on top */
- o+=lslab((-12600+PFD),(-11380+PFD),-1070,1070,LGND,PF_LO-20)+lslab((-12580+PFD),(-11400+PFD),-1050,1050,PF_LO-20,PF_LO,1,'blue')+lslab((-12580+PFD),(-11400+PFD),-1050,-970,PF_LO-19,PF_LO+1,1,'yel');put(kConv);   /* blue modular belt, yellow edge */
+ o+=lslab((-12600+PFB),(-11380+PFB),-1070,1070,LGND,PF_LO-20)+lslab((-12580+PFB),(-11400+PFB),-1050,1050,PF_LO-20,PF_LO,1,'blue')+lslab((-12580+PFB),(-11400+PFB),-1050,-970,PF_LO-19,PF_LO+1,1,'yel');put(kConv);   /* blue modular belt, yellow edge */
  /* lifting bed frame: columns on both sides with the lift chains, light curtain at the entry, low stainless stop at the far end */
  const col=(s0,l0,op)=>lslab(s0,s0+100,l0,l0+100,LGND,PF_TY+700,op,'gph')+lslab(s0+35,s0+65,l0+(l0>0?-12:100),l0+(l0>0?0:112),LGND+300,PF_TY+650,op,'dark');   /* dark grey columns with the lift chains */
- o+=col((-11290+PFD),1100,1);put(K((-11260+PFD),1200));o+=col((-9820+PFD),1100,1);put(K((-9790+PFD),1200));o+=lslab((-11290+PFD),(-9720+PFD),1100,1200,PF_TY+620,PF_TY+700,1,'gph');put(K((-10525+PFD),1200));
- o+=lslab((-11330+PFD),(-11310+PFD),1100,1140,LGND,LGND+1900,1,'yel');put(K((-11320+PFD),1170));o+=lslab((-9840+PFD),(-9820+PFD),-1000,1000,PF_LO,PF_LO+350,1,'steel');put(K((-9830+PFD),0));
- o+=lslab((-11230+PFD),(-9820+PFD),-1070,1070,B.y-110,B.y-20,1,'white');   /* bed: white frame with two blue modular belts so the stack rolls on and off */
- for(const [l0,l1] of [[-1040,-25],[25,1040]])o+=lslab((-11200+PFD),(-9850+PFD),l0,l1,B.y-20,B.y,1,'blue')+lslab((-11200+PFD),(-9850+PFD),l0,l0+60,B.y-19,B.y+1,1,'yel')+lslab((-11200+PFD),(-9850+PFD),l1-60,l1,B.y-19,B.y+1,1,'yel');put(kBed);
+ o+=col((-11290+PFB),1100,1);put(K((-11260+PFB),1200));o+=col((-9820+PFB),1100,1);put(K((-9790+PFB),1200));o+=lslab((-11290+PFB),(-9720+PFB),1100,1200,PF_TY+620,PF_TY+700,1,'gph');put(K((-10525+PFB),1200));
+ o+=lslab((-11330+PFB),(-11310+PFB),1100,1140,LGND,LGND+1900,1,'yel');put(K((-11320+PFB),1170));o+=lslab((-9840+PFB),(-9820+PFB),-1000,1000,PF_LO,PF_LO+350,1,'steel');put(K((-9830+PFB),0));
+ o+=lslab((-11230+PFB),(-9820+PFB),-1070,1070,B.y-110,B.y-20,1,'white');   /* bed: white frame with two blue modular belts so the stack rolls on and off */
+ for(const [l0,l1] of [[-1040,-25],[25,1040]])o+=lslab((-11200+PFB),(-9850+PFB),l0,l1,B.y-20,B.y,1,'blue')+lslab((-11200+PFB),(-9850+PFB),l0,l0+60,B.y-19,B.y+1,1,'yel')+lslab((-11200+PFB),(-9850+PFB),l1-60,l1,B.y-19,B.y+1,1,'yel');put(kBed);
  if(S.wait>0){o+=stk(S.ws,PF_LO,S.wait);put(S.ws<PF_WC+300?on(kConv,S.ws,0):on(kBed,S.ws,0));}
  o+=stk(PF_BC,B.y,B.h);put(on(kBed,PF_BC,0));
- o+=col((-11290+PFD),-1200,.35);put(K((-11260+PFD),-1200));o+=col((-9820+PFD),-1200,.35);put(K((-9790+PFD),-1200));o+=lslab((-11330+PFD),(-11310+PFD),-1140,-1100,LGND,LGND+1900,.8,'yel');put(K((-11320+PFD),-1170));
+ o+=col((-11290+PFB),-1200,.35);put(K((-11260+PFB),-1200));o+=col((-9820+PFB),-1200,.35);put(K((-9790+PFB),-1200));o+=lslab((-11330+PFB),(-11310+PFB),-1140,-1100,LGND,LGND+1900,.8,'yel');put(K((-11320+PFB),-1170));
  /* transfer belt */
  o+=lslab(PF_T0+40,PF_T0+100,-1070,-1010,LGND,PF_TY-80);put(K(PF_T0+70,-1090));o+=lslab(PF_T1-100,PF_T1-40,-1070,-1010,LGND,PF_TY-80);put(K(PF_T1-70,-1090));
  o+=lslab(PF_T0,PF_T1,-1070,1070,PF_TY-80,PF_TY-15)+lslab(PF_T0+10,PF_T1-10,-1050,1050,PF_TY-15,PF_TY,1,'green');put(kTr);
@@ -1742,16 +1742,16 @@ function pfSVG(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o
  if(S.bd){o+=stk(S.bd.s,S.bd.y,S.bd.h,S.bd.pt,1,S.bd.l);put(S.bd.ph==='push'?on(Math.min(kBed,kTr),S.bd.s,0):S.bd.ph==='off'||S.bd.ph==='align'?on(kInc,S.bd.s,0)-.0002:on(kTr,S.bd.s,0));}   /* near side panel, see-through */
  /* overhead pusher: white box beam along the push direction on dark cross beams, geared motor on its far end,
     white carriage box running under it on a rack, hanging head with the aluminium push plate */
- o+=lslab((-11290+PFD),(-9720+PFD),-1200,-1100,PF_TY+620,PF_TY+700,.35,'gph')+lslab((-11320+PFD),(-11220+PFD),-1200,1200,PF_TY+700,PF_TY+780,1,'gph')+lslab((-9820+PFD),(-9720+PFD),-1200,1200,PF_TY+700,PF_TY+780,1,'gph');
- o+=lslab((-11580+PFD),(-9640+PFD),-170,170,PF_TY+480,PF_TY+700,1,'white')+lslab((-11560+PFD),(-9660+PFD),-120,120,PF_TY+460,PF_TY+480,1,'dark');   /* box beam, toothed rack underneath */
- o+=lslab((-11580+PFD),(-11420+PFD),-110,110,PF_TY+700,PF_TY+830,1,'grey')+lslab((-11560+PFD),(-11440+PFD),-90,90,PF_TY+830,PF_TY+960,1,'dark');   /* geared motor */
+ o+=lslab((-11290+PFB),(-9720+PFB),-1200,-1100,PF_TY+620,PF_TY+700,.35,'gph')+lslab((-11320+PFB),(-11220+PFB),-1200,1200,PF_TY+700,PF_TY+780,1,'gph')+lslab((-9820+PFB),(-9720+PFB),-1200,1200,PF_TY+700,PF_TY+780,1,'gph');
+ o+=lslab((-11580+PFB),(-9640+PFB),-170,170,PF_TY+480,PF_TY+700,1,'white')+lslab((-11560+PFB),(-9660+PFB),-120,120,PF_TY+460,PF_TY+480,1,'dark');   /* box beam, toothed rack underneath */
+ o+=lslab((-11580+PFB),(-11420+PFB),-110,110,PF_TY+700,PF_TY+830,1,'grey')+lslab((-11560+PFB),(-11440+PFB),-90,90,PF_TY+830,PF_TY+960,1,'dark');   /* geared motor */
  o+=lslab(S.px-420,S.px+80,-260,260,PF_TY+300,PF_TY+460,1,'white')+lslab(S.px-300,S.px-60,-200,200,PF_TY+200,PF_TY+300,1,'white');   /* carriage box */
  o+=lslab(S.px-60,S.px-20,-330,330,PF_TY+40,PF_TY+300,1,'steel')+lslab(S.px-20,S.px,-500,500,PF_TY+20,PF_TY+230,.95,'steel');   /* hanging head, push plate on the bundle */
  put(on(kBed,PF_BC,0)-.001);   /* overhead pusher */
  Zs.sort((a,b)=>b.k-a.k);return Zs.map(z=>z.o).join('');}
 window.__pf=PF;
 /* prefeeder labels, placed for the default view (they hide when the camera tilts away) */
-[['Prefeeder',(-9300+PFD),2350,'th'],['Separating knife',PF_KN,1900,'ts'],['Stored board',PF_SC,450,'ts','pfL1'],['Transfer belt',(-9200+PFD),1250,'ts'],['Pusher',(-10500+PFD),PF_TY+1150,'ts'],
+[['Prefeeder',(-9300+PFB),2350,'th'],['Separating knife',PF_KN,1900,'ts'],['Stored board',PF_SC,450,'ts','pfL1'],['Transfer belt',(-9200+PFB),1250,'ts'],['Pusher',(-10500+PFB),PF_TY+1150,'ts'],
  ['Lifting bed',PF_BC,-830,'ts','pfL2'],['Waiting stack',PF_WC,-1080,'ts','pfL3']].forEach(([txt,sm,ym,cl,id])=>{LPF=true;const q=lpt(sm,ym,-1100);LPF=false;
   const e=document.createElementNS('http://www.w3.org/2000/svg','text');e.setAttribute('class',cl);e.setAttribute('x',f1(680-q[0]));e.setAttribute('y',f1(q[1]));e.setAttribute('text-anchor','middle');e.textContent=txt;if(id)e.id=id;$('mach').appendChild(e);});
 /* stacks shown in sheets of the chosen board (B flute 2.7 mm: a 1600 mm stack is about 593 sheets) */
