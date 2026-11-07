@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v236 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v237 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -599,21 +599,21 @@ const PIT=1640*VS,   /* bar pitch 1640 mm (Denis); the delivery bar (SD) is the 
  SC=SD-2*PIT,SI=SD-3*PIT,DI=SI-182,DC=SC-327,DS=SS-472;
 /* front-waste bar (Denis): at 0° the bar on the return run that drops the front waste stops at the start of the delivery window,
    x SF 520. That fixes the bottom run length CHL; the return run stays 880 mm above the bottom run, so the chain turns in tight corners. */
-const SF=520+30*VS,NB=8,DF=SF-472,CHT=210-880*VS,CHC=(210+CHT)/2,CWR=225*VS;
+const SF=520+30*VS,NB=8,DF=SF-472,CHT=210-880*VS,CHC=(210+CHT)/2,CWR=225*VS,CWRI=190*VS;   /* wheels: delivery 450 mm, infeed 380 mm across (Denis) */
 /* chain shape from Denis's sketch: the delivery wheel sits at the TOP (the return run leaves over it), the infeed wheel at the BOTTOM
    (the bottom run starts under it); between them guides with sharp bends. Bars 1550 mm apart, 8 bars; the delivery wheel position and
    the end of the return run (where the guide bends down to the infeed wheel) are solved so the stations and the front-waste bar fit. */
-const CHN=(()=>{const r=CWR,TOP=CHT,arc=(cx,cy,a0,a1,n,o)=>{for(let i=0;i<n;i++){const a=a0+(a1-a0)*i/n;o.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}};
+const CHN=(()=>{const r=CWR,rI=CWRI,TOP=CHT,arc=(cx,cy,a0,a1,n,o,rr)=>{rr=rr||r;for(let i=0;i<n;i++){const a=a0+(a1-a0)*i/n;o.push([cx+rr*Math.cos(a),cy+rr*Math.sin(a)]);}};
  /* WDx: delivery wheel position, WI: infeed wheel position (the bottom run starts under it); the return run ends at x T and the guide bends down to the infeed wheel */
- const path=(WDx,WI,T)=>{const o=[],WDy=TOP+r,WIy=210-r,line=(A,B,n)=>{for(let i=0;i<n;i++)o.push([A[0]+(B[0]-A[0])*i/n,A[1]+(B[1]-A[1])*i/n]);};
+ const path=(WDx,WI,T)=>{const o=[],WDy=TOP+r,WIy=210-rI,line=(A,B,n)=>{for(let i=0;i<n;i++)o.push([A[0]+(B[0]-A[0])*i/n,A[1]+(B[1]-A[1])*i/n]);};
   const bz=(A,K,B,n)=>{for(let i=0;i<n;i++){const u=i/n,v=1-u;o.push([v*v*A[0]+2*u*v*K[0]+u*u*B[0],v*v*A[1]+2*u*v*K[1]+u*u*B[1]]);}};   /* smooth guide curves (Denis) */
   const g0=[WDx-40,210];line([WI,210],g0,60);bz(g0,[WDx+r,210],[WDx+r,WDy],30);arc(WDx,WDy,0,-Math.PI/2,16,o);
-  line([WDx,TOP],[T,TOP],60);bz([T,TOP],[WI-r,TOP],[WI-r,WIy],30);arc(WI,WIy,Math.PI,Math.PI/2,16,o);return o;};
+  line([WDx,TOP],[T,TOP],60);bz([T,TOP],[WI-rI,TOP],[WI-rI,WIy],30);arc(WI,WIy,Math.PI,Math.PI/2,16,o,rI);return o;};
  const cum=P=>{const c=[0];for(let i=1;i<=P.length;i++){const A=P[i-1],B=P[i%P.length];c.push(c[i-1]+Math.hypot(B[0]-A[0],B[1]-A[1]));}return c;};
  const info=(WDx,WI,T)=>{const P=path(WDx,WI,T),C=cum(P),s0=SI-WI;const iF=P.findIndex(p=>Math.abs(p[1]-TOP)<1e-6&&p[0]<=SF);return{tot:C[P.length],dF:C[iF]+(P[iF][0]-SF)-s0};};
  const bis=(fn,lo,hi)=>{for(let k=0;k<60;k++){const m=(lo+hi)/2;if(fn(m)>0)hi=m;else lo=m;}return(lo+hi)/2;};
  const WDx=bis(x=>info(x,SI-30,SI+30).dF-5*PIT,600,800),WI=bis(x=>NB*PIT-info(WDx,x,x+80).tot,0,SC),T=WI+80;   /* return run stays straight until 80 px (~760 mm) before the infeed wheel, then curves down (Denis); the wheel position is solved */
- const P=path(WDx,WI,T),C=cum(P);return{P,C,s0:SI-WI,WD:[WDx,TOP+r],WI:[WI,210-r],T,tot:C[P.length]};})();
+ const P=path(WDx,WI,T),C=cum(P);return{P,C,s0:SI-WI,WD:[WDx,TOP+r],WI:[WI,210-rI],T,tot:C[P.length]};})();
 function chainPt(q){const TOT=NB*PIT,{P,C,s0}=CHN;q=(((q+s0)%TOT)+TOT)%TOT;let lo=0,hi=P.length;while(hi-lo>1){const m=(lo+hi)>>1;if(C[m]<=q)lo=m;else hi=m;}
  const A=P[lo],B=P[(lo+1)%P.length],f=(q-C[lo])/((C[lo+1]-C[lo])||1);return[A[0]+(B[0]-A[0])*f,A[1]+(B[1]-A[1])*f,Math.atan2(B[1]-A[1],B[0]-A[0])*180/Math.PI];}
 /* the machine is built for the 2100 mm max sheet width: its frames, chains and bars run from ZN to ZF (about 2230 mm), the 1223 mm sheet runs centred from 0 to W */
@@ -819,7 +819,7 @@ function gcutEnv(front){let o='',rail='';const zr=ZN-80;
 const DWC=XE-(PNL_U1[4]+PNL_U1[5])/2,PX0=DWC-740*VS,PXR=DWC+740*VS,PN0=Math.min(352+DS,SS-10-SLX-2);   /* platens and stripping tools cover the whole sheet */
 function buildStatic(){
 $('L0').innerHTML=gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
-[CHN.WD,CHN.WI].map(([x,y])=>ln(x,y,ZF,x,y,ZN,'stroke="var(--faint)" stroke-width="3"')+ell(x,y,ZF,CWR,CWR*c,'fill="none" stroke="var(--faint)" stroke-width="2"')).join('');
+[[...CHN.WD,CWR],[...CHN.WI,CWRI]].map(([x,y,rr])=>ln(x,y,ZF,x,y,ZN,'stroke="var(--faint)" stroke-width="3"')+ell(x,y,ZF,rr,rr*c,'fill="none" stroke="var(--faint)" stroke-width="2"')).join('');
 let L1='';XOF=DIF;
 L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke-linecap="round"')+ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--panel)" stroke-width="10.5" stroke-linecap="round"');
 L1+=boxR(122-420*VS,122,222,232,0,54,'c-blue');   /* infeed table with the suction belts, 420 mm along the feed (Denis) */
@@ -842,7 +842,7 @@ L1+=ln(86,214,-2,126,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1
 }
 XOF=0;
 {const g=SD-617;L1+=boxR(608.8+g,615+g,210,242,ZN,ZF,'c-gray')+boxR(604+g,621+g,242,250,ZN,ZF,'c-gray');}   /* guillotine moves with the chain (Denis) */
-L1+=[CHN.WD,CHN.WI].map(([x,y])=>ell(x,y,ZN,CWR,CWR*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('');   /* chain wheels drawn behind the gripper bars and photocells */
+L1+=[[...CHN.WD,CWR],[...CHN.WI,CWRI]].map(([x,y,rr])=>ell(x,y,ZN,rr,rr*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('');   /* chain wheels drawn behind the gripper bars and photocells */
 $('L1').innerHTML=L1;
 $('lower').innerHTML=boxR(PX0,PXR,220,260,ZN-6,ZF+6,'c-gray');
 let creaseD='';BOFF.forEach(o=>CRS(o).forEach(([u0,v0,u1,v1])=>creaseD+=seg3(SC,194,u0,v0,u1,v1)+' '));
