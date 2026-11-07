@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v245 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v246 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1064,10 +1064,10 @@ for(let j=0;j<NB;j++){const [x,y,a]=pos((j+m)*P);
  const svg=sheetSVG(x-xs,y,a,o,run0,sh);
  if(y>CHC){low+=svg;barsLow+=bar(x,y,a);}else{top+=svg;barsTop+=bar(x,y,a);}}
 $('dyn').innerHTML=low+stk+barsLow;
-if(!moving&&p>=.6&&p<.66&&present(k-5)){let dx,yy;if(p<.63){dx=18*seg(.6,.63);yy=CHT;}else{dx=18;yy=lerp(CHT,146,seg(.63,.66));}
+if(!moving&&p>=.6&&p<.66&&present(k-5)){let dx,yy;const DX=18-90*VS;   /* front waste lands ~90 mm further toward the infeed on the belt (Denis) */if(p<.63){dx=DX*seg(.6,.63);yy=CHT;}else{dx=DX;yy=lerp(CHT,146,seg(.63,.66));}
  top+=piece(SF+dx,yy,0,0,FWL*KU,0,SZ0,SZ0+SZW,CO,COS,COE,1);}
 belt=belt.filter(t=>g-t<1.4&&g>=t);
-let bi='';belt.forEach(t=>{const a=g-t,dz=a*80,op=Math.max(0,1-a/1.4);bi+=piece(490+DF,152,0,0,FWL*KU,0,SZ0+dz,SZ0+SZW+dz,CO,COS,COE,op);   /* front waste runs out to the drive side (AS) */});
+let bi='';belt.forEach(t=>{const a=g-t,dz=a*80,op=Math.max(0,1-a/1.4);bi+=piece(490+DF-90*VS,152,0,0,FWL*KU,0,SZ0+dz,SZ0+SZW+dz,CO,COS,COE,op);   /* front waste runs out to the drive side (AS) */});
 $('beltItems').innerHTML=bi;
 /* stack drives out over the stack change's drive-out time (2.2 s of machine time) */
 const outA=o=>(g-o.t)*o.spc/CH.out;

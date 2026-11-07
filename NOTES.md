@@ -98,6 +98,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v240: guillotine half as high (blade bottom unchanged); upper stripping tool 60% lower in height (pin tips unchanged).
   v241: front-waste window (above the delivery window) 300 wide x 380 high (Denis). v242: it is a real see-through opening like the other windows.
   v245: front-waste ejector moved 60 mm backward (toward the infeed) from its v242 place.
+  v246: front waste lands ~90 mm further toward the infeed on the front-waste belt (Denis).
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
