@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v238 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v239 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -723,7 +723,7 @@ const XE=(617-1640*VS)-2+(PNL_U1[3]+PNL_U1[4])/2-720*VS,   /* covers are fixed n
          /* covers placed from Denis: at 0° the stripping gripper bar sits right after (delivery side of) the stripping window */
       XE_OLD=605+PNL_U1[1],XS=XE-PNL_U1[6],XH=XS-2000*VS-20;   /* guillotine (x 605) at the joint between the end panel and the delivery panel; infeed guarding long enough for its 2000 mm door */
 /* infeed front stops 700 mm from the end of the infeed panel, where the doors start (Denis); the stack, stops, suction table and back stop move together (DIF) */
-const DIF=(XE-PNL_U1[6])+700*VS-130;SENS.find(o=>o.k==='LB').x=134+DIF;
+const DIF=(CHN.WI[0]-CWRI)-20*VS-134;   /* infeed stops: their rail (the part nearest the chain) 20 mm from the infeed wheel (Denis, v239) */SENS.find(o=>o.k==='LB').x=134+DIF;
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
  /* look of the real machine, from the 3D views on the Safety screen: wooden platform deck, dark steel railings and stairs,
     light grey guard doors with blue door switches, dark lower panels at die-cutting and stripping, white roof covers */
