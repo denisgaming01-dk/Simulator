@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v237 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v238 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -594,7 +594,7 @@ const D2R=Math.PI/180,W=64,B=40;
    is a little longer than three pitches: the delivery sprocket sits just past the delivery station. DI/DC/DS: how far the infeed,
    die-cutting and stripping stations moved from the old 1385 mm layout. */
 const VS=110/1050;   /* heights in px per mm, the same scale as lengths */
-const PIT=1640*VS,   /* bar pitch 1640 mm (Denis); the delivery bar (SD) is the reference and stays put, the other stations follow */
+const PIT=1630*VS,   /* bar pitch 1630 mm (Denis); the delivery bar (SD) is the reference and stays put, the other stations follow */
  SD=617+30*VS,SS=SD-PIT,   /* delivery bar at 0° moved 30 mm forward (Denis, v235) */
  SC=SD-2*PIT,SI=SD-3*PIT,DI=SI-182,DC=SC-327,DS=SS-472;
 /* front-waste bar (Denis): at 0° the bar on the return run that drops the front waste stops at the start of the delivery window,

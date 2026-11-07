@@ -93,6 +93,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v234: bar pitch 1640 mm (Denis, was 1650 in v233). Delivery bar (SD 617) is the reference; stripping, die-cutting and infeed stations, their photocells, covers (anchored to the stripping bar) and the infeed follow. Chain 8 x 1650 = 13200; front stops still 700 from the door joint.
   v235-236: chain at 0° moved 30 mm forward (SD = 617 + 30 mm): all bars, front-waste bar, photocells, guillotine and the delivery forks (with the piles on them) move with the chain (offset SD-617). Covers are fixed (v234 place) and no longer follow the chain; front stops, platform, prefeeder stay with the covers.
   v237: infeed wheel 380 mm across (CWRI), delivery wheel stays 450 (CWR).
+  v238: bar pitch 1630 mm (Denis); reference = guillotine / delivery bar (unchanged). Covers fixed.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
