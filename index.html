@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v254 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v255 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -369,6 +369,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <button data-l="cut" aria-pressed="true">Layout when cut</button>
           <button data-l="always" aria-pressed="false">Layout always</button>
         </div>
+        <div class="seg"><button id="boardB" aria-pressed="false" title="Show or hide all board, so only the machine is seen">Board: shown</button></div>
         <div class="seg"><button id="solidB" aria-pressed="false" title="Guard doors and roof covers: see-through or solid">Covers: see-through</button></div>
         <div class="seg">
           <button id="zin" aria-label="Zoom in">+</button>
@@ -641,7 +642,8 @@ function boxR(x0,x1,y0,y1,z0,z1,cls){const v=VV(),F=[[[0,-1,0],[[x0,y0,z0],[x1,y
    o+=`<path class="${cls}" ${dd} stroke-width="0.5"/>`;if(n[1]===0)o+=`<path ${dd} fill="#000" fill-opacity="0.15"/>`;});return o;}
 /* the gripper chain loop at depth z: straights joined by half circles round the sprockets */
 function chainPath(z){const P=[];for(let q=0;q<NB*PIT;q+=6)P.push(chainPt(q));return 'M'+P.map(q=>pt(q[0],q[1],z)).join(' L')+' Z';}
-function piece(bx,by,a,lx0,lx1,drop,z0,z1,fill,stroke,edge,op){
+let NOBOARD=false;   /* "Board: hidden" toggle: no sheets, stacks, waste or blanks drawn, the machine only (Denis) */
+function piece(bx,by,a,lx0,lx1,drop,z0,z1,fill,stroke,edge,op){if(NOBOARD)return '';
 const A=a*D2R,ca=Math.cos(A),sa=Math.sin(A),ly=Math.abs(a)<90?-SHT():0;
 const R=lx=>[bx+lx*ca-ly*sa,by+lx*sa+ly*ca+drop];
 const p0=R(lx0),p1=R(lx1);
@@ -663,7 +665,7 @@ const BL=JOB.shapes?JOB.shapes.map(pl=>pl.map(([x,y])=>[TWL+y,SWL+x])):BOFF.map(
 const SHEET=[[0,0],[SHL,0],[SHL,SHW],[0,SHW]],SKEL=[[0,0],[SHL-FWL,0],[SHL-FWL,SHW],[0,SHW]],FW=[[SHL-FWL,0],[SHL,0],[SHL,SHW],[SHL-FWL,SHW]];
 /* sheets in the machine are drawn as thick as the chosen board (B 2.7 mm, E 1.5 mm ...), to the same scale as everything else */
 const SHT=()=>Math.max(.25,THK*VS);
-function sp(bx,by,a,polys,drop,fill,stroke,op,edgeV,th,zo,sh){th=th||SHT();zo=zo||0;sh=sh||0;
+function sp(bx,by,a,polys,drop,fill,stroke,op,edgeV,th,zo,sh){if(NOBOARD)return '';th=th||SHT();zo=zo||0;sh=sh||0;
 const A=a*D2R,ca=Math.cos(A),sa=Math.sin(A),ly=Math.abs(a)<90?-SHT():0;
 const Q=(u,v,dy)=>{const lx=(u-sh*(1-v/SHW))*KU-SLX;return pt(bx+lx*ca-ly*sa,by+lx*sa+ly*ca+drop+(dy||0),v*KV+SZ0+zo);};
 const d=polys.map(pl=>'M'+pl.map(([u,v])=>Q(u,v)).join(' L')+' Z').join(' ');
@@ -892,6 +894,7 @@ if(SOLID&&syw<0){const x=XE,z0=ZN-8,z1=ZF+12,zc=(z0+z1)/2,ww=1000*KV,yb=GP-1150*
 $('scale').innerHTML=`<line x1="${SC}" y1="${scY}" x2="${SS}" y2="${scY}" stroke="var(--accent)" stroke-width="1"/><line x1="${SC}" y1="${scY-4}" x2="${SC}" y2="${scY+4}" stroke="var(--accent)"/><line x1="${(SC+SS)/2}" y1="${scY-3}" x2="${(SC+SS)/2}" y2="${scY+3}" stroke="var(--accent)"/><line x1="${SS}" y1="${scY-4}" x2="${SS}" y2="${scY+4}" stroke="var(--accent)"/><polygon id="mark" points="${SC},${scY-1} ${SC-5},${scY-9} ${SC+5},${scY-9}" fill="var(--accent)"/>`;
 }
 buildStatic();
+$('boardB').onclick=()=>{NOBOARD=!NOBOARD;const b=$('boardB');b.setAttribute('aria-pressed',NOBOARD);b.textContent='Board: '+(NOBOARD?'hidden':'shown');buildStatic();};
 $('solidB').onclick=()=>{SOLID=!SOLID;const b=$('solidB');b.setAttribute('aria-pressed',SOLID);b.textContent='Covers: '+(SOLID?'solid':'see-through');buildStatic();orderWorld();
  [...$('mach').querySelectorAll('text.ts')].filter(e=>/^(Ejector axle|Guillotine|Front waste belt|Gripper chains|Board stack|Support roller|Suction belts|\d+ mm)/.test(e.textContent)||e.id==='infL').forEach(e=>e.style.display=SOLID?'none':'');};   /* labels of parts inside the machine hide behind solid covers */
 /* drawing order of the big parts: the G-Cut layers (back to front the other way round when seen from behind), the line and the prefeeder by distance */
@@ -935,7 +938,7 @@ const lerp=(a,b,t)=>a+(b-a)*t;
 const present=id=>!(F[id]&&(F[id].removed||F[id].type==='misfeed'));
 /* stack drawn to scale: 400 mm of board = 85 px, so the drop from the gripper bar stays short */
 const hOf=n=>n*THK*PXMM;
-function pileSVG(n,xo,op,yb){yb=yb==null?YEX:yb;if(n<=0)return '';const h=Math.max(1.2,hOf(n));let o=sp(617+xo,yb-h,0,BL,0,OR,ORS,op,10,h);
+function pileSVG(n,xo,op,yb){if(NOBOARD)return '';yb=yb==null?YEX:yb;if(n<=0)return '';const h=Math.max(1.2,hOf(n));let o=sp(617+xo,yb-h,0,BL,0,OR,ORS,op,10,h);
  const step=hOf(Math.max(1,Math.round(25/THK)));if(h>4)for(let y=yb-h+step;y<yb-.5;y+=step)o+=ln(617+xo+TWL*KU-SLX,y,SZ0+10*KV,617+xo+(SHL-FWL)*KU-SLX,y,SZ0+10*KV,`stroke="${ORS}" stroke-width=".35" opacity="${op*.6}"`);return o;}
 const bedTarget=()=>Math.max(BED0,Math.min(YEX,BED0+hOf(BSTEP*Math.floor(count/BSTEP))+bedMan));
 /* stack change, in seconds of machine time (pauses when the machine stops):
@@ -960,7 +963,7 @@ function updChg(dt){if(!chg){const t=bedTarget();bedCur+=Math.max(-40*dt,Math.mi
  if(t>=T2.end){gapDone=false;count=bCount;bCount=0;chg=null;bedCur=BED0;bedMan=0;log(count?`Stack change done, ${count} sheet${count>1?'s':''} set down from the forks onto the lifting belt`:'Stack change done, forks pulled back','ok');drawPile();}}
 function drawPile(){$('count').textContent='Delivery pile: '+count+' / '+STACK+(sCount||bCount?` · on forks ${sCount+bCount}`:'');$('outc').textContent='Batches out: '+nout;}
 function addSeg(a,b,sh){segs.push([a,b,sh||0]);}
-function sheetSVG(x,y,a,o,run0,sh){
+function sheetSVG(x,y,a,o,run0,sh){if(NOBOARD)return '';
 if(!o)return '';
 if(!o.cut){if(run0)addSeg(x-SLX,x,sh);return sheetW(x,y,a,0,1,sh);}
 const wf=o.wf||0,wv=o.wasteGone?0:1-wf*0.5,dr=o.drop||0;let h='';
@@ -1376,7 +1379,7 @@ function lPrism(o,polys,col){const R=(o.rot||0)*D2R,cr=Math.cos(R),sr=Math.sin(R
 const lBlankPolys=(n,m,c0,r0,inv)=>{m=m||LROWS;c0=c0||0;r0=r0||0;if(JOB.shapes){const out=[],sg=inv?-1:1;   /* turned over by the drum: the outline is mirrored along the line */
    for(let i=c0;i<c0+n;i++)for(let j=r0;j<r0+m;j++){const pl=JOB.shapes[i*LROWS+j];if(!pl)continue;out.push(pl.map(([x,y])=>[sg*(y-(r0*RL+m*RL/2)),x-(c0*BLK+n*BLK/2)]));}return out;}
  return BL.slice(0,n).map(pl=>pl.map(([u,v])=>[u-TWL-JOB.pl/2,(v-BOFF[0])-n*BLK/2]));};
-function lStackSVG(it){const hh=it.h,du=BLEN/2,dv=BLK/2*it.n;
+function lStackSVG(it){if(NOBOARD)return '';const hh=it.h,du=BLEN/2,dv=BLK/2*it.n;
  let o=lPrism({s:it.s,l:it.l,y:it.y,h:hh,rot:it.rot,roll:it.roll,pitch:it.pitch,piv:it.piv,pivY:it.pivY,op:it.op},lBlankPolys(it.n,it.m,it.bc0,it.br0,it.inv),it.inv?{top:'#D99A4A',side:'#9A5A12',stroke:'#6E3A06',bot:JOB.print||'#D99A4A',inv:true}:{top:OR,side:ORE,stroke:ORS,bot:JOB.print||OR,inv:false});   /* a stack the drum turned over is a darker brown */
  return o;}
 const lAcross=it=>((Math.round(it.rot)%180)+180)%180===90;
@@ -1737,7 +1740,7 @@ function pfSVG(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o
  /* parts are drawn far to near; anything standing on a belt or bed goes right after it */
  const Zs=[],put=k=>{if(o)Zs.push({k,o});o='';},K=(s,l)=>lDep(pfS(s),l),on=(sup,s,l)=>sup-1+(K(s,l)-sup)*1e-4;
  const kConv=K(PF_WC,0),kBed=K(PF_BC,0),kInc=K((PF_HEAD+PF_TAIL)/2,0),kTr=Math.min(K((-9200+PFB),0),kInc-.5);   /* the inclined belt's tail runs UNDER the transfer belt: the transfer belt is always drawn after it */
- const stk=(s,y,h,pt,op,l)=>{if(h<=.5)return '';const box={s,l:l||0,y,du:SHL/2,dv:SHW/2,h,pitch:pt||0,piv:s,pivY:y,...ORB,op};
+ const stk=(s,y,h,pt,op,l)=>{if(h<=.5||NOBOARD)return '';const box={s,l:l||0,y,du:SHL/2,dv:SHW/2,h,pitch:pt||0,piv:s,pivY:y,...ORB,op};
    return lbox({...box,lines:(P,vis)=>{if(!vis[4])return "";let L="";const n=Math.min(40,Math.floor(h/12));for(let i=1;i<n;i++){const yy=h*i/n,a=lpt(...P(-SHL/2,yy,-SHW/2)),c2=lpt(...P(SHL/2,yy,-SHW/2));L+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(c2[0])}" y2="${f1(c2[1])}" stroke="${ORS}" stroke-width=".3" opacity=".5"/>`;}return L;}});};
  /* waiting stack on the floor roller conveyor, lifting bed with its columns, pusher on top */
  o+=lslab((-12600+PFB),(-11380+PFB),-1070,1070,LGND,PF_LO-20)+lslab((-12580+PFB),(-11400+PFB),-1050,1050,PF_LO-20,PF_LO,1,'blue')+lslab((-12580+PFB),(-11400+PFB),-1050,-970,PF_LO-19,PF_LO+1,1,'yel');put(kConv);   /* blue modular belt, yellow edge */
@@ -1765,7 +1768,7 @@ function pfSVG(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o
  o+=lbox({s:mid,l:0,y:pfInc(mid)-15,du:hl-10,dv:1050,h:15,pitch:PF_A,piv:mid,pivY:pfInc(mid),top:'#2E9B4A',side:'#23793A',stroke:'var(--m-stroke)',sw:.4,
    lines:(P,vis)=>{if(!vis[3])return '';let L='';const off=S.run?S.sh*3:0;for(let u=-hl+(off%210);u<hl;u+=210){const a=lpt(...P(u,15,-1050)),c2=lpt(...P(u,15,1050));L+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(c2[0])}" y2="${f1(c2[1])}" stroke="#5DBB76" stroke-width=".5"/>`;}return L;}});put(kInc);
  /* shingle stream from the knife to the head, then onto the infeed stack */
- if(S.st>=THK||S.run){const sm=(PF_KN+PF_HEAD)/2,hs=(PF_HEAD-PF_KN)/2;
+ if(!NOBOARD&&(S.st>=THK||S.run)){const sm=(PF_KN+PF_HEAD)/2,hs=(PF_HEAD-PF_KN)/2;
    o+=lbox({s:sm,l:0,y:pfInc(sm),du:hs,dv:SHW/2,h:Math.max(4,THK*2.2),pitch:PF_A,piv:sm,pivY:pfInc(sm),...ORB,
      lines:(P,vis)=>{if(!vis[4])return "";let L="";const off=S.run?S.sh:0;for(let u=-hs+off;u<hs;u+=70){const a=lpt(...P(u,0,-SHW/2)),c2=lpt(...P(u,THK*2.2,-SHW/2));const d=lpt(...P(u,THK*2.2,SHW/2));
        L+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(c2[0])}" y2="${f1(c2[1])}" stroke="${ORS}" stroke-width=".4"/><line x1="${f1(c2[0])}" y1="${f1(c2[1])}" x2="${f1(d[0])}" y2="${f1(d[1])}" stroke="${ORS}" stroke-width=".3" opacity=".6"/>`;}return L;}});}put(on(kInc,(PF_KN+PF_HEAD)/2,0));
