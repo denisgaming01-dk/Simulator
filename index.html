@@ -338,7 +338,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v227 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v228 · 7 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1661,7 +1661,8 @@ function lineSVG(){let back='',mid='',front='';const st=LS;
    Everything behind the belt (transfer belt, lifting bed, pusher, waiting stack) moves with the fixed frame: PFD is that shift. */
 const smX=x=>(x-680-DI)/KU,PF_FIX0=smX(XS)-1500,PF_CYL=smX(XS-3)-2000-1200,PFD=(PF_FIX0-3000)-(-8600);
 const PFB=PFD+820;   /* back group (transfer belt, lifting-bed frame, pusher, waiting stack): the belt tail runs under the transfer belt and ends 300 mm from the lifting-bed frame (Denis) */
-const PF_HEAD=-6250,PF_HY=(YEX-197)/VS,PF_A=Math.atan(140/(PF_FIX0-3000-(-6250)))/D2R,PF_TA=Math.tan(PF_A*D2R),PF_KN=(-8450+PFB)+SHL+20,PF_SC=PF_KN-10-SHL/2,   /* knife: one sheet length (along the feed) in front of the transfer (delivery) belt */
+const PF_HEAD=smX(125+DI-SLX)-50,   /* belt head (adjustable part) stops 50 mm behind the back of the infeed stack, not over the sheets (Denis) */
+ PF_HY=(YEX-197)/VS,PF_A=Math.atan(140/(PF_FIX0-3000-PF_HEAD))/D2R,PF_TA=Math.tan(PF_A*D2R),PF_KN=(-8450+PFB)+SHL+20,PF_SC=PF_KN-10-SHL/2,   /* knife: one sheet length (along the feed) in front of the transfer (delivery) belt */
  PF_TAIL=(-8600+PFD),PF_TY=(YEX-197)/VS+540,PF_T0=(-9950+PFB),PF_T1=(-8450+PFB),PF_TE=(-8975+PFB),
  PF_BC=(-10525+PFB),PF_WC=(-11990+PFB),PF_PH=(-10525+PFB)-SHL/2-70,PF_LO=LGND+100,PF_STK=1600;
 /* the prefeeder is drawn at a smaller scale about its belt head, so it matches the size of the G-Cut drawing */
