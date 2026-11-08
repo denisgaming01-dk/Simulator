@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v257 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v258 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -847,6 +847,7 @@ L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke
  for(let z=ZN+6;z<ZF-6;z+=zw(70))L1+=boxR(x0+1,x1-1,221,224,z,Math.min(z+zw(45),ZF-6),'c-red');   /* red suction belts */
  for(const [a,b] of [[ZN+2,ZN+6],[ZF-6,ZF-2]])L1+=boxR(x0,x1,220,224,a,b,'c-blue');   /* blue chain edges */
  L1+=ln(x0+2,214,-2,x1-4,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"');
+ L1+=boxR(137,139,126,GP,ZN-4,ZF+4,'c-white');   /* back panel behind the guides, full width and height, so the chain is not seen from the infeed (Denis, photo) */
  L1+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */
  for(const [a,b] of [[ZN,zc-zw(60)],[zc+zw(60),ZF]])L1+=ln(120,127,a,120,127,b,'stroke="#8E949A" stroke-width="2.4"')+ln(120,127,a,120,127,b,'stroke="#C9CED3" stroke-width="1" stroke-dasharray="1.2 1"');   /* two ballscrews */
  L1+=boxR(117,135,118,138,zc-zw(60),zc+zw(60),'c-white')+boxR(128,132,138,146,zc-zw(15),zc+zw(15),'c-blue');   /* centre bearing block, centre photocell */
