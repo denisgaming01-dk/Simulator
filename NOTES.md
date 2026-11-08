@@ -126,6 +126,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v273: Die layout panel (title, legend Cut/Crease/Waste, feed direction), delivery pile / batches counters, cam-angle scale and the "Layout when cut / always" buttons hidden (display:none, code kept). Denis may want them back later as a tab.
   v274: orderWorld() was showing the die layout inset and scale again at turn 0; now they stay hidden at every angle.
   v275: Line stacks: the blank outline of a bundle is now centred on its real outer edges (lOutC), not on its grid cell in the die. Barcaffe blanks sat ~35 mm off centre, so layers turned 180 deg looked offset left/right on the pallet. Logic positions were already straight.
+  v276: Camera freedom: pan/zoom limits now follow the drawn scene (updBounds from #world bbox + 15% margin, recalculated on every tilt/turn), so the whole machine and line can be reached at any angle. Zoom-in limit 110 -> 40, turn slider in 1 deg steps.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
