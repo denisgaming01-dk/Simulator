@@ -143,6 +143,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v290: "Cinematic" button: camera turns 1 deg every 170 ms (about one round a minute) via the Turn slider; stops on the button, on touching the Turn slider or on Reset view; paused while the tab is hidden.
   v291: Cinematic mode smooth: turns every animation frame by elapsed time (6 deg/s, fractional yaw via setCam), and fits the view to the whole drawn scene each frame (fitAll from #world bbox) so the whole machine and line stay centred.
   v292: Line drawing order fixed for cameras on the far side: lineSVG now always back+mid+front (belts/bodies under stacks, overhead parts over), only the far-side frames (separator and press frames, palletizer column) move with the camera side ("far"). With solid covers belt 1 is drawn from the machine end cover on, so it no longer shows through the delivery end.
+  v293: Infeed stack no longer wiped by camera changes: buildStatic (called on every tilt/turn, so every cinematic frame) wrote the infeed top layer without the stack. Last drawn stack kept in INFSTK and reused.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
