@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v271 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v272 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -708,7 +708,7 @@ const scY=322;
 /* VS (px per mm) is defined with the gripper chain */
 const YEX=210+(330+565)*VS;   /* gripper bar (y 210) 330 mm above the big forks, lifting belt top level with the big forks and 565 mm above the exit belts */
 const GF=YEX+880*VS,GP=GF-650*VS,GT=GF-3000*VS;   /* machine 3000 mm high from the floor */
-let PLAT=null,SOLID=false,WALLS='';let INFSVG='';
+let PLAT=null,SOLID=false,WALLS='';let INFSVG='',INFBACK='';const infLayer=st=>PDEP(132,32)>PDEP(100,32)?INFBACK+st+INFSVG:st+INFSVG+INFBACK;   /* infeed back cover drawn behind or in front of the stack and guides, by which side the camera is on */
 /* solid covers, operator side, panel widths measured by Denis (mm, from the delivery end): panel after the guillotine 1000, delivery 1190,
    HMI column 550, stripping 1530 (rechecked), die-cutting 1690, infeed (feeder screen) 950. The drawing was laid out from the photo in "u" units
    (old section edges below); U() maps them onto the measured widths, so windows and buttons keep their place inside each panel. */
@@ -848,7 +848,7 @@ let INF='';
  for(let z=ZN+6;z<ZF-6;z+=zw(70))L1+=boxR(x0+1,x1-1,221,224,z,Math.min(z+zw(45),ZF-6),'c-red');   /* red suction belts */
  for(const [a,b] of [[ZN+2,ZN+6],[ZF-6,ZF-2]])L1+=boxR(x0,x1,220,224,a,b,'c-blue');   /* blue chain edges */
  L1+=ln(x0+2,214,-2,x1-4,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"');
- if(SOLID)INFSVG+=boxR(131,134,GT,222,ZN-4,ZF+4,'c-white');   /* infeed back cover: always drawn with the infeed guides when covers are solid (Denis) */   /* back panel of the infeed: from the belts up to the roof; the front guides and side align plates sit on it (Denis) */   /* back panel behind the guides, full width and height, so the chain is not seen from the infeed (Denis, photo) */
+ INFBACK=SOLID?boxR(131,134,GT,222,ZN-4,ZF+4,'c-white'):'';   /* infeed back cover: always drawn with the infeed guides when covers are solid (Denis) */   /* back panel of the infeed: from the belts up to the roof; the front guides and side align plates sit on it (Denis) */   /* back panel behind the guides, full width and height, so the chain is not seen from the infeed (Denis, photo) */
  L1+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */
  for(const [a,b] of [[ZN,zc-zw(60)],[zc+zw(60),ZF]])L1+=ln(120,127,a,120,127,b,'stroke="#8E949A" stroke-width="2.4"')+ln(120,127,a,120,127,b,'stroke="#C9CED3" stroke-width="1" stroke-dasharray="1.2 1"');   /* two ballscrews */
  L1+=boxR(117,135,118,138,zc-zw(60),zc+zw(60),'c-white')+boxR(128,132,138,146,zc-zw(15),zc+zw(15),'c-blue');   /* centre bearing block, centre photocell */
@@ -871,7 +871,7 @@ INFSVG=INF;
 XOF=0;
 {const g=SD-617;L1+=boxR(608.8+g,615+g,210,242,ZN,ZF,'c-gray')+boxR(604+g,621+g,242,250,ZN,ZF,'c-gray');}   /* guillotine moves with the chain (Denis) */
 L1+=[[...CHN.WD,CWR],...(SOLID?[]:[[...CHN.WI,CWRI]])].map(([x,y,rr])=>ell(x,y,ZN,rr,rr*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('');   /* chain wheels drawn behind the gripper bars and photocells; with solid covers the infeed wheel is hidden inside the closed infeed (Denis) */
-$('L1').innerHTML=L1;$('infTop').innerHTML=INFSVG;$('LP').innerHTML=LPSVG;
+$('L1').innerHTML=L1;$('infTop').innerHTML=infLayer('');$('LP').innerHTML=LPSVG;
 $('lower').innerHTML=boxR(PX0,PXR,220,260,ZN-6,ZF+6,'c-gray');
 let creaseD='';BOFF.forEach(o=>CRS(o).forEach(([u0,v0,u1,v1])=>creaseD+=seg3(SC,194,u0,v0,u1,v1)+' '));
 let U=`<g opacity=".42">`+boxR(PX0,PXR,128,174,ZN-6,ZF+6,'c-gray')+quad([[PX0+2,174,ZN-4],[PXR-2,174,ZN-4],[PXR-2,182,ZN-4],[PX0+2,182,ZN-4]],'fill="#888780" stroke="#5F5E5A" stroke-width="0.5"')+`</g>`;
@@ -1100,7 +1100,7 @@ for(let j=0;j<NB;j++){const [x,y,a]=pos((j+m)*P);
  const run0=Math.abs(y-Y)<.5&&Math.abs(a)<.5;
  const svg=sheetSVG(x-xs,y,a,o,run0,sh);
  if(y>CHC){low+=svg;barsLow+=bar(x,y,a);}else{top+=svg;barsTop+=bar(x,y,a);}}
-$('dyn').innerHTML=low+barsLow;$('infTop').innerHTML=stk+INFSVG;
+$('dyn').innerHTML=low+barsLow;$('infTop').innerHTML=infLayer(stk);
 if(!moving&&p>=.6&&p<.66&&present(k-5)){let dx,yy;const DX=18-90*VS;   /* front waste lands ~90 mm further toward the infeed on the belt (Denis) */if(p<.63){dx=DX*seg(.6,.63);yy=CHT;}else{dx=DX;yy=lerp(CHT,146,seg(.63,.66));}
  top+=piece(SF+dx,yy,0,0,FWL*KU,0,SZ0,SZ0+SZW,CO,COS,COE,1);}
 belt=belt.filter(t=>g-t<1.4&&g>=t);
