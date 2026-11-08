@@ -212,3 +212,13 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
 - Pallet turntable 8410 behaviour.
 - MP4 videos (1000 / 3000 / 6500 sheets/h) for PowerPoint – on hold.
 - Real stack-change timings from machine data (current estimates OK).
+
+## 3D view (WebGL) – preview in 3d.html (index.html untouched)
+- Restore point: branch svg-v298 = the classic version before any 3D work.
+- 3d.html = v298 plus a "View: classic / 3D (new)" button. The model code is unchanged: while CAP is set, PJ returns the 3D point packed into
+  its two numbers (x, round(z*1000)*1e7 + y + 5e6), f1 keeps full precision, and back-face culling is skipped. The world groups do not write to
+  the page in 3D mode: their innerHTML setters keep the strings (GLV.STR), which are parsed into triangles (ear clipping), thick lines and
+  even-odd hole polygons (stencil) and drawn with WebGL 2 and a depth buffer. Static scene is built twice (camera on each side) so both side walls exist.
+- Coplanar cover decals keep their SVG order with a tiny depth bias (attribute od, groups L3/L5).
+- Camera, tilt, turn, pan, zoom, cinematic are the same as classic; in 3D mode a camera move does not rebuild the scene.
+- Open: parsing the line/prefeeder strings each frame (~20 ms in the test browser); text labels are the classic ones.
