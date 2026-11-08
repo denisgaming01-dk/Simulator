@@ -116,6 +116,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v263: Infeed front guides lowered so their bottom sits almost on the belt (lifted for flute thickness), per Denis photo.
   v264: With solid covers the infeed gets a roof and a solid back cover panel (floor to roof, far side), like the rest of the machine. Door glass stays see-through.
   v265: Removed the roof over the infeed (not asked for); the solid back cover panel with solid covers stays.
+  v266: Removed the stray panel that stood outside the machine at the infeed (back wall at the far side). The solid back panel inside the machine, behind the guides, stays.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
