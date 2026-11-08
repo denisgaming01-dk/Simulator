@@ -1,10 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flatbed Die-Cutter Simulator</title>
-
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -332,13 +327,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 #mach .ts{font-family:var(--f-body);font-size:11px;fill:var(--muted)}
 .c-gray{fill:var(--m-fill);stroke:var(--m-stroke)} .c-wood{fill:#C89A62;stroke:#7A5530} .c-red{fill:#E07070;stroke:#A84848} .c-inox{fill:#C9CED3;stroke:#7D848B} .c-white{fill:#F2F3F4;stroke:#9AA0A6} .c-steel{fill:#4A4E55;stroke:#2A2D31} .c-blue{fill:var(--mb-fill);stroke:var(--mb-stroke)} .c-purple{fill:var(--mp-fill);stroke:var(--mp-stroke)}
 </style>
-</head>
-<body>
 
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v255 · 7 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v256 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -828,6 +821,14 @@ if(!front){/* operator platform shape (Denis's measurements, railings left out f
     for(const [x0,x1] of [[8,150],[160,300],[330,470],[480,632]]){o+=Q(x0,x1,winT,winB,'fill="none" stroke="var(--muted)" stroke-width=".8" stroke-opacity=".4"');   /* inspection windows in the guard doors */
      const xs=x1-14;o+=Q(xs,xs+7,winT-14,winT-2,'fill="#1F5FD6" stroke="#0E3A8C" stroke-width=".5"');   /* blue door switch (as on the Safety screen) */
      o+=ell(x0+16,lowT+10,zp,3.4,3.4*c,'fill="#1F5FD6" stroke="#F2D21B" stroke-width="1.6"');}}   /* reset button, yellow ring */
+     if(!SOLID){/* see-through: the infeed guarding (corner posts, top beam, 2000 x 2000 door) is kept too, as light glass, so the infeed panel stays visible */
+      const d1=XS-3,d0=d1-2000*VS,dT=GP-2000*VS;
+      o+=boxR(XH,XH+10,GT,GP,ZN-12,ZN-4,'c-white')+boxR(XH,XH+10,GT,GP,ZF+8,ZF+16,'c-white')+boxR(XH,XS,GT,GT+12,ZN-12,ZN-6,'c-white')+boxR(XH,XS,GT,GT+12,ZF+8,ZF+14,'c-white');
+      o+=quad([[XH+10,GT+12,zp],[XS,GT+12,zp],[XS,dT,zp],[XH+10,dT,zp]],'fill="#E4E7EA" fill-opacity=".22" stroke="#9AA0A6" stroke-width=".6"');
+      o+=quad([[d0,dT,zp],[d1,dT,zp],[d1,GP-1,zp],[d0,GP-1,zp]],'fill="#BFD6E6" fill-opacity=".18" stroke="#1C1E21" stroke-width="1"');
+      o+=ln((d0+d1)/2,dT,zp,(d0+d1)/2,GP-1,zp,'stroke="#3A3D42" stroke-width="1"');
+      o+=quad([[d0,dT+2000*VS*.59,zp],[d1,dT+2000*VS*.59,zp],[d1,GP-1,zp],[d0,GP-1,zp]],'fill="#E8EAEC" fill-opacity=".28" stroke="#9AA0A6" stroke-width=".6"');
+     }
    }
  return o+rail;}
 const DWC=XE-(PNL_U1[4]+PNL_U1[5])/2,PX0=DWC-740*VS,PXR=DWC+740*VS,PN0=Math.min(352+DS,SS-10-SLX-2);   /* platens and stripping tools cover the whole sheet */
@@ -2359,6 +2360,3 @@ setSpd();drawPile();buildMon();buildEvents();pick('overview');log('Machine runni
  setInterval(()=>{if(!ok)bg();},250);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)simCatchUp();});}
 </script>
-
-</body>
-</html>

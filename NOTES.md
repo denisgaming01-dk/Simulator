@@ -106,6 +106,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v253: platform + both staircases in one group (LP), all side/stair faces depth-sorted together, deck on top; LP is always drawn first (ground). Prefeeder: transfer belt always drawn after the inclined belt (its tail runs under it); cylinders and tail leg drawn before the belt.
   v254: infeed rebuilt from the empty-infeed photo: red suction belt strips with blue chain edges on a white table (420), two front stops with flaps near the middle, two side tampers (stainless plates with bent lead-in, white holders) at the sheet edges, beam with two ballscrews and a centre bearing/photocell. Platform outline split at the back-stair end so the wall behind the stairs sorts correctly.
   v255: "Board: shown / hidden" button above the 3D view (NOBOARD): sheets, stacks, waste, blanks, prefeeder board and line stacks are not drawn; the simulation keeps running.
+  v256: Infeed guarding (corner posts, top beam, 2000 x 2000 door) also drawn in see-through mode as light glass, so the infeed panel shows without solid covers. Clipping still open (not reproduced).
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
