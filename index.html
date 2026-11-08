@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v290 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v291 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -2301,12 +2301,16 @@ function gTick(){if(!$('gClk'))return;if($('gSfL0')){const sOk=mode!=='estop';$(
  sv('gPlt',(((k+p)%1)*360).toFixed(1));$('gFmt').textContent=`${SHL} × ${SHW} mm`;$('gThk').textContent=THK+' mm';$('gStk').textContent=STACK;$('gBar').style.width=(100*(mode==='run'?vAct:0)/6500)+'%';}
 function g1Fit(){const w=$('g1').clientWidth,k=Math.max(w,720)/1000;$('g1In').style.transform=`scale(${k})`;$('g1').style.height=(560*k)+'px';$('g1Wrap').style.overflowX=w<720?'auto':'hidden';}
 function hmiFit(){g1Fit();const w=$('hmi2').clientWidth,k=Math.max(w,720)/1000;$('hmi2In').style.transform=`scale(${k})`;$('hmi2').style.height=(640*k)+'px';$('hmi2Wrap').style.overflowX=w<720?'auto':'hidden';}
-/* cinematic mode: the camera turns round the machine slowly, 1 degree at a time (about one round in a minute), until switched off (v290) */
-{const b=$('cineB'),y=$('camY');let tm=0;
- const stop=()=>{clearInterval(tm);tm=0;b.setAttribute('aria-pressed','false');b.textContent='Cinematic';};
- b.onclick=()=>{if(tm){stop();return;}b.setAttribute('aria-pressed','true');b.textContent='Cinematic: on';
-  tm=setInterval(()=>{if(document.hidden)return;let v=+y.value+1;if(v>180)v-=360;y.value=v;y.dispatchEvent(new Event('input'));},170);};
- y.addEventListener('pointerdown',()=>{if(tm)stop();});$('camR').addEventListener('click',()=>{if(tm)stop();});}
+/* cinematic mode: the camera turns round the machine slowly and smoothly, every animation frame by the time that passed
+   (6 degrees a second, one round a minute), in fractions of a degree, until switched off (v290, smooth v291) */
+{const b=$('cineB'),y=$('camY');let on=false,raf=0,t0=0,a=0;
+ /* keep the whole machine and line in the picture, centred, as the camera goes round */
+ const fitAll=()=>{const bb=$('world').getBBox();if(!(bb.width>0))return;const x0=680-(bb.x+bb.width),cx=x0+bb.width/2,cy=bb.y+bb.height/2,w=Math.max(bb.width,bb.height/AR)*1.04;tw=null;vb=[cx-w/2,cy-w*AR/2,w,w*AR];setVB();};
+ const stop=()=>{on=false;cancelAnimationFrame(raf);b.setAttribute('aria-pressed','false');b.textContent='Cinematic';};
+ const step=t=>{if(!on)return;const dt=Math.min(.1,(t-t0)/1000);t0=t;a+=6*dt;if(a>180)a-=360;
+  setCam(null,a);fitAll();const r=Math.round(a);y.value=r;$('camYo').textContent=(r>0?'+':'')+r+'°';raf=requestAnimationFrame(step);};
+ b.onclick=()=>{if(on){stop();return;}on=true;a=+y.value;b.setAttribute('aria-pressed','true');b.textContent='Cinematic: on';raf=requestAnimationFrame(t=>{t0=t;step(t);});};
+ y.addEventListener('pointerdown',()=>{if(on)stop();});$('camR').addEventListener('click',()=>{if(on)stop();});}
 /* full screen: the real browser full screen when allowed, otherwise the view card covers the whole window (v289) */
 {const vfs=$('stage').parentElement,b=$('fsB');vfs.classList.add('vfs');
  const set=on=>{b.textContent=on?'Exit full screen':'Full screen';b.setAttribute('aria-pressed',on);document.body.style.overflow=on?'hidden':'';};
