@@ -144,6 +144,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v291: Cinematic mode smooth: turns every animation frame by elapsed time (6 deg/s, fractional yaw via setCam), and fits the view to the whole drawn scene each frame (fitAll from #world bbox) so the whole machine and line stay centred.
   v292: Line drawing order fixed for cameras on the far side: lineSVG now always back+mid+front (belts/bodies under stacks, overhead parts over), only the far-side frames (separator and press frames, palletizer column) move with the camera side ("far"). With solid covers belt 1 is drawn from the machine end cover on, so it no longer shows through the delivery end.
   v293: Infeed stack no longer wiped by camera changes: buildStatic (called on every tilt/turn, so every cinematic frame) wrote the infeed top layer without the stack. Last drawn stack kept in INFSTK and reused.
+  v294: Full-model render pass (survey every 30 deg, tilt 30/60, solid and see-through). Cover masks (setMasks/mkFit): with solid covers the infeed top layer and the prefeeder are masked by every camera-facing solid face (operator side with door glass at 40 %, drive side, roof over the infeed, delivery end), so they no longer draw over the machine from the far side or the delivery end. Mask area follows the visible view (cheap). Delivery chain wheel hidden with solid covers.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
