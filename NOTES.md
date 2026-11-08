@@ -135,6 +135,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v282: Belt body moved from transfer belt 1 (under the G-Cut exit) to transfer belt 2 (right before separator 1), as Denis meant.
   v283: Turntable turning top has a closed frame (two 80 mm end pieces, two side rails) so the spokes end in it; frame outer edge stays 250 mm inside the belt ends.
   v284: Reverted the v283 frame. Turntable top has no cross bar at the ends: the spokes end bare, as on the real turntable (Denis).
+  v285: Turntable top open on all 4 sides: outer edge spokes removed too, every spoke ends bare.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

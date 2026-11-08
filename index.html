@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v284 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v285 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1659,7 +1659,7 @@ function lineSVG(){let back='',mid='',front='';const st=LS;
    const gb=(mu,mv,du,dv)=>lbox({s:cc+mu*Math.cos(R)-mv*Math.sin(R),l:mu*Math.sin(R)+mv*Math.cos(R),y:ly-30,du,dv,h:30,rot:rr,top:'#F4F3EE',side:'#DAD8D0',stroke:'#9C9A92',sw:.35});
    const HT=H-250;   /* outer edge of the frame */   /* the turning top ends 250 mm before each end of the belt, so it can turn without going over the next belts (Denis, v281) */
    for(let g=-HT*2/3;g<=HT*2/3+1;g+=HT/3)back+=gb(g,0,18,LHW-10);   /* no cross bar at the ends: the spokes end bare, as on the real turntable (Denis, v284) */
-   for(let g=-LHW+10;g<=LHW;g+=(2*LHW-20)/6)back+=gb(0,g,HT,18);
+   {const sp=(2*LHW-20)/6;for(let g=-LHW+10+sp;g<=LHW-10-sp+1;g+=sp)back+=gb(0,g,HT,18);}   /* no spoke on the outer edges either: open on all 4 sides (Denis, v285) */
    const hq=lpt(cc,ly,0);back+=`<ellipse cx="${f1(hq[0])}" cy="${f1(hq[1])}" rx="7" ry="2.8" fill="#F4F3EE" stroke="#77756E" stroke-width=".7"/>`;});
  back+=lbelt(LC.align-HS("align"),LC.align+HS("align"));
  back+=lslab(LC.align-560,LC.align+560,-LHW-1700,-LHW-600,-90,-20)+lbox({s:LC.align,l:-LHW-1150,y:-20,du:520,dv:540,h:60,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4});
