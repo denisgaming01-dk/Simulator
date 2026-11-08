@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v294 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v295 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -386,7 +386,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <svg id="mach" viewBox="0 0 680 445" role="img" aria-label="3D view of the die-cutter">
           <g id="world" transform="matrix(-1 0 0 1 680 0)">
           <g id="LP"></g><g id="L0"></g><g id="L1"></g><g id="lower"></g><g id="pdash"></g><g id="bed"></g><g id="pile"></g><g id="outs"></g><g id="fing"></g><g id="wbItems"></g><g id="lstrip"></g>
-          <g id="dyn"></g>
+          <g id="dyn"></g><g id="linIn"></g>
           <g id="L4u"></g><g id="pins"></g><g id="knife"></g><g id="sens"></g>
           <g id="belt"></g><g id="beltItems"></g>
           <g id="L3"></g>
@@ -935,7 +935,7 @@ function orderWorld(){const wd=$('world');if(!WORLD0)WORLD0=[...wd.children];con
  let dc=WORLD0.filter(e=>!ov.includes(e)&&e!==ln_&&e!==pf);if(cyw<0)dc=dc.reverse();dc=dc.filter(e=>e.id!=='L5'&&e.id!=='infTop').concat(dc.filter(e=>e.id==='L5'),dc.filter(e=>e.id==='infTop'));   /* solid covers always on top */
  const parts=[{k:PDEP(340,32),e:dc},{k:PDEP(680+(1300+10*2400)/2*KU,32),e:[ln_]},{k:PDEP(-120,32),e:[pf]}].sort((a,b)=>b.k-a.k);
  parts.forEach(q=>q.e.forEach(e=>wd.appendChild(e)));
- wd.insertBefore($('LP'),wd.firstChild);setMasks();   /* the platform is the ground: always drawn first */
+ if(cyw>0)wd.appendChild($('LP'));else wd.insertBefore($('LP'),wd.firstChild);setMasks();   /* the platform lies wholly on the operator side: seen from there it is in front of the machine, line and prefeeder (it hides what is below its deck behind it), seen from the drive side it is behind everything (v295) */   /* the platform is the ground: always drawn first */
  if(SOLID&&cyw>=0)wd.appendChild($('L5'));   /* solid covers: nothing behind them (prefeeder head, infeed stack) shows through, only through the windows */ov.forEach(e=>{wd.appendChild(e);e.style.display='none';});   /* die layout inset and scale hidden for now (Denis, v274) */updBounds();}
 /* camera: tilt from side view (0°) to top view (90°); the turn swivels the whole picture a little left or right */
 function setCam(tilt,yaw){if(tilt!=null){CAM=tilt;const y0=SY(270,32);const a=Math.min(88.5,Math.max(1.5,tilt))*D2R;c=Math.cos(a);s=Math.sin(a);LVY=-s*KV/(c*LVPX);buildStatic();
@@ -1094,7 +1094,7 @@ function advance(dp){let guard=0;while(dp>1e-9&&mode==='run'&&guard++<80){const 
  if(Math.abs(p-nb)<1e-9){p=nb;for(const e of EV.filter(e=>Math.abs(e.p-nb)<1e-9)){if(mode!=='run'&&nb!==1&&!e.s)break;e.f();}}}}
 /* ---------- render ---------- */
 function render(ts){
-$('line').innerHTML=lineSVG();LPF=true;try{$('pref').innerHTML=pfSVG();}finally{LPF=false;}pfUI();
+$('line').innerHTML=lineSVG();$('linIn').innerHTML=LINSIDE;LPF=true;try{$('pref').innerHTML=pfSVG();}finally{LPF=false;}pfUI();
 const g=k+p;segs=[];
 const moving=p<.45,m=ease(seg(0,.45));
 const fwOnly={cut:1,wasteGone:1,blankGone:1};
@@ -1368,6 +1368,40 @@ const lVis=n=>{const nd=[n[0]/KU,-n[1]/LVPX,n[2]/KV],v=VV();return (nd[0]*v[0]+n
 const lDep=(sm,lm)=>PDEP(680+sm*KU,(LMID+lm)*KV);
 const lstr=q=>f1(q[0])+','+f1(q[1]);
 const lline=(a,b,st,w,da)=>`<path d="M${lstr(lpt(...a))} L${lstr(lpt(...b))}" stroke="${st}" stroke-width="${w||.6}" fill="none"${da?` stroke-dasharray="${da}"`:''}/>`;
+/* depth sorting of the line (v295): while LCAP is set, every box drawn by lbox becomes a piece with its 3D extent (s, l, y) instead of text.
+   lGrp bundles parts that interlock into one piece, lAdd adds any other drawing with its extent. lSortSVG then orders all pieces back to front:
+   two boxes that do not overlap along the line, across the line or in height are ordered by that axis (exact for boxes), the rest by height
+   and distance. Only pairs that overlap on screen are compared. */
+let LCAP=null;
+function lAdd(svg,b){if(!svg||!LCAP)return;const g=LCAP.g;if(g){g.svg+=svg;g.b=g.b?[Math.min(g.b[0],b[0]),Math.max(g.b[1],b[1]),Math.min(g.b[2],b[2]),Math.max(g.b[3],b[3]),Math.min(g.b[4],b[4]),Math.max(g.b[5],b[5])]:b.slice();}else LCAP.p.push({svg,b});}
+function lGrp(f){const g={svg:'',b:null},pv=LCAP.g;LCAP.g=g;const r=f();if(r)g.svg+=r;LCAP.g=pv;if(g.b)lAdd(g.svg,g.b);}
+function lSortSVG(P){const n=P.length;if(!n)return '';const E=1;
+ P.forEach(q=>{const b=q.b;let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;const pts=[];for(let i=0;i<8;i++){const t=lpt(i&1?b[1]:b[0],i&2?b[5]:b[4],i&4?b[3]:b[2]);pts.push(t);x0=Math.min(x0,t[0]);x1=Math.max(x1,t[0]);y0=Math.min(y0,t[1]);y1=Math.max(y1,t[1]);}q.h=lHull(pts);
+  q.r=[x0,x1,y0,y1];q.ds=lDep((b[0]+b[1])/2,0);q.dl=lDep(0,(b[2]+b[3])/2);q.d=lDep((b[0]+b[1])/2,(b[2]+b[3])/2);q.in=0;q.out=[];});
+ const before=(a,b)=>{const A=a.b,B=b.b;   /* true: a is drawn first */
+  if(A[1]<=B[0]+E||B[1]<=A[0]+E)return a.ds>b.ds;
+  if(A[3]<=B[2]+E||B[3]<=A[2]+E)return a.dl>b.dl;
+  if(A[5]<=B[4]+E)return true;if(B[5]<=A[4]+E)return false;
+  /* boxes that touch or slightly overlap: use the axis with the least overlap, that is the side they meet on */
+  const oS=Math.min(A[1],B[1])-Math.max(A[0],B[0]),oL=Math.min(A[3],B[3])-Math.max(A[2],B[2]),oY=Math.min(A[5],B[5])-Math.max(A[4],B[4]);
+  if(oS<=oL&&oS<=oY)return a.ds>b.ds;if(oL<=oY)return a.dl>b.dl;return A[4]+A[5]<B[4]+B[5];};
+ for(let i=0;i<n;i++){const a=P[i];for(let j=i+1;j<n;j++){const b=P[j];if(a.r[1]<=b.r[0]||b.r[1]<=a.r[0]||a.r[3]<=b.r[2]||b.r[3]<=a.r[2])continue;
+  if(!lHullHit(a.h,b.h))continue;   /* only pieces whose outlines really overlap on screen get an order, so no false loops */
+  if(before(a,b)){a.out.push(b);b.in++;}else{b.out.push(a);a.in++;}}}
+ const rest=new Set(P);let o='';const ready=P.filter(q=>!q.in);
+ while(rest.size){let q=ready.pop();if(!q||!rest.has(q)){if(q)continue;q=[...rest].reduce((m,x)=>(x.in<m.in||(x.in===m.in&&x.d>m.d))?x:m);}   /* a loop: take the least blocked, furthest piece */
+  rest.delete(q);o+=q.svg;q.out.forEach(x=>{if(rest.has(x)&&--x.in===0)ready.push(x);});}
+ return o;}
+function lHull(P){P=P.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const lo=[],up=[];
+ for(const p of P){while(lo.length>1&&cr(lo[lo.length-2],lo[lo.length-1],p)<=0)lo.pop();lo.push(p);}
+ for(let i=P.length-1;i>=0;i--){const p=P[i];while(up.length>1&&cr(up[up.length-2],up[up.length-1],p)<=0)up.pop();up.push(p);}
+ up.pop();lo.pop();return lo.concat(up);}
+function lHullHit(A,B){for(const H of [A,B])for(let i=0;i<H.length;i++){const p=H[i],q=H[(i+1)%H.length],nx=q[1]-p[1],ny=p[0]-q[0];
+  let a0=1e18,a1=-1e18,b0=1e18,b1=-1e18;for(const v of A){const d=v[0]*nx+v[1]*ny;a0=Math.min(a0,d);a1=Math.max(a1,d);}for(const v of B){const d=v[0]*nx+v[1]*ny;b0=Math.min(b0,d);b1=Math.max(b1,d);}
+  const tol=1e-3*Math.hypot(nx,ny);if(a1<=b0+tol||b1<=a0+tol)return false;}return true;}
+function lStkBox(it){const d=lDims(it),c=Math.cos((it.rot||0)*D2R),sn=Math.sin((it.rot||0)*D2R),a=Math.abs(c)>.5?d.al/2:d.ac/2,b2=Math.abs(c)>.5?d.ac/2:d.al/2;
+ if(it.roll||it.pitch){const r=Math.hypot(d.al,d.ac,it.h)/2,ym=it.y+it.h/2;return [it.s-r,it.s+r,it.l-r,it.l+r,ym-r,ym+r];}
+ return [it.s-d.al/2,it.s+d.al/2,it.l-d.ac/2,it.l+d.ac/2,it.y,it.y+it.h];}
 function lbox(o){
  const R=(o.rot||0)*D2R,cr=Math.cos(R),sr=Math.sin(R),RL=(o.roll||0)*D2R,PT=(o.pitch||0)*D2R,h=o.h;
  const P=(u,y,v)=>{let ds=u*cr-v*sr,dl=u*sr+v*cr,dy=y;
@@ -1385,6 +1419,7 @@ function lbox(o){
    out+=`<path d="${dpath}" fill="${up?o.top:o.side}" stroke="${o.stroke||'none'}" stroke-width="${o.sw||.4}" opacity="${op}" stroke-linejoin="round"/>`;
    if(o.shade&&!up)out+=`<path d="${dpath}" fill="#000" fill-opacity=".1" opacity="${op}"/>`;});
  if(o.lines)out+=o.lines(P,vis,op);
+ if(LCAP){let b=[1e9,-1e9,1e9,-1e9,1e9,-1e9];C.forEach(q=>{b[0]=Math.min(b[0],q[0]);b[1]=Math.max(b[1],q[0]);b[2]=Math.min(b[2],q[2]);b[3]=Math.max(b[3],q[2]);b[4]=Math.min(b[4],q[1]);b[5]=Math.max(b[5],q[1]);});lAdd(out,b);return '';}
  return out;}
 const LCOLS={dark:['var(--m-stroke)','var(--m-stroke)'],belt:['#5D5E62','#7C7D81'],ply:['#4F4138','#C9A57C'],white:['#F4F3EE','#DAD8D0'],yel:['#E8C832','#C9A91E'],red:['#C8462C','#A33822'],sheet:['#E9E6DA','#C8C4B4'],green:['#2E9B4A','#23793A'],lime:['#A6E85F','#78C23A'],blue:['#2F6FB5','#25588F'],steel:['#DDE0E2','#BFC4C8'],grey:['#C9CBC6','#A9ABA6'],gph:['#4A4D52','#5E6166']};
 const lslab=(s0,s1,l0,l1,y0,y1,op,cls)=>{const cc=LCOLS[cls]||['var(--m-fill)','var(--m-fill)'];return lbox({s:(s0+s1)/2,l:(l0+l1)/2,y:y0,du:(s1-s0)/2,dv:(l1-l0)/2,h:y1-y0,top:cc[0],side:cc[1],stroke:'var(--m-stroke)',sw:.5,shade:true,op});};
@@ -1665,7 +1700,10 @@ const lRobot=(cc,lPile,lDrop,rb,topY,yPile)=>{let o='';
  if(carry)o+=lbox({s:cc,l:hl,y:hy-6,du:LSET.brd.L/2,dv:LSET.brd.W/2,h:6,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4});
  o+=lHead(cc,hl,hy,yPile+1150,suck);
  return o;};
-function lineSVG(){let back='',mid='',front='',far='';const st=LS;
+let LINSIDE='';
+function lineSVG(){LCAP={p:[],g:null};try{return lineSVG0();}finally{LCAP=null;}}
+function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
+ const sB=(XE+14-680)/KU,inM=it=>SOLID&&it.s<sB&&it.y<300;   /* with solid covers: the part of belt 1 inside the machine and the batches on it go with the machine (v295) */
  /* stacking belt (section 6) under the column, running across the line; the bottom-sheet robot beside it */
  /* stacking belt (6) and, beside it on the operator side, the bottom-sheet belt */
  back+=lslab(LCOL-675,LCOL+675,-1050,1050,LGND,LPB-15)+lslab(LCOL-655,LCOL+655,-1030,1030,LPB-15,LPB,1,'belt');   /* stacking belt (6): 1350 mm along the line, 2100 mm across */
@@ -1676,21 +1714,22 @@ function lineSVG(){let back='',mid='',front='',far='';const st=LS;
   {const cm=lSheet.cmove||0;lSheet.col.forEach((x,i)=>back+=SH(LCOL+LPITCH*1.3*cm,x,Math.max(0,1-Math.max(0,cm-.5)*2),i));}
   lSheet.rdy.forEach((x,i)=>back+=SH(LCOL,x+LREADY*(1-mvv),1,i));}
  back+=lbody(LC.belt2-HS('belt2'),LC.belt2+HS('belt2'),-90)+lbody(LC.shift-HS('shift'),LC.shift+HS('shift'),-90)+['tt1','tt2'].map(kk=>lbody(LC[kk]-HS(kk)-40,LC[kk]+HS(kk)+40,-120)).join('');   /* bodies under transfer belt 2 (before separator 1), the shift belt and both turntables */
- back+=lbelt(SOLID?Math.max(LC.belt1-HS('belt1'),(XE+14-680)/KU):LC.belt1-HS('belt1'),LC.belt1+HS('belt1'))+   /* with solid covers the part of belt 1 under the delivery is inside the machine: drawn from the end cover on, so it cannot show through the machine (v292) */
+ {const cp=LCAP;LCAP=null;LINSIDE=SOLID?lbelt(LC.belt1-HS('belt1'),sB)+lItems.filter(q=>q.op>0.01&&inM(q)).sort((a,b)=>lDep(b.s,b.l)-lDep(a.s,a.l)).map(lStackSVG).join(''):'';LCAP=cp;}
+ back+=lbelt(SOLID?Math.max(LC.belt1-HS('belt1'),sB):LC.belt1-HS('belt1'),LC.belt1+HS('belt1'))+   /* with solid covers the part of belt 1 under the delivery is inside the machine: drawn from the end cover on, so it cannot show through the machine (v292) */
   lbelt(LC.belt2-HS('belt2'),LC.belt2+HS('belt2'))+lbelt(LC.shift-HS("shift"),LC.shift+HS("shift"));
  /* separators: back belt fixed, front belt section tilts with the front press */
  ['sep1','sep2'].forEach(kk=>{const cc=LC[kk],H=HS(kk),S=st[kk],it=S.its[0];back+=lbelt(cc-H,cc-15);const top=it?it.y+it.h:0;
    back+=lbox({s:cc+H/2+8,l:0,y:-90,du:H/2-8,dv:LHW,h:75,pitch:S.tilt||0,piv:cc,pivY:top,top:'var(--m-fill)',side:'var(--m-fill)',stroke:'var(--m-stroke)',sw:.5,shade:true})
      +lbox({s:cc+H/2+8,l:0,y:-15,du:H/2-18,dv:LHW-20,h:15,pitch:S.tilt||0,piv:cc,pivY:top,top:'#5D5E62',side:'#7C7D81',stroke:'var(--m-stroke)',sw:.5,shade:true});
    const fh=LSET.batchH+200;far+=lslab(cc-H-60,cc-H-20,LHW,LHW+60,-90,fh)+lslab(cc+H+20,cc+H+60,LHW,LHW+60,-90,fh)+lslab(cc-H-60,cc+H+60,LHW,LHW+60,fh,fh+50);});
- ['tt1','tt2'].forEach(kk=>{const cc=LC[kk],H=HS(kk),S=st[kk];back+=lslab(cc-H-40,cc+H+40,-LHW-30,LHW+30,-120,-40)+lslab(cc-H,cc+H,-LHW+10,LHW-10,-40,-8,1,'belt');
+ ['tt1','tt2'].forEach(kk=>{const cc=LC[kk],H=HS(kk),S=st[kk];back+=lslab(cc-H-40,cc+H+40,-LHW-30,LHW+30,-120,-40);lGrp(()=>{back+=lslab(cc-H,cc+H,-LHW+10,LHW-10,-40,-8,1,'belt');
    const ly=S.lift||0,rr=(S.gbase||0)+(S.rot||0),R=rr*D2R;
    const gb=(mu,mv,du,dv)=>lbox({s:cc+mu*Math.cos(R)-mv*Math.sin(R),l:mu*Math.sin(R)+mv*Math.cos(R),y:ly-30,du,dv,h:30,rot:rr,top:'#F4F3EE',side:'#DAD8D0',stroke:'#9C9A92',sw:.35});
    const HT=H-250;   /* outer edge of the frame */   /* the turning top ends 250 mm before each end of the belt, so it can turn without going over the next belts (Denis, v281) */
    const RT=Math.min(H,LHW)-150,hl=g=>Math.sqrt(Math.max(0,RT*RT-g*g));   /* every spoke tip inside one circle, so nothing pokes over the belt edge at any turn angle (Denis, v286); tips 150 mm from the belt edge (v287) */
    for(let g=-HT*2/3;g<=HT*2/3+1;g+=HT/3)back+=gb(g,0,18,hl(g));   /* no cross bar at the ends: the spokes end bare, as on the real turntable (Denis, v284) */
    {const sp=(2*LHW-20)/6;for(let g=-LHW+10+sp;g<=LHW-10-sp+1;g+=sp)back+=gb(0,g,hl(g),18);}   /* no spoke on the outer edges either: open on all 4 sides (Denis, v285) */
-   const hq=lpt(cc,ly,0);back+=`<ellipse cx="${f1(hq[0])}" cy="${f1(hq[1])}" rx="7" ry="2.8" fill="#F4F3EE" stroke="#77756E" stroke-width=".7"/>`;});
+   const hq=lpt(cc,ly,0);return `<ellipse cx="${f1(hq[0])}" cy="${f1(hq[1])}" rx="7" ry="2.8" fill="#F4F3EE" stroke="#77756E" stroke-width=".7"/>`;});});   /* belt, turning grid and hub as one piece */
  back+=lbelt(LC.align-HS("align"),LC.align+HS("align"));
  back+=lslab(LC.align-560,LC.align+560,-LHW-1700,-LHW-600,-90,-20)+lbox({s:LC.align,l:-LHW-1150,y:-20,du:520,dv:540,h:60,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4});
  back+=lbelt(LC.press-HS("press"),LC.press+HS("press"),(LS.press&&LS.press.lift)||0);   /* bottom belt lifts while the drum clamps */
@@ -1702,10 +1741,10 @@ function lineSVG(){let back='',mid='',front='',far='';const st=LS;
    for(let i=0;i<15;i++){const z=-1015+145*i;mid+=lslab(cc-LHS+20,cc+LHS-20,z-50,z+50,cy-55,cy,1,'blue');}   /* blue belt strips along the line */
    for(let i=0;i<14;i++){const z=-942.5+145*i;mid+=lslab(cc-LHS+40+fx,cc+LHS-10+fx,z-18,z+18,cy-50,cy,1,'steel');}   /* fork tops level with the blue belt tops: the stack sits on both (v278) */   /* forks: steel rails between the belt strips, they drive out with the layer */
    mid+=lslab(LCOL-LHS,LCOL+LHS,LHW,LHW+150,cy-110,cy+40,.9,'yel');}
- const its=lItems.filter(q=>q.op>0.01).slice().sort((a,b)=>(lDep(b.s,b.l)-lDep(a.s,a.l))||(a.y-b.y));
+ const its=lItems.filter(q=>q.op>0.01&&!inM(q)).slice().sort((a,b)=>(lDep(b.s,b.l)-lDep(a.s,a.l))||(a.y-b.y));
  /* the interleave board lies over the whole block: draw it right after the last stack of its block, so the other stacks cannot cover it */
  const bLast=new Map();its.forEach((it,i)=>{if(it.board&&it.bo)bLast.set(it.bo,i);});
- its.forEach((it,i)=>{mid+=lStackSVG(it);
+ its.forEach((it,i)=>{lAdd(lStackSVG(it),lStkBox(it));
    for(const [o,j] of bLast)if(j===i&&o.bd&&!it.roll&&Math.abs(it.pitch||0)<20){const mem=its.filter(q=>q.bo===o),top=Math.max(...mem.map(q=>q.y+q.h));
      mid+=lbox({s:o.s+o.bd.ds,l:o.l+o.bd.dl,y:top,du:o.bd.L/2,dv:o.bd.W/2,h:6,pitch:o.pitch,piv:o.piv,pivY:o.pivY,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4,op:Math.min(...mem.map(q=>q.op))});}});
  /* separator presses */
@@ -1723,9 +1762,9 @@ function lineSVG(){let back='',mid='',front='',far='';const st=LS;
  {const S=st.align,cc=LC.align,gd=S.gd||0,pl=S.pl||0,bi=S.its;const be=bi.length?lExt(bi):null,ac=be?be.wid/2:540,lc=be?(be.l0+be.l1)/2:0;
    const ph=300*(1-pl);front+=lslab(cc+HS("align"),cc+HS("align")+40,-LHW+50,LHW-50,ph-300,ph,.95);
    const gap=lerp(160,0,gd);front+=lslab(cc-HS("align")+100,cc+HS("align")-100,lc+ac+gap,lc+ac+gap+30,0,180,.4)+lslab(cc-HS("align")+100,cc+HS("align")-100,lc-ac-gap-30,lc-ac-gap,0,180,.4);
-   const tops=bi.length?Math.max(...bi.map(q=>q.y+q.h))+6:200;front+=lRobot(cc,-LHW-1150,lc,S.rb,tops,0);}
+   const tops=bi.length?Math.max(...bi.map(q=>q.y+q.h))+6:200;lGrp(()=>lRobot(cc,-LHW-1150,lc,S.rb,tops,0));}
  /* bottom-sheet robot over the ready spot */
- front+=lRobotS(LREADY,LSTORE,LCOL,lBot.rb,LPB+6,LPB-20);
+ lGrp(()=>lRobotS(LREADY,LSTORE,LCOL,lBot.rb,LPB+6,LPB-20));
  /* rotation press */
  {const S=st.press,cc=LC.press,bi=S.its,cl=S.cl||0;const top=bi.length?Math.max(...bi.map(q=>q.y+q.h)):0;const py=lerp(PR_OPEN,top,cl);   /* top belt: open at 432 mm, closes onto the stack */
    if(S.ph==='roll'&&bi.length){const bot=Math.min(...bi.map(q=>q.y)),hh=top-bot;
@@ -1733,9 +1772,10 @@ function lineSVG(){let back='',mid='',front='',far='';const st=LS;
    else front+=lslab(cc-PR_L/2,cc+PR_L/2,-PR_W/2,PR_W/2,py,py+40,1,'belt')+lslab(cc-PR_L/2-20,cc+PR_L/2+20,-PR_W/2-20,PR_W/2+20,py+40,py+110,1,'white');   /* upper mesh belt on its frame */
    /* the drum: a big ring on each side of the line; the whole drum turns the stack over */
    {const Rr=760,yc=PR_OPEN/2,rl=((bi.length&&S.ph==='roll')?bi[0].pitch:0)*D2R;
-    for(const lr of [-PR_W/2-80,PR_W/2+80]){let d='';for(let i=0;i<=48;i++){const a=i/48*2*Math.PI,q=lpt(cc+Rr*Math.cos(a),yc+Rr*Math.sin(a),lr);d+=(i?' L':'M')+lstr(q);}
-      front+=`<path d="${d}" fill="none" stroke="var(--m-stroke)" stroke-width="7" opacity=".55"/><path d="${d}" fill="none" stroke="#ECECE8" stroke-width="5" opacity=".8"/>`;
-      for(let k=0;k<4;k++){const a=rl+k*Math.PI/2,q0=lpt(cc+(Rr-90)*Math.cos(a),yc+(Rr-90)*Math.sin(a),lr),q1=lpt(cc+(Rr+10)*Math.cos(a),yc+(Rr+10)*Math.sin(a),lr);front+=`<path d="M${lstr(q0)} L${lstr(q1)}" stroke="#8E9398" stroke-width="2.4"/>`;}}}}
+    for(const lr of [-PR_W/2-80,PR_W/2+80]){let d='',rg='';for(let i=0;i<=48;i++){const a=i/48*2*Math.PI,q=lpt(cc+Rr*Math.cos(a),yc+Rr*Math.sin(a),lr);d+=(i?' L':'M')+lstr(q);}
+      rg+=`<path d="${d}" fill="none" stroke="var(--m-stroke)" stroke-width="7" opacity=".55"/><path d="${d}" fill="none" stroke="#ECECE8" stroke-width="5" opacity=".8"/>`;
+      for(let k=0;k<4;k++){const a=rl+k*Math.PI/2,q0=lpt(cc+(Rr-90)*Math.cos(a),yc+(Rr-90)*Math.sin(a),lr),q1=lpt(cc+(Rr+10)*Math.cos(a),yc+(Rr+10)*Math.sin(a),lr);rg+=`<path d="M${lstr(q0)} L${lstr(q1)}" stroke="#8E9398" stroke-width="2.4"/>`;}
+      lAdd(rg,[cc-Rr-10,cc+Rr+10,lr-12,lr+12,yc-Rr-10,yc+Rr+10]);}}}   /* each drum ring is its own piece: the far one behind the stack, the near one in front */
  /* palletizer align plates, closing on the stack over the column */
  {const S=st.pal,gd=S.gd||0,cy=S.cy||0,bi=S.its.length?S.its:(S.last||[]);if(gd>0&&bi.length){const e=lExt(bi),tot=e.len,wid=e.wid,lc=(e.l0+e.l1)/2,sc=(e.s0+e.s1)/2;
    const y0=Math.max(lColTop()-150,cy-250),y1=cy+Math.max(...bi.map(q=>q.h))+20,sF=sc+tot/2,sB=sc-tot/2,g=lerp(180,0,gd);
@@ -1743,7 +1783,7 @@ function lineSVG(){let back='',mid='',front='',far='';const st=LS;
    const P3=(a0,a1,f)=>{let o='';const w=(a1-a0-40)/3;for(let k=0;k<3;k++){const b0=a0+k*(w+20);o+=f(b0,b0+w);}return o;};
    front+=P3(lc-wid/2-80,lc+wid/2+80,(b0,b1)=>lslab(sF+g,sF+g+30,b0,b1,y0,y1,.8,'white')+lslab(sB-g-30,sB-g,b0,b1,y0,y1,.8,'white'));
    front+=P3(sB,sF,(b0,b1)=>lslab(b0,b1,lc+wid/2+g,lc+wid/2+g+30,y0,y1,.7,'white')+lslab(b0,b1,lc-wid/2-g-30,lc-wid/2-g,y0,y1,.7,'white'));}}
- return cyw<0?back+mid+front+far:far+back+mid+front;}   /* belts and bodies always under the stacks, overhead parts always over them; only the frames on the far (AS) side change place with the camera side (v292) */
+ return lSortSVG(LCAP.p)+back+mid+front+far;}   /* belts and bodies always under the stacks, overhead parts always over them; only the frames on the far (AS) side change place with the camera side (v292) */
 /* ---------- prefeeder (before the G-Cut infeed) ----------
    Board stack (up to 2000 mm, it has to pass under the pusher) rolls onto the lifting bed. The bed lifts the stack so the top bundle
    stands above the transfer belt, the pusher pushes it off onto the transfer belt, and the pneumatic pusher puts it on the stored board.
@@ -1788,7 +1828,8 @@ function pfStep(dt){const S=PF,B=S.bed;const mvB=(to,v)=>{const d=to-B.y,st=v*dt
  /* shingle belt: keeps the infeed stack full */
  if(!S.on||S.st<THK||infH>=INF_FULL)S.run=false;else if(infH<INF_FULL-4)S.run=true;
  if(S.run){S.acc+=S.spd/70*dt;while(S.acc>=1){S.acc--;if(S.st<THK)break;S.st-=THK;infH=Math.min(INF_FULL,infH+THK);}S.sh=(S.sh+S.spd*dt)%70;S.rot=((S.rot||0)+S.spd*dt/260)%(2*Math.PI);}}
-function pfSVG(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o='';
+function pfSVG(){const cp=LCAP;LCAP={p:[],g:null};try{pfSVG0();return lSortSVG(LCAP.p);}finally{LCAP=cp;}}   /* prefeeder: every box depth-sorted like the line (v295) */
+function pfSVG0(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o='';
  /* parts are drawn far to near; anything standing on a belt or bed goes right after it */
  const Zs=[],put=k=>{if(o)Zs.push({k,o});o='';},K=(s,l)=>lDep(pfS(s),l),on=(sup,s,l)=>sup-1+(K(s,l)-sup)*1e-4;
  const kConv=K(PF_WC,0),kBed=K(PF_BC,0),kInc=K((PF_HEAD+PF_TAIL)/2,0),kTr=Math.min(K((-9200+PFB),0),kInc-.5);   /* the inclined belt's tail runs UNDER the transfer belt: the transfer belt is always drawn after it */
@@ -1834,7 +1875,7 @@ function pfSVG(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o
    +lslab(PF_KN,PF_KN+25,-430,-390,y0+450,y0+650,1,'grey')+lslab(PF_KN,PF_KN+25,390,430,y0+450,y0+650,1,'grey');   /* hangers up to the frame */   /* stainless gate with the notch in the middle */
   o+=lslab(PF_KN-60,PF_KN+80,-1130,1130,y0+650,y0+730,1,'grey')+lslab(PF_KN-40,PF_KN+20,-1110,-1050,pfInc(PF_KN)-60,y0+730,1,'grey')+lslab(PF_KN-60,PF_KN+60,-120,120,y0+730,y0+960,1,'dark');}   /* frame, spindle motor sets the gap */put(on(kInc,PF_KN,0));
  /* head roller over the back of the infeed stack */
- {const q=lpt(PF_HEAD,PF_HY-30,-1050);o+=`<ellipse cx="${f1(q[0])}" cy="${f1(q[1])}" rx="4" ry="3" fill="var(--faint)" stroke="var(--m-stroke)" stroke-width=".5"/>`;}put(K(PF_HEAD,-1100));
+ {const q=lpt(PF_HEAD,PF_HY-30,-1050);lAdd(`<ellipse cx="${f1(q[0])}" cy="${f1(q[1])}" rx="4" ry="3" fill="var(--faint)" stroke="var(--m-stroke)" stroke-width=".5"/>`,[PF_HEAD-40,PF_HEAD+40,-1080,-1020,PF_HY-70,PF_HY]);}put(K(PF_HEAD,-1100));
  /* bundle on its way, pusher and pneumatic pusher */
  if(S.bd){o+=stk(S.bd.s,S.bd.y,S.bd.h,S.bd.pt,1,S.bd.l);put(S.bd.ph==='push'?on(Math.min(kBed,kTr),S.bd.s,0):S.bd.ph==='off'||S.bd.ph==='align'?on(kInc,S.bd.s,0)-.0002:on(kTr,S.bd.s,0));}   /* near side panel, see-through */
  /* overhead pusher: white box beam along the push direction on dark cross beams, geared motor on its far end,
