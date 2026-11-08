@@ -139,6 +139,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v286: Turntable spokes clipped to one circle (radius min(H-250, LHW-10) = 800 mm): outer spokes shorter, so no spoke tip pokes over the belt edge at any turn angle.
   v287: Turntable spoke circle radius = min(H,LHW)-150 = 900 mm: spoke tips 150 mm from the belt edge at any turn angle.
   v288: Turntable grid no longer jumps back after a turn: drawn angle = gbase + rot, gbase accumulates each turn (mod 360) when the grid lowers.
+  v289: "Full screen" button next to Reset view: browser full screen of the view card when allowed, otherwise the card covers the window (class fsOn, Esc leaves). Buttons and legend stay, section text under the view is hidden, drawing fills the rest.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

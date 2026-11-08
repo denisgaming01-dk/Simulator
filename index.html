@@ -61,6 +61,12 @@ button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);bor
 .stage{position:relative;overflow:hidden;touch-action:none;cursor:grab;background:var(--panel)}
 .stage:active{cursor:grabbing}
 #mach{display:block;width:100%;height:auto;user-select:none}
+/* full screen view (v289): the view card fills the screen, the drawing takes all the room left under the buttons */
+.vfs:fullscreen,.vfs.fsOn{background:var(--panel);display:flex;flex-direction:column;padding:8px;overflow:auto;max-width:none}
+.vfs.fsOn{position:fixed;inset:0;z-index:1000;margin:0;border-radius:0}
+.vfs:fullscreen .stage,.vfs.fsOn .stage{flex:1;min-height:0}
+.vfs:fullscreen #mach,.vfs.fsOn #mach{width:100%;height:100%}
+.vfs:fullscreen .below~*,.vfs.fsOn .below~*{display:none}   /* only the view in full screen, not the section text under it */
 .alarm.warn{background:#BA7517}
 .alarm{position:absolute;left:12px;right:12px;top:12px;background:var(--fault);color:#fff;border-radius:var(--r);padding:10px 14px;display:flex;gap:12px;align-items:flex-start;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.18)}
 [hidden]{display:none!important}
@@ -331,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v288 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v289 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -372,6 +378,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <label>Tilt <input type="range" id="camT" min="0" max="90" step="1" value="35" aria-label="Camera tilt, 0 side view to 90 top view"><output id="camTo">35°</output></label>
           <label>Turn <input type="range" id="camY" min="-180" max="180" step="1" value="0" aria-label="Turn the camera round the machine, 360 degrees"><output id="camYo">0°</output></label>
           <button id="camR" aria-label="Reset camera">Reset view</button>
+          <button id="fsB" aria-pressed="false" title="Show the 3D view on the whole screen (Esc to leave)">Full screen</button>
         </div>
       </div>
       <div class="stage" id="stage">
@@ -2293,6 +2300,16 @@ function gTick(){if(!$('gClk'))return;if($('gSfL0')){const sOk=mode!=='estop';$(
  sv('gPlt',(((k+p)%1)*360).toFixed(1));$('gFmt').textContent=`${SHL} × ${SHW} mm`;$('gThk').textContent=THK+' mm';$('gStk').textContent=STACK;$('gBar').style.width=(100*(mode==='run'?vAct:0)/6500)+'%';}
 function g1Fit(){const w=$('g1').clientWidth,k=Math.max(w,720)/1000;$('g1In').style.transform=`scale(${k})`;$('g1').style.height=(560*k)+'px';$('g1Wrap').style.overflowX=w<720?'auto':'hidden';}
 function hmiFit(){g1Fit();const w=$('hmi2').clientWidth,k=Math.max(w,720)/1000;$('hmi2In').style.transform=`scale(${k})`;$('hmi2').style.height=(640*k)+'px';$('hmi2Wrap').style.overflowX=w<720?'auto':'hidden';}
+/* full screen: the real browser full screen when allowed, otherwise the view card covers the whole window (v289) */
+{const vfs=$('stage').parentElement,b=$('fsB');vfs.classList.add('vfs');
+ const set=on=>{b.textContent=on?'Exit full screen':'Full screen';b.setAttribute('aria-pressed',on);document.body.style.overflow=on?'hidden':'';};
+ const isOn=()=>document.fullscreenElement===vfs||vfs.classList.contains('fsOn');
+ const off=()=>{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});vfs.classList.remove('fsOn');set(false);};
+ b.onclick=()=>{if(isOn()){off();return;}const rq=vfs.requestFullscreen||vfs.webkitRequestFullscreen;
+  const pseudo=()=>{vfs.classList.add('fsOn');set(true);};
+  if(rq){try{const r=rq.call(vfs);if(r&&r.then)r.then(()=>set(true)).catch(pseudo);else set(true);}catch(e){pseudo();}}else pseudo();};
+ document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&!vfs.classList.contains('fsOn'))set(false);});
+ window.addEventListener('keydown',e=>{if(e.key==='Escape'&&vfs.classList.contains('fsOn'))off();},true);}
 /* resize the panel on the next frame and only when the width really changed, so the new height cannot start a resize loop
    (a page scrollbar appearing or going would otherwise flip the width back and forth) */
 let hmiW=-1,hmiRaf=0;new ResizeObserver(()=>{if(hmiRaf)return;hmiRaf=requestAnimationFrame(()=>{hmiRaf=0;const w=$('hmi2').clientWidth;if(Math.abs(w-hmiW)<24&&hmiW>0)return;hmiW=w;hmiFit();});}).observe($('hmi2'));hmiFit();hmiW=$('hmi2').clientWidth;
