@@ -120,6 +120,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v267: Infeed back panel now runs from the belts up to the roof (x 131-134, full infeed length). Front guides and side align plates sit on it. Open: the infeed chain wheel (x 85-125) is still in front of the panel, so it shows.
   v268: With solid covers the infeed chain wheel is not drawn (hidden inside the closed infeed). Everything behind solid covers is hidden; windows stay see-through.
   v269: Infeed back panel is drawn only with solid covers, so it disappears with covers see-through.
+  v270: Infeed front guides, side align plates and the infeed sheet stack are drawn in a top layer, so they show with covers on and off from every angle. Back panel stays solid-only.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

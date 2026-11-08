@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v269 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v270 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -382,7 +382,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <g id="L4u"></g><g id="pins"></g><g id="knife"></g><g id="sens"></g>
           <g id="belt"></g><g id="beltItems"></g>
           <g id="L3"></g>
-          <g id="topdyn"></g><g id="ejector"></g><g id="L5"></g>
+          <g id="topdyn"></g><g id="ejector"></g><g id="L5"></g><g id="infTop"></g>
           <g id="scale"></g>
           <g id="inset"></g>
           <g id="line"></g><g id="pref"></g>
@@ -708,7 +708,7 @@ const scY=322;
 /* VS (px per mm) is defined with the gripper chain */
 const YEX=210+(330+565)*VS;   /* gripper bar (y 210) 330 mm above the big forks, lifting belt top level with the big forks and 565 mm above the exit belts */
 const GF=YEX+880*VS,GP=GF-650*VS,GT=GF-3000*VS;   /* machine 3000 mm high from the floor */
-let PLAT=null,SOLID=false,WALLS='';
+let PLAT=null,SOLID=false,WALLS='';let INFSVG='';
 /* solid covers, operator side, panel widths measured by Denis (mm, from the delivery end): panel after the guillotine 1000, delivery 1190,
    HMI column 550, stripping 1530 (rechecked), die-cutting 1690, infeed (feeder screen) 950. The drawing was laid out from the photo in "u" units
    (old section edges below); U() maps them onto the measured widths, so windows and buttons keep their place inside each panel. */
@@ -837,6 +837,7 @@ $('L0').innerHTML=gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke=
 [[...CHN.WD,CWR],[...CHN.WI,CWRI]].map(([x,y,rr])=>ln(x,y,ZF,x,y,ZN,'stroke="var(--faint)" stroke-width="3"')+ell(x,y,ZF,rr,rr*c,'fill="none" stroke="var(--faint)" stroke-width="2"')).join('');
 let L1='';XOF=DIF;
 L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke-linecap="round"')+ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--panel)" stroke-width="10.5" stroke-linecap="round"');
+let INF='';
 {/* infeed, from Denis's photo of the empty infeed (seen from the stack side):
    - suction table 420 mm along the feed: white frame, red suction belt strips across the whole width, blue chain edges at both sides
    - two narrow stainless front stops (knives) in the middle with angled flaps leaning back over the stack, photocells on their holders
@@ -851,25 +852,26 @@ L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke
  L1+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */
  for(const [a,b] of [[ZN,zc-zw(60)],[zc+zw(60),ZF]])L1+=ln(120,127,a,120,127,b,'stroke="#8E949A" stroke-width="2.4"')+ln(120,127,a,120,127,b,'stroke="#C9CED3" stroke-width="1" stroke-dasharray="1.2 1"');   /* two ballscrews */
  L1+=boxR(117,135,118,138,zc-zw(60),zc+zw(60),'c-white')+boxR(128,132,138,146,zc-zw(15),zc+zw(15),'c-blue');   /* centre bearing block, centre photocell */
- L1+=boxR(130,134,176,184,ZN+6,ZF-6,'c-inox');   /* rail the stops sit on */
+ INF+=boxR(130,134,176,184,ZN+6,ZF-6,'c-inox');   /* rail the stops sit on */
  const fp=[zc-SZW*.17-zw(100),zc+SZW*.17-zw(100)];
  fp.forEach(z0=>{const z1=z0+zw(200);
-   L1+=boxR(117,135,124,138,z0-zw(20),z1+zw(20),'c-white');   /* carriage on the screw */
-   L1+=boxR(126,130,150,214,z0,z1,'c-inox');   /* guide bottom almost on the belt, lifted for the flute thickness (Denis) */   /* stainless front stop; the sheet runs out under it */
-   L1+=quad([[127,150,z0],[127,150,z1],[113,131,z1],[113,131,z0]],'fill="#C3C8CD" stroke="#7D848B" stroke-width=".5"');   /* angled flap leaning back over the stack */
-   L1+=boxR(128,133,141,148,z0+zw(20),z0+zw(60),'c-blue');});   /* photocell on the stop holder */
+   INF+=boxR(117,135,124,138,z0-zw(20),z1+zw(20),'c-white');   /* carriage on the screw */
+   INF+=boxR(126,130,150,214,z0,z1,'c-inox');   /* guide bottom almost on the belt, lifted for the flute thickness (Denis) */   /* stainless front stop; the sheet runs out under it */
+   INF+=quad([[127,150,z0],[127,150,z1],[113,131,z1],[113,131,z0]],'fill="#C3C8CD" stroke="#7D848B" stroke-width=".5"');   /* angled flap leaning back over the stack */
+   INF+=boxR(128,133,141,148,z0+zw(20),z0+zw(60),'c-blue');});   /* photocell on the stop holder */
  {const tx0=125-560*VS,tx1=125-20*VS,ty=150;   /* side tampers at the sheet edges */
   for(const [zi,dir] of [[SZ0-zw(6),-1],[SZ0+SZW+zw(6),1]]){const za=Math.min(zi,zi+dir*zw(18)),zb=Math.max(zi,zi+dir*zw(18));
-   L1+=boxR(tx0,tx1,ty,214,za,zb,'c-inox');   /* stainless tamper plate */
-   L1+=quad([[tx0,ty,zi],[tx0,214,zi],[tx0-60*VS,214,zi+dir*zw(80)],[tx0-60*VS,ty,zi+dir*zw(80)]],'fill="#C3C8CD" stroke="#7D848B" stroke-width=".5"');   /* bent lead-in at the back */
-   const zo=dir<0?[za-zw(160),za]:[zb,zb+zw(160)];L1+=boxR(tx0+20*VS,tx1-80*VS,ty+6,ty+40,...zo,'c-white');}}   /* white tamper holder outside */
+   INF+=boxR(tx0,tx1,ty,214,za,zb,'c-inox');   /* stainless tamper plate */
+   INF+=quad([[tx0,ty,zi],[tx0,214,zi],[tx0-60*VS,214,zi+dir*zw(80)],[tx0-60*VS,ty,zi+dir*zw(80)]],'fill="#C3C8CD" stroke="#7D848B" stroke-width=".5"');   /* bent lead-in at the back */
+   const zo=dir<0?[za-zw(160),za]:[zb,zb+zw(160)];INF+=boxR(tx0+20*VS,tx1-80*VS,ty+6,ty+40,...zo,'c-white');}}   /* white tamper holder outside */
  {const xb=125-SLX,zh=zw(70);   /* back stop: white column on the floor, arm and a white plate against the back of the stack */
   L1+=boxR(xb-16,xb-8,214,GP,zc-zh,zc+zh,'c-white')+boxR(xb-16,xb-2,206,214,zc-zh,zc+zh,'c-white')+boxR(xb-4,xb-1,192,212,zc-zw(150),zc+zw(150),'c-white');}
 }
+INFSVG=INF;
 XOF=0;
 {const g=SD-617;L1+=boxR(608.8+g,615+g,210,242,ZN,ZF,'c-gray')+boxR(604+g,621+g,242,250,ZN,ZF,'c-gray');}   /* guillotine moves with the chain (Denis) */
 L1+=[[...CHN.WD,CWR],...(SOLID?[]:[[...CHN.WI,CWRI]])].map(([x,y,rr])=>ell(x,y,ZN,rr,rr*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('');   /* chain wheels drawn behind the gripper bars and photocells; with solid covers the infeed wheel is hidden inside the closed infeed (Denis) */
-$('L1').innerHTML=L1;$('LP').innerHTML=LPSVG;
+$('L1').innerHTML=L1;$('infTop').innerHTML=INFSVG;$('LP').innerHTML=LPSVG;
 $('lower').innerHTML=boxR(PX0,PXR,220,260,ZN-6,ZF+6,'c-gray');
 let creaseD='';BOFF.forEach(o=>CRS(o).forEach(([u0,v0,u1,v1])=>creaseD+=seg3(SC,194,u0,v0,u1,v1)+' '));
 let U=`<g opacity=".42">`+boxR(PX0,PXR,128,174,ZN-6,ZF+6,'c-gray')+quad([[PX0+2,174,ZN-4],[PXR-2,174,ZN-4],[PXR-2,182,ZN-4],[PX0+2,182,ZN-4]],'fill="#888780" stroke="#5F5E5A" stroke-width="0.5"')+`</g>`;
@@ -902,7 +904,7 @@ $('solidB').onclick=()=>{SOLID=!SOLID;const b=$('solidB');b.setAttribute('aria-p
 /* drawing order of the big parts: the G-Cut layers (back to front the other way round when seen from behind), the line and the prefeeder by distance */
 let WORLD0=null;
 function orderWorld(){const wd=$('world');if(!WORLD0)WORLD0=[...wd.children];const ov=WORLD0.filter(e=>e.id==='inset'||e.id==='scale'),ln_=$('line'),pf=$('pref');
- let dc=WORLD0.filter(e=>!ov.includes(e)&&e!==ln_&&e!==pf);if(cyw<0)dc=dc.reverse();dc=dc.filter(e=>e.id!=='L5').concat(dc.filter(e=>e.id==='L5'));   /* solid covers always on top */
+ let dc=WORLD0.filter(e=>!ov.includes(e)&&e!==ln_&&e!==pf);if(cyw<0)dc=dc.reverse();dc=dc.filter(e=>e.id!=='L5'&&e.id!=='infTop').concat(dc.filter(e=>e.id==='L5'),dc.filter(e=>e.id==='infTop'));   /* solid covers always on top */
  const parts=[{k:PDEP(340,32),e:dc},{k:PDEP(680+(1300+10*2400)/2*KU,32),e:[ln_]},{k:PDEP(-120,32),e:[pf]}].sort((a,b)=>b.k-a.k);
  parts.forEach(q=>q.e.forEach(e=>wd.appendChild(e)));
  wd.insertBefore($('LP'),wd.firstChild);   /* the platform is the ground: always drawn first */
@@ -1098,7 +1100,7 @@ for(let j=0;j<NB;j++){const [x,y,a]=pos((j+m)*P);
  const run0=Math.abs(y-Y)<.5&&Math.abs(a)<.5;
  const svg=sheetSVG(x-xs,y,a,o,run0,sh);
  if(y>CHC){low+=svg;barsLow+=bar(x,y,a);}else{top+=svg;barsTop+=bar(x,y,a);}}
-$('dyn').innerHTML=low+stk+barsLow;
+$('dyn').innerHTML=low+barsLow;$('infTop').innerHTML=stk+INFSVG;
 if(!moving&&p>=.6&&p<.66&&present(k-5)){let dx,yy;const DX=18-90*VS;   /* front waste lands ~90 mm further toward the infeed on the belt (Denis) */if(p<.63){dx=DX*seg(.6,.63);yy=CHT;}else{dx=DX;yy=lerp(CHT,146,seg(.63,.66));}
  top+=piece(SF+dx,yy,0,0,FWL*KU,0,SZ0,SZ0+SZW,CO,COS,COE,1);}
 belt=belt.filter(t=>g-t<1.4&&g>=t);
