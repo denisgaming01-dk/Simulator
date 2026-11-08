@@ -125,6 +125,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v272: Fixed v271 (the back cover was overwritten and never drawn). Infeed back cover now in the infeed top layer with solid covers, drawn behind or in front of stack and guides depending on camera side; visible at every angle.
   v273: Die layout panel (title, legend Cut/Crease/Waste, feed direction), delivery pile / batches counters, cam-angle scale and the "Layout when cut / always" buttons hidden (display:none, code kept). Denis may want them back later as a tab.
   v274: orderWorld() was showing the die layout inset and scale again at turn 0; now they stay hidden at every angle.
+  v275: Line stacks: the blank outline of a bundle is now centred on its real outer edges (lOutC), not on its grid cell in the die. Barcaffe blanks sat ~35 mm off centre, so layers turned 180 deg looked offset left/right on the pallet. Logic positions were already straight.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v274 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v275 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1383,8 +1383,12 @@ function lPrism(o,polys,col){const R=(o.rot||0)*D2R,cr=Math.cos(R),sr=Math.sin(R
 /* the blanks of one stack in local coordinates: n blanks side by side, centred */
 /* a job drawn from its die drawing: each piece of the stack is drawn with the real blank outline (column i = left/right, row j) */
 const lBlankPolys=(n,m,c0,r0,inv)=>{m=m||LROWS;c0=c0||0;r0=r0||0;if(JOB.shapes){const out=[],sg=inv?-1:1;   /* turned over by the drum: the outline is mirrored along the line */
-   for(let i=c0;i<c0+n;i++)for(let j=r0;j<r0+m;j++){const pl=JOB.shapes[i*LROWS+j];if(!pl)continue;out.push(pl.map(([x,y])=>[sg*(y-(r0*RL+m*RL/2)),x-(c0*BLK+n*BLK/2)]));}return out;}
- return BL.slice(0,n).map(pl=>pl.map(([u,v])=>[u-TWL-JOB.pl/2,(v-BOFF[0])-n*BLK/2]));};
+   for(let i=c0;i<c0+n;i++)for(let j=r0;j<r0+m;j++){const pl=JOB.shapes[i*LROWS+j];if(!pl)continue;out.push(pl.map(([x,y])=>[sg*(y-(r0*RL+m*RL/2)),x-(c0*BLK+n*BLK/2)]));}return lOutC(out);}
+ return lOutC(BL.slice(0,n).map(pl=>pl.map(([u,v])=>[u-TWL-JOB.pl/2,(v-BOFF[0])-n*BLK/2])));};
+/* centre the drawn outline on the bundle itself (its real outer edges), not on its grid cell in the die: the align plates square the
+   outer edges, so every bundle on the pallet lines up, whichever row it came from or whether the drum turned it over (v275) */
+function lOutC(ps){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;ps.forEach(pl=>pl.forEach(([x,y])=>{x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}));
+ if(!(x1>x0))return ps;const cx=(x0+x1)/2,cy=(y0+y1)/2;return ps.map(pl=>pl.map(([x,y])=>[x-cx,y-cy]));}
 function lStackSVG(it){if(NOBOARD)return '';const hh=it.h,du=BLEN/2,dv=BLK/2*it.n;
  let o=lPrism({s:it.s,l:it.l,y:it.y,h:hh,rot:it.rot,roll:it.roll,pitch:it.pitch,piv:it.piv,pivY:it.pivY,op:it.op},lBlankPolys(it.n,it.m,it.bc0,it.br0,it.inv),it.inv?{top:'#D99A4A',side:'#9A5A12',stroke:'#6E3A06',bot:JOB.print||'#D99A4A',inv:true}:{top:OR,side:ORE,stroke:ORS,bot:JOB.print||OR,inv:false});   /* a stack the drum turned over is a darker brown */
  return o;}
