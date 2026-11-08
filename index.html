@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v287 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v288 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1500,7 +1500,7 @@ function lTT(kk,dt){const st=LS[kk],S=LSET[kk];if(!st.its.length)return;
   case 'turn':{const dur=Math.abs(st.ang)/90*100/Math.max(10,S.spd);st.t+=dt;const f=ease(Math.min(1,st.t/dur)),R=st.ang*f*D2R;st.rot=st.ang*f;
      st.its.forEach(q=>{const ds=q.s0-st.c,dl=q.l0;q.s=st.c+ds*Math.cos(R)-dl*Math.sin(R);q.l=ds*Math.sin(R)+dl*Math.cos(R);q.rot=q.r0+st.ang*f;});
      if(st.t>=dur){st.ph='lower';st.t=0;}}break;
-  case 'lower':st.t+=dt;st.lift=TT_LIFT*(1-ease(Math.min(1,st.t/.5)));st.its.forEach(q=>q.y=st.lift);if(st.t>=.5){st.lift=0;st.rot=0;st.its.forEach(q=>q.y=0);st.ph='toEnd';}break;
+  case 'lower':st.t+=dt;st.lift=TT_LIFT*(1-ease(Math.min(1,st.t/.5)));st.its.forEach(q=>q.y=st.lift);if(st.t>=.5){st.lift=0;st.gbase=((st.gbase||0)+(st.ang||0))%360;st.rot=0;st.its.forEach(q=>q.y=0);st.ph='toEnd';}break;   /* the grid stays where it turned to (gbase), it does not jump back (v288) */
   case 'toEnd':lFront(st.its,st.c+HS(st.k)-10);st.ph='end';break;   /* then the stack waits at the end of the belt */
   case 'end':if(lAllAt(st.its))st.ph='out';break;
   case 'out':if(lSendOn(kk)){st.ph='idle';seqNext(kk);}break;}}
@@ -1655,7 +1655,7 @@ function lineSVG(){let back='',mid='',front='';const st=LS;
      +lbox({s:cc+H/2+8,l:0,y:-15,du:H/2-18,dv:LHW-20,h:15,pitch:S.tilt||0,piv:cc,pivY:top,top:'#5D5E62',side:'#7C7D81',stroke:'var(--m-stroke)',sw:.5,shade:true});
    const fh=LSET.batchH+200;back+=lslab(cc-H-60,cc-H-20,LHW,LHW+60,-90,fh)+lslab(cc+H+20,cc+H+60,LHW,LHW+60,-90,fh)+lslab(cc-H-60,cc+H+60,LHW,LHW+60,fh,fh+50);});
  ['tt1','tt2'].forEach(kk=>{const cc=LC[kk],H=HS(kk),S=st[kk];back+=lslab(cc-H-40,cc+H+40,-LHW-30,LHW+30,-120,-40)+lslab(cc-H,cc+H,-LHW+10,LHW-10,-40,-8,1,'belt');
-   const ly=S.lift||0,rr=(S.ph==='turn'?S.rot:0)||0,R=rr*D2R;
+   const ly=S.lift||0,rr=(S.gbase||0)+(S.rot||0),R=rr*D2R;
    const gb=(mu,mv,du,dv)=>lbox({s:cc+mu*Math.cos(R)-mv*Math.sin(R),l:mu*Math.sin(R)+mv*Math.cos(R),y:ly-30,du,dv,h:30,rot:rr,top:'#F4F3EE',side:'#DAD8D0',stroke:'#9C9A92',sw:.35});
    const HT=H-250;   /* outer edge of the frame */   /* the turning top ends 250 mm before each end of the belt, so it can turn without going over the next belts (Denis, v281) */
    const RT=Math.min(H,LHW)-150,hl=g=>Math.sqrt(Math.max(0,RT*RT-g*g));   /* every spoke tip inside one circle, so nothing pokes over the belt edge at any turn angle (Denis, v286); tips 150 mm from the belt edge (v287) */
