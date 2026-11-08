@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v273 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v274 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -910,7 +910,7 @@ function orderWorld(){const wd=$('world');if(!WORLD0)WORLD0=[...wd.children];con
  const parts=[{k:PDEP(340,32),e:dc},{k:PDEP(680+(1300+10*2400)/2*KU,32),e:[ln_]},{k:PDEP(-120,32),e:[pf]}].sort((a,b)=>b.k-a.k);
  parts.forEach(q=>q.e.forEach(e=>wd.appendChild(e)));
  wd.insertBefore($('LP'),wd.firstChild);   /* the platform is the ground: always drawn first */
- if(SOLID&&cyw>=0)wd.appendChild($('L5'));   /* solid covers: nothing behind them (prefeeder head, infeed stack) shows through, only through the windows */ov.forEach(e=>{wd.appendChild(e);e.style.display=YAW?'none':'';});}
+ if(SOLID&&cyw>=0)wd.appendChild($('L5'));   /* solid covers: nothing behind them (prefeeder head, infeed stack) shows through, only through the windows */ov.forEach(e=>{wd.appendChild(e);e.style.display='none';});   /* die layout inset and scale hidden for now (Denis, v274) */}
 /* camera: tilt from side view (0°) to top view (90°); the turn swivels the whole picture a little left or right */
 function setCam(tilt,yaw){if(tilt!=null){CAM=tilt;const y0=SY(270,32);const a=Math.min(88.5,Math.max(1.5,tilt))*D2R;c=Math.cos(a);s=Math.sin(a);LVY=-s*KV/(c*LVPX);buildStatic();
    /* keep the machine where it was on screen, and keep the die-layout panel below the machine */

@@ -124,6 +124,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v271: Infeed back cover is drawn in the same top layer as the guides when covers are solid, so it no longer drops out at low camera angles.
   v272: Fixed v271 (the back cover was overwritten and never drawn). Infeed back cover now in the infeed top layer with solid covers, drawn behind or in front of stack and guides depending on camera side; visible at every angle.
   v273: Die layout panel (title, legend Cut/Crease/Waste, feed direction), delivery pile / batches counters, cam-angle scale and the "Layout when cut / always" buttons hidden (display:none, code kept). Denis may want them back later as a tab.
+  v274: orderWorld() was showing the die layout inset and scale again at turn 0; now they stay hidden at every angle.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
