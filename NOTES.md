@@ -109,6 +109,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v256: Infeed guarding (corner posts, top beam, 2000 x 2000 door) also drawn in see-through mode as light glass, so the infeed panel shows without solid covers. Clipping still open (not reproduced).
   v257: Infeed corner posts and top rails moved in front of the cover plane (ZN-12..ZN-10), so they no longer cut through the covers. Beam clipping reported again: checking which beam.
   v258: Back panel behind the infeed guides, full width and height (x 137), so the chain is hidden behind it from the stack side. The chain bars and dashed centre line can still draw in front (layer order), open.
+  v259: With solid covers the chain centre line (dashed, drawn over everything) is hidden, so the chain is not visible through the covers.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

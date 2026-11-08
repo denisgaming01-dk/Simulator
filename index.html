@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v258 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v259 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -882,7 +882,7 @@ $('pins').innerHTML=`<g opacity=".42">`+boxR(PN0,SS-10,183.2,186.4,ZN-4,ZF+4,'c-
 {const g=SD-617;$('knife').innerHTML=boxR(602.4+g,608.6+g,180,198,ZN,ZF,'c-gray')+boxR(596+g,612+g,175,180,ZN,ZF,'c-gray');   /* guillotine half as high (Denis) */}
 drawSens();
 $('belt').innerHTML=boxR(SF+15-150*VS,SF+15+150*VS,146,150,ZN-5,ZF+30,'c-gray')+'<g id="bdash"></g>';
-$('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+`<path d="${chainPath(ZN)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
+$('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+(SOLID?'':`<path d="${chainPath(ZN)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`)+   /* solid covers hide the chain centre line too (Denis) */
 '';
 $('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;
 /* delivery end face of the machine (solid covers, seen when the view is turned toward the delivery end): dark grey panel, window 2000 x 500 mm
