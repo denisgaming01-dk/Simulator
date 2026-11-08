@@ -113,6 +113,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v260: With solid covers the infeed is closed: roof over the infeed, end wall, far wall and an opaque panel behind the doors and guides, so nothing of the stack or chain shows from any side.
   v261: With solid covers the infeed corner posts are removed (inside the closed infeed); the infeed end and far wall that stuck out past the covers are removed.
   v262: Reverted the infeed roof and the opaque panel behind the doors (they made the windows solid and hid the infeed). The door glass is see-through again; the infeed corner post stays removed with solid covers.
+  v263: Infeed front guides lowered so their bottom sits almost on the belt (lifted for flute thickness), per Denis photo.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
