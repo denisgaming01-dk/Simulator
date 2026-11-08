@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v277 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v278 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1658,11 +1658,11 @@ function lineSVG(){let back='',mid='',front='';const st=LS;
  back+=lbelt(LC.press-HS("press"),LC.press+HS("press"),(LS.press&&LS.press.lift)||0);   /* bottom belt lifts while the drum clamps */
  {const fh=PR_OPEN+200,cc=LC.press;back+=lslab(cc-HS("press")-60,cc-HS("press")-20,LHW,LHW+60,-90,fh)+lslab(cc+HS("press")+20,cc+HS("press")+60,LHW,LHW+60,-90,fh)+lslab(cc-HS("press")-60,cc+HS("press")+60,LHW,LHW+60,fh,fh+50);}
  /* palletizer: mast on the drive side, yellow carriage with belts; white forks drive out over the column; red align plates */
- {const S=st.pal,cc=LC.pal,cy=S.cy||0,fx=(S.fx||0)*LPITCH;
+ {const S=st.pal,cc=LC.pal,cy=S.cy||0,fx=(S.fx||0)*(S.bs!=null?LCOL-S.bs:LPITCH);   /* forks travel exactly as far as the stack, so the stack stays at the fork tips (Denis, v278) */
    back+=lslab(cc-200,cc+200,LHW+150,LHW+450,LGND,2900)+lslab(cc-260,cc+260,LHW+100,LHW+500,LGND,LGND+60);
    mid+=lslab(cc-LHS,cc+LHS,-LHW,LHW,cy-110,cy-60,1,'yel')+lslab(cc-LHS,cc+LHS,LHW,LHW+150,cy-110,cy+40,1,'yel');
-   for(let i=0;i<15;i++){const z=-1015+145*i;mid+=lslab(cc-LHS+20,cc+LHS-20,z-50,z+50,cy-60,cy-5,1,'blue');}   /* blue belt strips along the line */
-   for(let i=0;i<14;i++){const z=-942.5+145*i;mid+=lslab(cc-LHS+40+fx,cc+LHS-10+fx,z-18,z+18,cy-50,cy,1,'steel');}   /* forks: steel rails between the belt strips, they drive out with the layer */
+   for(let i=0;i<15;i++){const z=-1015+145*i;mid+=lslab(cc-LHS+20,cc+LHS-20,z-50,z+50,cy-55,cy,1,'blue');}   /* blue belt strips along the line */
+   for(let i=0;i<14;i++){const z=-942.5+145*i;mid+=lslab(cc-LHS+40+fx,cc+LHS-10+fx,z-18,z+18,cy-50,cy,1,'steel');}   /* fork tops level with the blue belt tops: the stack sits on both (v278) */   /* forks: steel rails between the belt strips, they drive out with the layer */
    mid+=lslab(LCOL-LHS,LCOL+LHS,LHW,LHW+150,cy-110,cy+40,.9,'yel');}
  const its=lItems.filter(q=>q.op>0.01).slice().sort((a,b)=>(lDep(b.s,b.l)-lDep(a.s,a.l))||(a.y-b.y));
  /* the interleave board lies over the whole block: draw it right after the last stack of its block, so the other stacks cannot cover it */
