@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v272 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v273 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -358,7 +358,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <button data-z="pref" aria-pressed="false">Prefeeder</button>
         </div>
         <div class="grow"></div>
-        <div class="seg" id="layBtns" role="group" aria-label="Die layout lines">
+        <div class="seg" id="layBtns" role="group" aria-label="Die layout lines" hidden>
           <button data-l="cut" aria-pressed="true">Layout when cut</button>
           <button data-l="always" aria-pressed="false">Layout always</button>
         </div>
@@ -383,8 +383,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <g id="belt"></g><g id="beltItems"></g>
           <g id="L3"></g>
           <g id="topdyn"></g><g id="ejector"></g><g id="L5"></g><g id="infTop"></g>
-          <g id="scale"></g>
-          <g id="inset"></g>
+          <g id="scale" style="display:none"></g>
+          <g id="inset" style="display:none"></g>
           <g id="line"></g><g id="pref"></g>
           </g>
           <text class="th" x="662" y="40" text-anchor="middle">Infeed</text>
@@ -411,6 +411,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <text class="ts" x="129" y="94" text-anchor="end">Ejector axle</text>
           <text class="ts" x="124" y="155" text-anchor="end">Front waste belt</text>
           <text class="ts" x="40" y="259" text-anchor="middle">Guillotine</text>
+          <g style="display:none">   <!-- die layout panel, counters and cam-angle scale: hidden for now (Denis), may come back as a tab -->
           <text class="ts" x="124" y="396" text-anchor="middle" id="count">Delivery pile: 0 / 20</text>
           <text class="ts" x="124" y="412" text-anchor="middle" id="outc">Batches out: 0</text>
           <text class="ts" x="350" y="337" text-anchor="end">0°</text>
@@ -421,6 +422,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <line x1="338" y1="372" x2="358" y2="372" stroke="#412402" stroke-width="1.5"/><text class="ts" x="332" y="376" text-anchor="end">Cut</text>
           <line x1="338" y1="390" x2="358" y2="390" stroke="#854F0B" stroke-width="1.2" stroke-dasharray="3 2"/><text class="ts" x="332" y="394" text-anchor="end">Crease</text>
           <rect x="338" y="402" width="20" height="10" fill="#F5C4B3" stroke="#993C1D" stroke-width="0.5"/><text class="ts" x="332" y="411" text-anchor="end">Waste</text>
+          </g>
         </svg>
         <div class="alarm" id="alarm" hidden>
           <div><b id="alT">Alarm</b><span id="alM"></span><div class="code" id="alC"></div></div>
