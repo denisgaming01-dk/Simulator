@@ -107,6 +107,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v254: infeed rebuilt from the empty-infeed photo: red suction belt strips with blue chain edges on a white table (420), two front stops with flaps near the middle, two side tampers (stainless plates with bent lead-in, white holders) at the sheet edges, beam with two ballscrews and a centre bearing/photocell. Platform outline split at the back-stair end so the wall behind the stairs sorts correctly.
   v255: "Board: shown / hidden" button above the 3D view (NOBOARD): sheets, stacks, waste, blanks, prefeeder board and line stacks are not drawn; the simulation keeps running.
   v256: Infeed guarding (corner posts, top beam, 2000 x 2000 door) also drawn in see-through mode as light glass, so the infeed panel shows without solid covers. Clipping still open (not reproduced).
+  v257: Infeed corner posts and top rails moved in front of the cover plane (ZN-12..ZN-10), so they no longer cut through the covers. Beam clipping reported again: checking which beam.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
