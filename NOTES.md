@@ -1,7 +1,7 @@
 # Die-Cutter Simulator – handover notes
 
 Training simulator for operators at Logatec: Göpfert G-Cut 13/21 flatbed die-cutter, the prefeeder before it,
-and the downstream separator / palletizer line (Corrpal-style). Built by Denis with Claude.
+and the downstream separator / palletizer line (Corrpal-style). Built by the trainer with Claude.
 
 - Live page: https://denisgaming01-dk.github.io/Simulator/ (this repo, `index.html`, GitHub Pages from `main` / root)
 - Claude artifact (source of truth, single HTML file): https://claude.ai/artifact/YCgCwqpTsrtDnSBvuCeHGz (version 167; the header badge shows the version)
@@ -12,9 +12,9 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   The workflow `purge-cdn.yml` purges jsDelivr after each push and logs which version it serves. Raise the badge (`class="ver"`) each update.
 - After every change: update the artifact AND push `index.html` here. Delete `.github/workflows/main.yml` (accidental, always fails).
 
-## Working rules (from Denis)
+## Working rules (from the trainer)
 - All UI text in English.
-- Change only what is asked; real-machine measurements from Denis always win over guesses.
+- Change only what is asked; real-machine measurements from the trainer always win over guesses.
 - Ask before a big rebuild if the request is ambiguous.
 - Colleagues must open it in a plain browser: no Claude app, no downloads (restricted at work). GitHub may be blocked at work.
 - Do not put brand names / logos on machine drawings.
@@ -25,7 +25,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
 - Line level (G-Cut exit, separator line belts): 880 mm above floor (`YEX`). Palletizer belts (stacking + bottom-sheet): 350 mm above floor.
 - Machine width ~2230 mm for the 2100 mm max format; max sheet 2100 across × 1300 along the feed.
 - Gripper chain: 8 bars (fixed number), 12 grippers per bar, top chain 880 mm above bottom chain.
-  Known open point: platform-to-bottom-chain is 1125 mm in the sim, Denis measured 1180 mm.
+  Known open point: platform-to-bottom-chain is 1125 mm in the sim, the trainer measured 1180 mm.
 - Delivery: delivery belt at 565 mm; big forks level with the belt at 565; small forks 200 mm above big forks; gripper bar 330 mm above big forks.
 - Grippers hold the sheet 10 mm from the front edge (inside the 15 mm front waste).
 - Waste: front 15 mm, back and sides 10 mm each (piece 800 × 1500 → sheet must be bigger than 820 × 1525).
@@ -33,38 +33,38 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
 - Infeed stack full level 60 mm. Stacks count in sheets (B-flute 2.7 mm: 1600 mm ≈ 590 sheets).
 - Delivery batch max 400 mm high; always fits the rotation drum.
 
-- Look of the G-Cut (v186, from the Safety-screen 3D views): wooden platform deck and stair treads, dark steel railings (hand rail, knee rail, toe board) and stair stringers, see-through light grey guard doors with a blue door switch and a yellow-ringed reset button per section, dark lower panels at stripping/die-cutting, white roof covers. Backup before this: v185 (revert if Denis does not like it).
-- v187: "Covers" button above the 3D view toggles see-through / solid. Solid = operator side drawn after Denis's photo of the real G-Cut (white panels, dark frames round the delivery window and the two die-cutting windows, small control column with screen, buttons and e-stop, button panel, feeder screen, green/blue light strips, white roof); the machine runs visibly through the window openings. From the drive side, solid shows a closed wall. v189: delivery window smaller, its bottom edge level with the bottom chain (sheet line), as on the real machine. v191: solid covers true size, only shifted (Denis: shift, not resize): guillotine (x 605) at the delivery-side edge of the delivery window, covers x 60-700; no panels after the feeder operator screen (feeder open). Not drawn yet: the black arms/tables in front of the feeder section.
+- Look of the G-Cut (v186, from the Safety-screen 3D views): wooden platform deck and stair treads, dark steel railings (hand rail, knee rail, toe board) and stair stringers, see-through light grey guard doors with a blue door switch and a yellow-ringed reset button per section, dark lower panels at stripping/die-cutting, white roof covers. Backup before this: v185 (revert if the trainer does not like it).
+- v187: "Covers" button above the 3D view toggles see-through / solid. Solid = operator side drawn after the photo of the real G-Cut (white panels, dark frames round the delivery window and the two die-cutting windows, small control column with screen, buttons and e-stop, button panel, feeder screen, green/blue light strips, white roof); the machine runs visibly through the window openings. From the drive side, solid shows a closed wall. v189: delivery window smaller, its bottom edge level with the bottom chain (sheet line), as on the real machine. v191: solid covers true size, only shifted (shift, not resize): guillotine (x 605) at the delivery-side edge of the delivery window, covers x 60-700; no panels after the feeder operator screen (feeder open). Not drawn yet: the black arms/tables in front of the feeder section.
 
-- v192 infeed from Denis's photos: white traverse beam with ballscrew and carriage over the stack, rail across the machine, two narrow stainless front-stop plates with angled flaps leaning back over the stack, a wide stainless plate with a bent lip at the drive side, blue photocells on the stop holders, white back stop (floor column, arm, plate against the back of the stack). Positions across are estimates until Denis measures.
-- Denis will measure at work: gripper bar spacing (sim assumes ~1385 mm = 145 px), operator-side panel widths, window sizes, guillotine to delivery window edge. Then rescale sections and covers together (stripping windows should match the stripping section).
+- v192 infeed from the photos: white traverse beam with ballscrew and carriage over the stack, rail across the machine, two narrow stainless front-stop plates with angled flaps leaning back over the stack, a wide stainless plate with a bent lip at the drive side, blue photocells on the stop holders, white back stop (floor column, arm, plate against the back of the stack). Positions across are estimates until the trainer measures.
+- the trainer will measure at work: gripper bar spacing (sim assumes ~1385 mm = 145 px), operator-side panel widths, window sizes, guillotine to delivery window edge. Then rescale sections and covers together (stripping windows should match the stripping section).
 
-- v194: solid mode: feeder section solid again (HMI screen, buttons); infeed guarding from x 60 back to x -40 (XH) from Denis's photo: corner posts (dark edge on operator side), white top beam/rails, open roof and open end for the prefeeder, guard door with big glass window (dark frame, blue light, handle) and white lower half; the stack and back stop show through the glass. Drive-side wall runs to x -40, light inside (dark mode).
-- v196: v195 infeed end wall removed on Denis's request (back to the v194 drawing).
-- Infeed plan (Denis, for later): he will photograph the EMPTY infeed; build the infeed structure first without board, then add the board on top.
+- v194: solid mode: feeder section solid again (HMI screen, buttons); infeed guarding from x 60 back to x -40 (XH) from the photo: corner posts (dark edge on operator side), white top beam/rails, open roof and open end for the prefeeder, guard door with big glass window (dark frame, blue light, handle) and white lower half; the stack and back stop show through the glass. Drive-side wall runs to x -40, light inside (dark mode).
+- v196: v195 infeed end wall removed on the request (back to the v194 drawing).
+- Infeed plan (for later): he will photograph the EMPTY infeed; build the infeed structure first without board, then add the board on top.
   The prefeeder is also in the wrong position relative to the G-Cut and its infeed; fix that together with the infeed.
   Infeed work is on hold until the photos and measurements arrive.
 - v197: runs in the background. Machine logic is in simStep(dt); simCatchUp() runs it for all real time passed (100 ms steps, max 8 h). frame() calls it while visible; while the tab is hidden a Web Worker clock (250 ms, setInterval fallback) calls it, and it catches up again when the tab becomes visible. Drawing only happens while visible.
-- v198, measured by Denis (operator side, mm, from the delivery end): panel after the guillotine 1000, delivery 1190, HMI column 550,
-  stripping 1530 (rechecked by Denis, v202; was 1350), die-cutting 1690, infeed panel (feeder screen) 950. Windows: delivery 1000 x 420 (bottom edge level with the bottom chain),
+- v198, measured by the trainer (operator side, mm, from the delivery end): panel after the guillotine 1000, delivery 1190, HMI column 550,
+  stripping 1530 (rechecked by the trainer, v202; was 1350), die-cutting 1690, infeed panel (feeder screen) 950. Windows: delivery 1000 x 420 (bottom edge level with the bottom chain),
   stripping 1440 x 1000 (two panes), die-cutting 1480 x 320 (centred on the bottom chain (v199), button panel above it in the dark band),
   infeed double doors 2000 x 2000 (dark glass upper part, white lower part, fixed panel above). Covers keep true size; guillotine (x 605) at the
   end-panel/delivery joint, so covers run x -14.2 .. 709.8 (overhang past the platform end at 640). PNL_MM / U() in the code.
-  v200: black-grey painted band (Denis) across delivery, HMI column, stripping and die-cutting panels, from about 1.1 m below the top down to the lower panel line; windows cut out of it.
-  v201: HMI column touch screen 320 x 220 mm (Denis), grey bezel.
+  v200: black-grey painted band across delivery, HMI column, stripping and die-cutting panels, from about 1.1 m below the top down to the lower panel line; windows cut out of it.
+  v201: HMI column touch screen 320 x 220 mm, grey bezel.
   v203: recessed dark channels between the sections, 40 mm wide x 30 mm deep, light tubes in four of them (green x3, blue at the infeed joint).
-  v204: infeed operator screen 480 x 290 mm (Denis), button panel below it.
-  v205: infeed table with suction belts 420 mm along the feed (Denis; was ~305), from the front stop back.
-  v206: gripper bar pitch 1550 mm (Denis): PIT=1550*VS; delivery station stays at x 617 (SD), stripping SS, die-cutting SC, infeed SI one pitch apart (455, 292, 130). Chain sprocket radius 440 mm, bottom run CHL. Infeed parts drawn with XOF=DI offset, prefeeder shifted by DI, platform extended at the infeed. Labels and zoom presets moved.
-  v207: covers positioned from Denis: at 0° the stripping gripper bar (x SS 455) sits right after the stripping window (delivery side). XE=744, covers x 20..744; end panel starts at 640 = platform end. Windows: delivery 525-630, stripping 302-453, die-cutting 131-286.
-  v208: guillotine position confirmed (set per job). Platens as long as the die-cutting window (1480 mm, PX0..PXR). Front-waste bar on the return run stops at x SF 520 (start of the delivery window, Denis); this fixes the bottom run CHL, return run still 880 mm up, tight corners. Front waste drop, ejector and front waste belt (300 mm wide) moved there (DF); glass window above the belt in the delivery panel.
-  v209: chain shape from Denis's sketch (CHN, chainPt follows a polyline): delivery wheel at the TOP (x ~683, return run leaves over it), infeed wheel at the BOTTOM (x 118, bottom run starts under it), guides with sharp bends between. Delivery wheel x and the return-run end (x ~182, where the guide bends down to the infeed wheel) are solved so 8 bars x 1550 mm fit with the stations and the front-waste bar at SF 520. Wheels drawn red.
-  v220: wheels 450 mm across (Denis), gripper bars drawn 120 mm wide. With the bigger wheels the return run ends at x 182 (T fixed) and the infeed wheel x is solved instead (~126, just before the infeed station) so 8 bars x 1550 still fit.
+  v204: infeed operator screen 480 x 290 mm, button panel below it.
+  v205: infeed table with suction belts 420 mm along the feed (was ~305), from the front stop back.
+  v206: gripper bar pitch 1550 mm: PIT=1550*VS; delivery station stays at x 617 (SD), stripping SS, die-cutting SC, infeed SI one pitch apart (455, 292, 130). Chain sprocket radius 440 mm, bottom run CHL. Infeed parts drawn with XOF=DI offset, prefeeder shifted by DI, platform extended at the infeed. Labels and zoom presets moved.
+  v207: covers positioned from the trainer: at 0° the stripping gripper bar (x SS 455) sits right after the stripping window (delivery side). XE=744, covers x 20..744; end panel starts at 640 = platform end. Windows: delivery 525-630, stripping 302-453, die-cutting 131-286.
+  v208: guillotine position confirmed (set per job). Platens as long as the die-cutting window (1480 mm, PX0..PXR). Front-waste bar on the return run stops at x SF 520 (start of the delivery window, the trainer); this fixes the bottom run CHL, return run still 880 mm up, tight corners. Front waste drop, ejector and front waste belt (300 mm wide) moved there (DF); glass window above the belt in the delivery panel.
+  v209: chain shape from the sketch (CHN, chainPt follows a polyline): delivery wheel at the TOP (x ~683, return run leaves over it), infeed wheel at the BOTTOM (x 118, bottom run starts under it), guides with sharp bends between. Delivery wheel x and the return-run end (x ~182, where the guide bends down to the infeed wheel) are solved so 8 bars x 1550 mm fit with the stations and the front-waste bar at SF 520. Wheels drawn red.
+  v220: wheels 450 mm across, gripper bars drawn 120 mm wide. With the bigger wheels the return run ends at x 182 (T fixed) and the infeed wheel x is solved instead (~126, just before the infeed station) so 8 bars x 1550 still fit.
   v221: smooth guide curves (quadratic curves instead of sharp bends) at both ends; infeed wheel fixed just before the infeed station (SI-4), the return-run end T solved (~304) so the chain is exactly 8 x 1550.
   v222: exit photocells (delivery, stripping, die-cut, sheet transfer) sit over the middle of the gripper bar at 0° (PCB = 60 mm past the station). Checks still at the same distances from the sheet front edge.
   v223: chain wheels drawn behind the gripper bars and photocells (the infeed bar and the sheet-transfer photocells sit over the infeed wheel at 0° and were hidden). Moving the infeed wheel behind the station is not possible: the chain would be ~38 px too long for 8 x 1550.
   (stripping window x 282-433 vs stripping tool 352-462).
-- Platform (v214, from Denis's marked photo; railings left out for now), depths from the machine face:
+- Platform (v214, from the marked photo; railings left out for now), depths from the machine face:
   floor 3600 deep from the delivery end to the back stairs; a 4000 mm wide part reaching 5200 out (1600 beyond the floor) in front of
   delivery/stripping; behind it 2000 = 1000 floor + 1000 back stairs. The stairs are 1600 wide (outer band 2000..3600), run with the machine
   and end level with the back edge of the infeed doors (v215: whole layout moved 2000 = door width toward the infeed end); inside them a 2000 deep walkway continues along the stairs and the infeed door. PLAT holds the coordinates.
@@ -76,30 +76,30 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
 - True size, 3000 mm high. Belts 2100 wide. Stores board so the infeed does not run out during stack change.
 - Belt moves the stack forward; pneumatic pusher below/behind aligns it; two small pneumatic side align plates
   (260 × 650 mm) cycle every 3 s; separating knife plate ~900 × 450 mm with hangers.
-- Overhead pusher redrawn from Denis's photo: dark grey columns, white box beam with rack, geared motor, carriage, hanging push plate.
+- Overhead pusher redrawn from the photo: dark grey columns, white box beam with rack, geared motor, carriage, hanging push plate.
 
-- v224 prefeeder position (Denis): one inclined belt; its main (fixed-length) frame is 3000 long and starts 1500 behind the infeed panel (the
+- v224 prefeeder position: one inclined belt; its main (fixed-length) frame is 3000 long and starts 1500 behind the infeed panel (the
   one with the HMI); the adjustable part runs from there to the board at the infeed. Tilted by 2 support cylinders 1200 behind the infeed doors.
   Knife: one sheet length (along the feed) + 20 mm in front of the transfer (delivery) belt; stored board between them. Transfer belt 1500,
   lifting bed, pusher and waiting stack moved with the fixed frame (PFD shift, ~1700 mm further back). Belt slope recomputed so the tail
   height stays the same. Prefeeder logic unchanged (checked: same phases and amounts as before).
   v226: both hold: fixed frame 3000 from 1500 behind the infeed panel; the back group (transfer belt, lifting-bed frame, pusher, waiting stack) moved forward (PFB = PFD + 820) so the belt tail runs under the transfer belt and ends 300 mm from the lifting-bed frame. Knife follows the transfer belt.
-  v227: the two cylinders ARE the supports (Denis): big hydraulic cylinders on both sides (body ~170 mm, rod ~76 mm) from the floor up to the belt frame, 1200 behind the infeed doors; the old column + diagonal strut removed.
+  v227: the two cylinders ARE the supports: big hydraulic cylinders on both sides (body ~170 mm, rod ~76 mm) from the floor up to the belt frame, 1200 behind the infeed doors; the old column + diagonal strut removed.
   v228: belt head (adjustable part) ends 50 mm behind the back of the infeed stack instead of over the sheets; slope recomputed.
   v229: solid covers drawn last (after the prefeeder) so nothing shows through except the windows; labels of inside parts hide in solid mode.
-  v230: bar pitch = 1550 gap + 120 bar = 1670 mm (Denis); chain 8 x 1670 = 13360. Stations 1670 apart (delivery stays at x 617); return run ends just past die-cutting, infeed wheel solved (only ~50 mm behind the infeed station: all extra chain goes into the wider station spacing). Moving the back wheel further back costs 2 mm of chain per mm.
-  v231: return run stays straight until ~760 mm before the infeed wheel, then curves down (Denis); wheel position solved (now right at the infeed station).
-  v232: infeed front stops 700 mm from the end of the infeed panel (door joint) (Denis). Stack, stops, suction table, back stop, front-lays photocell and the prefeeder belt head move with DIF; the feed now travels ~100 mm from the stops into the grippers (was ~500).
-  v234: bar pitch 1640 mm (Denis, was 1650 in v233). Delivery bar (SD 617) is the reference; stripping, die-cutting and infeed stations, their photocells, covers (anchored to the stripping bar) and the infeed follow. Chain 8 x 1650 = 13200; front stops still 700 from the door joint.
+  v230: bar pitch = 1550 gap + 120 bar = 1670 mm; chain 8 x 1670 = 13360. Stations 1670 apart (delivery stays at x 617); return run ends just past die-cutting, infeed wheel solved (only ~50 mm behind the infeed station: all extra chain goes into the wider station spacing). Moving the back wheel further back costs 2 mm of chain per mm.
+  v231: return run stays straight until ~760 mm before the infeed wheel, then curves down; wheel position solved (now right at the infeed station).
+  v232: infeed front stops 700 mm from the end of the infeed panel (door joint). Stack, stops, suction table, back stop, front-lays photocell and the prefeeder belt head move with DIF; the feed now travels ~100 mm from the stops into the grippers (was ~500).
+  v234: bar pitch 1640 mm (was 1650 in v233). Delivery bar (SD 617) is the reference; stripping, die-cutting and infeed stations, their photocells, covers (anchored to the stripping bar) and the infeed follow. Chain 8 x 1650 = 13200; front stops still 700 from the door joint.
   v235-236: chain at 0° moved 30 mm forward (SD = 617 + 30 mm): all bars, front-waste bar, photocells, guillotine and the delivery forks (with the piles on them) move with the chain (offset SD-617). Covers are fixed (v234 place) and no longer follow the chain; front stops, platform, prefeeder stay with the covers.
   v237: infeed wheel 380 mm across (CWRI), delivery wheel stays 450 (CWR).
-  v238: bar pitch 1630 mm (Denis); reference = guillotine / delivery bar (unchanged). Covers fixed.
+  v238: bar pitch 1630 mm; reference = guillotine / delivery bar (unchanged). Covers fixed.
   v239: infeed stops placed from the infeed wheel: their rail 20 mm from the wheel edge (plates 58 mm); stops now 651 mm from the door joint (was 700).
   v240: guillotine half as high (blade bottom unchanged); upper stripping tool 60% lower in height (pin tips unchanged).
-  v241: front-waste window (above the delivery window) 300 wide x 380 high (Denis). v242: it is a real see-through opening like the other windows.
+  v241: front-waste window (above the delivery window) 300 wide x 380 high. v242: it is a real see-through opening like the other windows.
   v245: front-waste ejector moved 60 mm backward (toward the infeed) from its v242 place.
-  v246: front waste lands ~90 mm further toward the infeed on the front-waste belt (Denis).
-  v247: delivery end face (solid mode, seen when turned toward the delivery end): dark grey panel, window 2000 x 500 starting 1150 mm above the platform (v248), dark ledge under it, two switches and a blue button above (Denis photo). v249: open below 450 mm above the exit belt (stacks drive out).
+  v246: front waste lands ~90 mm further toward the infeed on the front-waste belt.
+  v247: delivery end face (solid mode, seen when turned toward the delivery end): dark grey panel, window 2000 x 500 starting 1150 mm above the platform (v248), dark ledge under it, two switches and a blue button above (photo). v249: open below 450 mm above the exit belt (stacks drive out).
   v250: view can pan further right (BX1 1340 -> 1800) so the prefeeder waiting stack is visible; Prefeeder zoom preset widened.
   v251: the platform is one solid (outline polygon extruded deck to floor; only side faces turned to the camera, far to near) instead of 4 overlapping boxes, so no seams or clipping when the camera turns.
   v252: both staircases are one solid each (stairs(): step profile extruded across the stair width, faces to the camera only, far to near) instead of 4 overlapping boxes.
@@ -113,7 +113,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v260: With solid covers the infeed is closed: roof over the infeed, end wall, far wall and an opaque panel behind the doors and guides, so nothing of the stack or chain shows from any side.
   v261: With solid covers the infeed corner posts are removed (inside the closed infeed); the infeed end and far wall that stuck out past the covers are removed.
   v262: Reverted the infeed roof and the opaque panel behind the doors (they made the windows solid and hid the infeed). The door glass is see-through again; the infeed corner post stays removed with solid covers.
-  v263: Infeed front guides lowered so their bottom sits almost on the belt (lifted for flute thickness), per Denis photo.
+  v263: Infeed front guides lowered so their bottom sits almost on the belt (lifted for flute thickness), per the trainer photo.
   v264: With solid covers the infeed gets a roof and a solid back cover panel (floor to roof, far side), like the rest of the machine. Door glass stays see-through.
   v265: Removed the roof over the infeed (not asked for); the solid back cover panel with solid covers stays.
   v266: Removed the stray panel that stood outside the machine at the infeed (back wall at the far side). The solid back panel inside the machine, behind the guides, stays.
@@ -123,18 +123,18 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v270: Infeed front guides, side align plates and the infeed sheet stack are drawn in a top layer, so they show with covers on and off from every angle. Back panel stays solid-only.
   v271: Infeed back cover is drawn in the same top layer as the guides when covers are solid, so it no longer drops out at low camera angles.
   v272: Fixed v271 (the back cover was overwritten and never drawn). Infeed back cover now in the infeed top layer with solid covers, drawn behind or in front of stack and guides depending on camera side; visible at every angle.
-  v273: Die layout panel (title, legend Cut/Crease/Waste, feed direction), delivery pile / batches counters, cam-angle scale and the "Layout when cut / always" buttons hidden (display:none, code kept). Denis may want them back later as a tab.
+  v273: Die layout panel (title, legend Cut/Crease/Waste, feed direction), delivery pile / batches counters, cam-angle scale and the "Layout when cut / always" buttons hidden (display:none, code kept). the trainer may want them back later as a tab.
   v274: orderWorld() was showing the die layout inset and scale again at turn 0; now they stay hidden at every angle.
   v275: Line stacks: the blank outline of a bundle is now centred on its real outer edges (lOutC), not on its grid cell in the die. Barcaffe blanks sat ~35 mm off centre, so layers turned 180 deg looked offset left/right on the pallet. Logic positions were already straight.
   v276: Camera freedom: pan/zoom limits now follow the drawn scene (updBounds from #world bbox + 15% margin, recalculated on every tilt/turn), so the whole machine and line can be reached at any angle. Zoom-in limit 110 -> 40, turn slider in 1 deg steps.
   v277: Infeed suction table (white frame, red belts, blue edges) moved into the infeed top layer (INFTAB), drawn first under the stack, so the belts are no longer hidden behind the machine body at some angles.
   v278: Palletizer forks travel exactly as far as the stack (LCOL - block centre), so the stack front stays at the fork tips the whole stroke (was LPITCH, forks overshot ~500 mm). Blue belt strips raised to cy so they are level with the fork tops.
   v279: Palletizer: when the pallet is full after a bundle (count or max height), the carriage goes straight from open/xopen to clear (pallet release) instead of lowering to 0 first. full() helper shared with back.
-  v280: White belt bodies (lbody) under transfer belt 1, the shift belt and both turntables, from Denis photo: apron panel under the belt frame, narrower cabinet set in down to the floor on 4 feet, 2 handles on the operator side, vent grille.
+  v280: White belt bodies (lbody) under transfer belt 1, the shift belt and both turntables, from the trainer photo: apron panel under the belt frame, narrower cabinet set in down to the floor on 4 feet, 2 handles on the operator side, vent grille.
   v281: Turntable turning top (white grid) ends 250 mm before each end of the belt (HT=H-250), so it can turn without going over the neighbouring belts.
-  v282: Belt body moved from transfer belt 1 (under the G-Cut exit) to transfer belt 2 (right before separator 1), as Denis meant.
+  v282: Belt body moved from transfer belt 1 (under the G-Cut exit) to transfer belt 2 (right before separator 1), as the trainer meant.
   v283: Turntable turning top has a closed frame (two 80 mm end pieces, two side rails) so the spokes end in it; frame outer edge stays 250 mm inside the belt ends.
-  v284: Reverted the v283 frame. Turntable top has no cross bar at the ends: the spokes end bare, as on the real turntable (Denis).
+  v284: Reverted the v283 frame. Turntable top has no cross bar at the ends: the spokes end bare, as on the real turntable.
   v285: Turntable top open on all 4 sides: outer edge spokes removed too, every spoke ends bare.
   v286: Turntable spokes clipped to one circle (radius min(H-250, LHW-10) = 800 mm): outer spokes shorter, so no spoke tip pokes over the belt edge at any turn angle.
   v287: Turntable spoke circle radius = min(H,LHW)-150 = 900 mm: spoke tips 150 mm from the belt edge at any turn angle.
@@ -161,7 +161,7 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
 - Separators can break along the line between blanks (stack turned 90°) or between rows of blanks (not turned) – needed for 4-piece jobs.
 - Rotation drum: turns the stack over 180° forward/backward (axis across the line), opening 432 mm, takes up to 2100 × 1300,
   10% slower on request.
-  v210 (Denis): the drum has a belt at the bottom AND at the top; it clamps from both sides (bottom belt lifts the stack while the top belt
+  v210: the drum has a belt at the bottom AND at the top; it clamps from both sides (bottom belt lifts the stack while the top belt
   comes down, stack clamped in the middle of the drum), turns, then both belts open fully (bottom back to line level) before the stack may leave. A turned stack is drawn darker brown and its outline mirrored; printed underside then shows on top.
 - Palletizer: blue belt strips on the carriage with steel forks between them; align plates are 3 white perforated panels per side.
   Sequence per batch: carriage to 200 mm above the stack → forks extend → lower until forks are 20 mm above the stack →
@@ -170,7 +170,7 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
 - Stacking belt plain; pallet drives out along the line.
 
 ## HMI (separator line screen)
-- Copy of the Siemens line screen. Left column (icons copied from Denis's photo): file cabinet = jobs menu, arrows = nothing yet,
+- Copy of the Siemens line screen. Left column (icons copied from the photo): file cabinet = jobs menu, arrows = nothing yet,
   hand = manual section operation (skipped for now), speed gauge = line speed 33/66/99 %, Save button.
   Top left: cabinet icon with "D" + loaded job name.
 - Sequences on TT1, shift, TT2, align: red box = number of sequences (1–10), orange box = sequence being done NOW (type to pick/edit),
@@ -186,7 +186,7 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
   (stack size, board, speed, empty cycles, prefeeder, photocells, all line settings). Saved in the browser (localStorage), per person.
 
 ## G-Cut HMI (in progress)
-- G-Cut control panel above the line panel, built in English from Denis's photos (no brand logo). Production page done: current job, messages (last 3 log lines),
+- G-Cut control panel above the line panel, built in English from the photos (no brand logo). Production page done: current job, messages (last 3 log lines),
   status lamps, nav (Production, Settings, Machine, Jobs, Alerts, Safety), job data + Save correction, piece count (total / current stack, editable with pencil),
   speed −/+ (100 per step) and set field wired to the machine speed, output, functions (toggles visual only; empty cycles wired), stripping values (static),
   machine sketch (tap a section = zoom the 3D view; its settings menu comes later). Jobs page loads a job; Alerts shows the log. Settings = sheet delivery page on the photo (batch field works, the rest static); Machine waits for photos. Safety: 3D photo of the doors/covers with safety switches; the camera button (bottom left) turns the view operator side / machine side; Control on / Safety OK lamps live, Reintegration and Stop processes buttons static. The one red door icon (operator side) was recoloured blue on request. The photocell monitor moved into the G-Cut screen: tap the photocell drawn left of the delivery in the sketch. Stripping-exit photocell positions are set on Settings → Stripping station (AS top field, BS left field, ↙↗ 10 mm, link moves both). Settings → Platen press: photo only. Feeder: infeed stack height (top white field, 30–150 mm, default 60, saved with the job; grey = height now). After standby the infeed restarts above 40 mm, or at the set height if that is below 40. Settings order: photocells, exit / transport, delivery, stripping, platen press, feeder. Exit / transport is drawn (photo too blurred): lifting belt position (mm above the exit belts) and hold ↓ ↑ to move it by hand, also while running (a correction kept until the next stack change; not during the stack change); the rest static.
@@ -197,17 +197,17 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
 - Incom 6P: 6 pieces 1150 × 330, B-flute, batch 100, batch height 300, sheet 1175 × 2000; TT1 turns 90°, shift waits for 3 bundles, stack 6 high, interleave on 2 and 5.
 - Atlantic Barcaffe: die drawing 1630 across × 1221 along (front edge 1650 incl. waste), 4 nested blanks (right pair turned against the left),
   one piece 610.5 × 883; B-flute, batch 50, print on the bottom side. Line breaks all 4 pieces (sep 1 610.5 / 610.5, TT1 90°, sep 2 815 / 815)
-  and palletizes one per layer. Denis sets up the rest (rotation, turning) himself. Blank outlines are simplified (no locking tabs / slits).
-  Open: Denis said "cutting tool and cutout design don't match" – not yet located; ask him for a screenshot.
+  and palletizes one per layer. the trainer sets up the rest (rotation, turning) himself. Blank outlines are simplified (no locking tabs / slits).
+  Open: the trainer said "cutting tool and cutout design don't match" – not yet located; ask him for a screenshot.
 
 - Tray 3P 590: 3 tray blanks 590 × 880 (1770 across), BC-flute (6.5 mm), batch 50 (325 mm, batch height 355, 5 bar), speed 6000 sheets/h,
   shift waits for 2 bundles, 6 layers high, interleave boards on 2, 4, 5 (board 1180 × 880), palletizer 1180 × 880. Outline simplified (no hand holes).
 - Photocell second check point defaults to min(950, sheet length − 100) so short sheets do not trip.
 
-## Still to do (Denis asked to keep for later)
+## Still to do (asked to keep for later)
 - Delivery settings: belt speed (default 50 %) and lifting-belt lower/raise time (default 0.5 s).
 - Line-full photocell that stops the infeed when covered.
-- Move the stripping-exit photocell left/right setting to its proper HMI menu (Denis will send photos).
+- Move the stripping-exit photocell left/right setting to its proper HMI menu (will send photos).
 - Manual operation of sections (hand icon).
 - Pallet turntable 8410 behaviour.
 - MP4 videos (1000 / 3000 / 6500 sheets/h) for PowerPoint – on hold.
