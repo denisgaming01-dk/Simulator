@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v296 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v297 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -843,7 +843,8 @@ if(!front){/* operator platform shape (Denis's measurements, railings left out f
  return o+rail;}
 const DWC=XE-(PNL_U1[4]+PNL_U1[5])/2,PX0=DWC-740*VS,PXR=DWC+740*VS,PN0=Math.min(352+DS,SS-10-SLX-2);   /* platens and stripping tools cover the whole sheet */
 function buildStatic(){
-$('L0').innerHTML=gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
+$('L0').innerHTML=(SOLID?(()=>{const z=cyw>0?ZF+16:ZN-8;return quad([[XH,GT,z],[XE,GT,z],[XE,GP,z],[XH,GP,z]],'fill="#B9BEC3" stroke="none"');})():'')+   /* inside face of the far wall (v297) */
+ gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
 [[...CHN.WD,CWR],[...CHN.WI,CWRI]].map(([x,y,rr])=>ln(x,y,ZF,x,y,ZN,'stroke="var(--faint)" stroke-width="3"')+ell(x,y,ZF,rr,rr*c,'fill="none" stroke="var(--faint)" stroke-width="2"')).join('');
 let L1='';XOF=DIF;
 L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke-linecap="round"')+ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--panel)" stroke-width="10.5" stroke-linecap="round"');
@@ -1138,7 +1139,7 @@ $('beltItems').innerHTML=bi;
 const outA=o=>(g-o.t)*o.spc/CH.out;
 outs=outs.filter(o=>outA(o)<1&&g>=o.t);let oh='';outs.forEach(o=>{const a=outA(o);oh+=pileSVG(o.n,a*100,Math.max(0,1-a));});$('outs').innerHTML=oh;
 const by=bedY(),se=smallE(),be=bigE();
-$('bed').innerHTML=quad([[558,by+5,W/2],[564,by+5,W/2],[564,YEX+55,W/2],[558,YEX+55,W/2]],'fill="#888780"')+boxR(505,622,by,by+5,ZN-4,ZF+4,'c-gray');
+$('bed').innerHTML=(YEX-by>8?boxR(559,563,by+5,YEX,W/2-2,W/2+2,'c-gray'):'')+   /* lift post ends on the exit belt (v297) */boxR(505,622,by,by+5,ZN-4,ZF+4,'c-gray');
 $('pile').innerHTML=chg&&chg.out?'':pileSVG(count,0,1,by);
 const forks=(y,x0,x1,hx)=>{let h='';for(const z of [ZN+6,ZN+22,4,16,28,40,52,62,ZF-22,ZF-6])h+=ln(x0,y,z,x1,y,z,'stroke="#444441" stroke-width="2.2" stroke-linecap="round"');return h+ln(hx,y,ZF+4,hx,y,ZN-4,'stroke="#444441" stroke-width="4" stroke-linecap="round"');};
 const fo=SD-617;let fg='';if(be>0){fg+=forks(FL,644+fo-be*136,644+fo,646+fo);fg+=pileSVG(bCount,fo,1,FL-.5);}   /* forks move with the chain (Denis) */
@@ -1441,6 +1442,8 @@ const lbody=(s0,s1,yt)=>{const ya=yt-260,yf=LGND+110,L0=-LHW-10,L1=LHW+10;let o=
  for(const ss of [s0+170,s1-170])for(const ll of [L0+190,L1-190])o+=lslab(ss-40,ss+40,ll-40,ll+40,LGND,yf,1,'gph');
  const m=(s0+s1)/2,q=(s1-s0)/4;for(const ss of [m-q,m+q])o+=lslab(ss-90,ss+90,L0-14,L0,ya+90,ya+130,1,'dark');
  o+=lslab(m+q-260,m+q+260,L0+126,L0+140,yf+220,yf+420,1,'gph');return o;};
+/* four legs under a belt that has no body (Denis, v297) */
+const lLegs=(s0,s1,yb)=>{let o='';for(const ss of [s0+80,s1-80])for(const ll of [-LHW+80,LHW-80])o+=lslab(ss-35,ss+35,ll-35,ll+35,LGND,yb,1,'gph');return o;};
 const lbelt=(s0,s1,y=0,op)=>lslab(s0,s1,-LHW,LHW,y-90,y-15,op)+lslab(s0+10,s1-10,-LHW+20,LHW-20,y-15,y,op,'belt');
 /* a stack of blanks: n blanks of 360 mm side by side, each 950 mm the other way */
 /* an extruded outline (the box blank) placed like lbox: local u along the blank, v across, y up */
@@ -1729,6 +1732,8 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
  {const cp=LCAP;LCAP=null;LINSIDE=SOLID?lbelt(LC.belt1-HS('belt1'),sB)+lItems.filter(q=>q.op>0.01&&inM(q)).sort((a,b)=>lDep(b.s,b.l)-lDep(a.s,a.l)).map(lStackSVG).join(''):'';LCAP=cp;}
  back+=lbelt(SOLID?Math.max(LC.belt1-HS('belt1'),sB):LC.belt1-HS('belt1'),LC.belt1+HS('belt1'))+   /* with solid covers the part of belt 1 under the delivery is inside the machine: drawn from the end cover on, so it cannot show through the machine (v292) */
   lbelt(LC.belt2-HS('belt2'),LC.belt2+HS('belt2'))+lbelt(LC.shift-HS("shift"),LC.shift+HS("shift"));
+ lLegs(SOLID?Math.max(LC.belt1-HS('belt1'),sB):LC.belt1-HS('belt1'),LC.belt1+HS('belt1'),-90);
+ ['sep1','sep2','align','press'].forEach(kk=>lLegs(LC[kk]-HS(kk),LC[kk]+HS(kk),-90));
  /* separators: back belt fixed, front belt section tilts with the front press */
  ['sep1','sep2'].forEach(kk=>{const cc=LC[kk],H=HS(kk),S=st[kk],it=S.its[0];back+=lbelt(cc-H,cc-15);const top=it?it.y+it.h:0;
    back+=lbox({s:cc+H/2+8,l:0,y:-90,du:H/2-8,dv:LHW,h:75,pitch:S.tilt||0,piv:cc,pivY:top,top:'var(--m-fill)',side:'var(--m-fill)',stroke:'var(--m-stroke)',sw:.5,shade:true})
@@ -1749,6 +1754,8 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
  /* palletizer: mast on the drive side, yellow carriage with belts; white forks drive out over the column; red align plates */
  {const S=st.pal,cc=LC.pal,cy=S.cy||0,fx=(S.fx||0)*(S.bs!=null?LCOL-S.bs:LPITCH);   /* forks travel exactly as far as the stack, so the stack stays at the fork tips (Denis, v278) */
    far+=lslab(cc-200,cc+200,LHW+150,LHW+450,LGND,2900)+lslab(cc-260,cc+260,LHW+100,LHW+500,LGND,LGND+60);
+   lslab(cc-200,cc+200,-LHW-450,-LHW-150,LGND,2900)+lslab(cc-260,cc+260,-LHW-500,-LHW-100,LGND,LGND+60);   /* second pillar on the operator side (Denis, v297) */
+   lslab(cc-LHS,cc+LHS,-LHW-150,-LHW,cy-110,cy+40,1,'yel');   /* carriage side beam on that side */
    mid+=lslab(cc-LHS,cc+LHS,-LHW,LHW,cy-110,cy-60,1,'yel')+lslab(cc-LHS,cc+LHS,LHW,LHW+150,cy-110,cy+40,1,'yel');
    for(let i=0;i<15;i++){const z=-1015+145*i;mid+=lslab(cc-LHS+20,cc+LHS-20,z-50,z+50,cy-55,cy,1,'blue');}   /* blue belt strips along the line */
    for(let i=0;i<14;i++){const z=-942.5+145*i;mid+=lslab(cc-LHS+40+fx,cc+LHS-10+fx,z-18,z+18,cy-50,cy,1,'steel');}   /* fork tops level with the blue belt tops: the stack sits on both (v278) */   /* forks: steel rails between the belt strips, they drive out with the layer */
