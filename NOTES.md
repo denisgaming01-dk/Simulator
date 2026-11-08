@@ -129,6 +129,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v276: Camera freedom: pan/zoom limits now follow the drawn scene (updBounds from #world bbox + 15% margin, recalculated on every tilt/turn), so the whole machine and line can be reached at any angle. Zoom-in limit 110 -> 40, turn slider in 1 deg steps.
   v277: Infeed suction table (white frame, red belts, blue edges) moved into the infeed top layer (INFTAB), drawn first under the stack, so the belts are no longer hidden behind the machine body at some angles.
   v278: Palletizer forks travel exactly as far as the stack (LCOL - block centre), so the stack front stays at the fork tips the whole stroke (was LPITCH, forks overshot ~500 mm). Blue belt strips raised to cy so they are level with the fork tops.
+  v279: Palletizer: when the pallet is full after a bundle (count or max height), the carriage goes straight from open/xopen to clear (pallet release) instead of lowering to 0 first. full() helper shared with back.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

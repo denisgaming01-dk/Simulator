@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v278 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v279 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1539,6 +1539,7 @@ const lColTop=()=>LPB+(lSheet.col.length?6:0)+lCol.reduce((a,L)=>a+Math.max(...L
 let lColAdj=0;   /* operator correction of the bundle count on the pallet (a stack taken off or put on by hand) */
 const lColCount=()=>Math.max(0,lCol.length+lColAdj);   /* bundles on the pallet: a collected bundle counts as one */
 function lPal(dt){const st=LS.pal,its=st.its,S=LSET.pal;st.cy=st.cy||0;st.fx=st.fx||0;const sp=Math.max(10,S.spd)/100*.95;   /* 5% slower than the nominal speed, as on the machine */
+ const full=()=>{const nextH=LS.press.its.length?LS.press.its[0].h:(lCol[0]?lCol[0].its[0].h:0);return lColCount()>=S.want||lColTop()-LGND+nextH>LMAXH;};   /* pallet full: no room for the next bundle */
  const mv=to=>{const d=to-st.cy,stp=450*sp*dt;if(Math.abs(d)<=stp){st.cy=to;return true;}st.cy+=Math.sign(d)*stp;return false;};
  switch(st.ph){
   case 'in':if(lAllAt(its)){lFront(its,st.c+HS(st.k)-10);st.ph='end';}break;
@@ -1556,13 +1557,12 @@ function lPal(dt){const st=LS.pal,its=st.its,S=LSET.pal;st.cy=st.cy||0;st.fx=st.
   /* after the align plates have squared the batch, the forks pull out and the batch drops the last 20 mm onto the pallet */
   case 'forks':{st.t+=dt;const d=1.18/sp,f=Math.min(1,st.t/d);st.fx=1-ease(f);its.forEach(q=>q.y=st.cy);
      if(st.t>=d){const y=lColTop();its.forEach(q=>{q.y=y;if(st.crook){q.s+=st.crook.s;q.l+=st.crook.l;}});lCol.push({its:[...its]});lCount(st,1);st.last=[...its];st.xal=!!(LSET.palAlign&&LSET.palAlign[lColCount()]);st.its=[];st.ph='open';st.t=0;}}break;
-  case 'open':st.t+=dt;st.gd=1-ease(Math.min(1,st.t/.42));if(st.t>=.42){st.gd=0;if(st.xal){st.xal=false;st.ph='xdown';st.ty=st.cy-150;}else{st.ph='back';st.last=null;}}break;
+  case 'open':st.t+=dt;st.gd=1-ease(Math.min(1,st.t/.42));if(st.t>=.42){st.gd=0;if(st.xal){st.xal=false;st.ph='xdown';st.ty=st.cy-150;}else{st.ph=full()?'clear':'back';st.last=null;}}break;   /* pallet full: straight to the pallet release, no trip down first (Denis, v279) */
   /* additional alignment (layers chosen in the job): the carriage goes 150 mm lower and the plates square the batch again */
   case 'xdown':if(mv(st.ty)){st.ph='xguides';st.t=0;}break;
   case 'xguides':st.t+=dt;st.gd=ease(Math.min(1,st.t/.63));if(st.t>=.63){st.ph='xopen';st.t=0;}break;
-  case 'xopen':st.t+=dt;st.gd=1-ease(Math.min(1,st.t/.42));if(st.t>=.42){st.gd=0;st.ph='back';st.last=null;}break;
-  case 'back':if(mv(0)){const nextH=LS.press.its.length?LS.press.its[0].h:(lCol[0]?lCol[0].its[0].h:0);
-     if(lColCount()>=S.want||lColTop()-LGND+nextH>LMAXH)st.ph='clear';else st.ph='idle';}break;
+  case 'xopen':st.t+=dt;st.gd=1-ease(Math.min(1,st.t/.42));if(st.t>=.42){st.gd=0;st.ph=full()?'clear':'back';st.last=null;}break;
+  case 'back':if(mv(0))st.ph=full()?'clear':'idle';break;
   case 'clear':if(mv(Math.max(0,lColTop()+410))&&LSET.sec[6])   /* carriage underside 300 mm above the column so the pallet can drive out under it */{st.ph='colOut';st.t=0;lColBelt=1;lColN++;
      log(`Pallet ${lColN}: ${lColCount()} bundles, ${Math.round(lColTop()-LPB)} mm, driving out`,'ok');}break;
   case 'colOut':st.t+=dt;{const d=LPITCH/665;const f=Math.min(1,st.t/d);
