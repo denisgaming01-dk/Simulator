@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v261 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v262 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -808,9 +808,6 @@ if(!front){/* operator platform shape (Denis's measurements, railings left out f
       o+=boxR(h0,h1,GT,GT+12,ZN-12,ZN-10,'c-white')+boxR(h0,h1,GT,GT+12,ZF+8,ZF+14,'c-white');   /* top rails both sides */
       const d1=h1-3,d0=d1-2000*VS,dT=GP-2000*VS,dm=(d0+d1)/2,gB=dT+2000*VS*.59;   /* double door 2000 x 2000 mm: dark glass upper part, white lower part */
       o+=quad([[h0+10,GT+12,zp],[h1,GT+12,zp],[h1,dT,zp],[h0+10,dT,zp]],'fill="#E8EAEC" stroke="#9AA0A6" stroke-width=".6"');   /* fixed panel above the doors */
-      /* solid covers: the infeed is closed on every side when covers are solid (Denis): roof, end wall, operator-side panel behind the doors, far wall */
-      o+=quad([[XH,GT,zp],[XS,GT,zp],[XS,GT,ZF+16],[XH,GT,ZF+16]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')
-       +quad([[XH+10,GT+12,zp],[XS,GT+12,zp],[XS,GP-1,zp],[XH+10,GP-1,zp]],'fill="#E8EAEC" stroke="#9AA0A6" stroke-width=".6"');
       for(const [a0,a1] of [[d0,dm-.6],[dm+.6,d1]]){
        o+=quad([[a0,dT,zp],[a1,dT,zp],[a1,gB,zp],[a0,gB,zp]],'fill="#1E2125" fill-opacity=".55" stroke="#3A3D42" stroke-width=".5"');   /* dark glass surround */
        o+=quad([[a0+5,dT+5,zp],[a1-5,dT+5,zp],[a1-5,gB-4,zp],[a0+5,gB-4,zp]],'fill="#BFD6E6" fill-opacity=".12" stroke="#C9CED3" stroke-width=".7"');   /* clear pane */
