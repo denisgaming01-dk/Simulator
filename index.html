@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v295 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v296 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1375,21 +1375,33 @@ const lline=(a,b,st,w,da)=>`<path d="M${lstr(lpt(...a))} L${lstr(lpt(...b))}" st
 let LCAP=null;
 function lAdd(svg,b){if(!svg||!LCAP)return;const g=LCAP.g;if(g){g.svg+=svg;g.b=g.b?[Math.min(g.b[0],b[0]),Math.max(g.b[1],b[1]),Math.min(g.b[2],b[2]),Math.max(g.b[3],b[3]),Math.min(g.b[4],b[4]),Math.max(g.b[5],b[5])]:b.slice();}else LCAP.p.push({svg,b});}
 function lGrp(f){const g={svg:'',b:null},pv=LCAP.g;LCAP.g=g;const r=f();if(r)g.svg+=r;LCAP.g=pv;if(g.b)lAdd(g.svg,g.b);}
+let WEAK=false;
 function lSortSVG(P){const n=P.length;if(!n)return '';const E=1;
  P.forEach(q=>{const b=q.b;let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;const pts=[];for(let i=0;i<8;i++){const t=lpt(i&1?b[1]:b[0],i&2?b[5]:b[4],i&4?b[3]:b[2]);pts.push(t);x0=Math.min(x0,t[0]);x1=Math.max(x1,t[0]);y0=Math.min(y0,t[1]);y1=Math.max(y1,t[1]);}q.h=lHull(pts);
-  q.r=[x0,x1,y0,y1];q.ds=lDep((b[0]+b[1])/2,0);q.dl=lDep(0,(b[2]+b[3])/2);q.d=lDep((b[0]+b[1])/2,(b[2]+b[3])/2);q.in=0;q.out=[];});
+  q.wk=null;q.r=[x0,x1,y0,y1];q.ds=lDep((b[0]+b[1])/2,0);q.dl=lDep(0,(b[2]+b[3])/2);q.d=lDep((b[0]+b[1])/2,(b[2]+b[3])/2);q.in=0;q.out=[];});
  const before=(a,b)=>{const A=a.b,B=b.b;   /* true: a is drawn first */
-  if(A[1]<=B[0]+E||B[1]<=A[0]+E)return a.ds>b.ds;
+  WEAK=false;if(A[1]<=B[0]+E||B[1]<=A[0]+E)return a.ds>b.ds;
   if(A[3]<=B[2]+E||B[3]<=A[2]+E)return a.dl>b.dl;
-  if(A[5]<=B[4]+E)return true;if(B[5]<=A[4]+E)return false;
+  if(A[5]<=B[4]+E)return true;if(B[5]<=A[4]+E)return false;WEAK=true;   /* from here on it is a guess: such an order may give way in a loop */
   /* boxes that touch or slightly overlap: use the axis with the least overlap, that is the side they meet on */
   const oS=Math.min(A[1],B[1])-Math.max(A[0],B[0]),oL=Math.min(A[3],B[3])-Math.max(A[2],B[2]),oY=Math.min(A[5],B[5])-Math.max(A[4],B[4]);
-  if(oS<=oL&&oS<=oY)return a.ds>b.ds;if(oL<=oY)return a.dl>b.dl;return A[4]+A[5]<B[4]+B[5];};
+  /* an axis where one range lies inside the other is not a side they meet on (a sheet lying on a belt): skip it */
+  const inS=oS>=.9*Math.min(A[1]-A[0],B[1]-B[0]),inL=oL>=.9*Math.min(A[3]-A[2],B[3]-B[2]),inY=oY>=.9*Math.min(A[5]-A[4],B[5]-B[4]);   /* (nearly) inside */
+  const c=[[inS?1e18:oS,0],[inL?1e18:oL,1],[inY?1e18:oY,2]].sort((x,y)=>x[0]-y[0])[0];
+  if(c[0]>=1e18){const vA=(A[1]-A[0])*(A[3]-A[2])*(A[5]-A[4]),vB=(B[1]-B[0])*(B[3]-B[2])*(B[5]-B[4]);return vA>vB;}   /* one inside the other (a sheet on a sloping belt): the smaller one lies on the bigger */
+  if(c[1]===2)return A[4]+A[5]<B[4]+B[5];return c[1]===0?a.ds>b.ds:a.dl>b.dl;};
  for(let i=0;i<n;i++){const a=P[i];for(let j=i+1;j<n;j++){const b=P[j];if(a.r[1]<=b.r[0]||b.r[1]<=a.r[0]||a.r[3]<=b.r[2]||b.r[3]<=a.r[2])continue;
   if(!lHullHit(a.h,b.h))continue;   /* only pieces whose outlines really overlap on screen get an order, so no false loops */
-  if(before(a,b)){a.out.push(b);b.in++;}else{b.out.push(a);a.in++;}}}
+  const f=before(a,b),[x,y]=f?[a,b]:[b,a];x.out.push(y);y.in++;if(WEAK)(y.wk=y.wk||[]).push(x);}}
  const rest=new Set(P);let o='';const ready=P.filter(q=>!q.in);
- while(rest.size){let q=ready.pop();if(!q||!rest.has(q)){if(q)continue;q=[...rest].reduce((m,x)=>(x.in<m.in||(x.in===m.in&&x.d>m.d))?x:m);}   /* a loop: take the least blocked, furthest piece */
+ while(rest.size){let q=ready.pop();
+  if(!q){   /* a loop: find it and drop one guessed order in it (a certain one only if the loop has no guess) */
+   const st=new Map();let cyc=null;const dfs=(v,path)=>{st.set(v,1);path.push(v);for(const w of v.out){if(!rest.has(w))continue;if(st.get(w)===1){cyc=path.slice(path.indexOf(w));return;}if(!st.has(w)){dfs(w,path);if(cyc)return;}}path.pop();st.set(v,2);};
+   for(const v of rest){if(!st.has(v))dfs(v,[]);if(cyc)break;}
+   if(!cyc){q=[...rest].reduce((m,x)=>(x.in<m.in||(x.in===m.in&&x.d>m.d))?x:m);}
+   else{let k=cyc.findIndex((u,ii)=>{const v=cyc[(ii+1)%cyc.length];return v.wk&&v.wk.includes(u);});if(k<0)k=0;const u=cyc[k],v=cyc[(k+1)%cyc.length];
+    u.out.splice(u.out.indexOf(v),1);if(v.wk){const ix=v.wk.indexOf(u);if(ix>=0)v.wk.splice(ix,1);}if(--v.in===0)ready.push(v);continue;}}
+  else if(!rest.has(q))continue;
   rest.delete(q);o+=q.svg;q.out.forEach(x=>{if(rest.has(x)&&--x.in===0)ready.push(x);});}
  return o;}
 function lHull(P){P=P.slice().sort((a,b)=>a[0]-b[0]||a[1]-b[1]);const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);const lo=[],up=[];
@@ -1857,6 +1869,7 @@ function pfSVG0(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let 
    +lslab(PF_CYL-100,PF_CYL+100,l0-100,l0+100,ym-40,ym,op,'dark')+lslab(PF_CYL-38,PF_CYL+38,l0-38,l0+38,ym,yb-50,op,'steel')+lslab(PF_CYL-80,PF_CYL+80,l0-80,l0+80,yb-50,yb,op,'gph');
   o+=cyl(1000,1);put(Math.max(K(PF_CYL,1100),kInc+.5));o+=cyl(-1000,1);put(Math.max(K(PF_CYL,-1100),kInc+.4));   /* cylinders stand under the belt: drawn before it */}
  const mid=(PF_HEAD+PF_TAIL)/2,hl=(PF_HEAD-PF_TAIL)/2/Math.cos(PF_A*D2R);
+ lGrp(()=>{   /* the sloping belt: frame, belt and the shingle stream on it are one piece, drawn in this order */
  o+=lbox({s:mid,l:0,y:pfInc(mid)-70,du:hl,dv:1070,h:55,pitch:PF_A,piv:mid,pivY:pfInc(mid),top:'var(--m-fill)',side:'var(--m-fill)',stroke:'var(--m-stroke)',sw:.5,shade:true});
  o+=lbox({s:mid,l:0,y:pfInc(mid)-15,du:hl-10,dv:1050,h:15,pitch:PF_A,piv:mid,pivY:pfInc(mid),top:'#2E9B4A',side:'#23793A',stroke:'var(--m-stroke)',sw:.4,
    lines:(P,vis)=>{if(!vis[3])return '';let L='';const off=S.run?S.sh*3:0;for(let u=-hl+(off%210);u<hl;u+=210){const a=lpt(...P(u,15,-1050)),c2=lpt(...P(u,15,1050));L+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(c2[0])}" y2="${f1(c2[1])}" stroke="#5DBB76" stroke-width=".5"/>`;}return L;}});put(kInc);
@@ -1865,6 +1878,7 @@ function pfSVG0(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let 
    o+=lbox({s:sm,l:0,y:pfInc(sm),du:hs,dv:SHW/2,h:Math.max(4,THK*2.2),pitch:PF_A,piv:sm,pivY:pfInc(sm),...ORB,
      lines:(P,vis)=>{if(!vis[4])return "";let L="";const off=S.run?S.sh:0;for(let u=-hs+off;u<hs;u+=70){const a=lpt(...P(u,0,-SHW/2)),c2=lpt(...P(u,THK*2.2,-SHW/2));const d=lpt(...P(u,THK*2.2,SHW/2));
        L+=`<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(c2[0])}" y2="${f1(c2[1])}" stroke="${ORS}" stroke-width=".4"/><line x1="${f1(c2[0])}" y1="${f1(c2[1])}" x2="${f1(d[0])}" y2="${f1(d[1])}" stroke="${ORS}" stroke-width=".3" opacity=".6"/>`;}return L;}});}put(on(kInc,(PF_KN+PF_HEAD)/2,0));
+ });
  /* stored board against the knife */
  {const al=S.al||0,gp=8+45*(1-(S.sa||0)),PS=PF_KN-175,side=(l0,op)=>lbox({s:PS,l:l0,y:pfInc(PS)+40,du:130,dv:12,h:650,pitch:PF_A,piv:PS,pivY:pfInc(PS),top:'#DDE0E2',side:'#C9CDD0',stroke:'#8E9398',sw:.4,op});   /* small side align plates at the front of the stored board, just behind the knife */
   o+=side(SHW/2+gp+12,1);put(on(kInc,PS,SHW/2+9));
