@@ -331,7 +331,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v276 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v277 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -710,7 +710,7 @@ const scY=322;
 /* VS (px per mm) is defined with the gripper chain */
 const YEX=210+(330+565)*VS;   /* gripper bar (y 210) 330 mm above the big forks, lifting belt top level with the big forks and 565 mm above the exit belts */
 const GF=YEX+880*VS,GP=GF-650*VS,GT=GF-3000*VS;   /* machine 3000 mm high from the floor */
-let PLAT=null,SOLID=false,WALLS='';let INFSVG='',INFBACK='';const infLayer=st=>PDEP(132,32)>PDEP(100,32)?INFBACK+st+INFSVG:st+INFSVG+INFBACK;   /* infeed back cover drawn behind or in front of the stack and guides, by which side the camera is on */
+let PLAT=null,SOLID=false,WALLS='';let INFSVG='',INFBACK='',INFTAB='';const infLayer=st=>PDEP(132,32)>PDEP(100,32)?INFTAB+INFBACK+st+INFSVG:INFTAB+st+INFSVG+INFBACK;   /* suction table first, under the stack (v277) */   /* infeed back cover drawn behind or in front of the stack and guides, by which side the camera is on */
 /* solid covers, operator side, panel widths measured by Denis (mm, from the delivery end): panel after the guillotine 1000, delivery 1190,
    HMI column 550, stripping 1530 (rechecked), die-cutting 1690, infeed (feeder screen) 950. The drawing was laid out from the photo in "u" units
    (old section edges below); U() maps them onto the measured widths, so windows and buttons keep their place inside each panel. */
@@ -846,9 +846,9 @@ let INF='';
    - two side tampers (align plates) at the sheet edges: stainless plates along the feed with a bent lead-in at the back, white holders outside
    - white traverse beam above with two ballscrews (left and right of a centre bearing), a carriage over each stop, a centre photocell */
  const zw=mm=>mm*KV,x1=122,x0=x1-420*VS,zc=SZ0+SZW/2;
- L1+=boxR(x0,x1,224,234,ZN+2,ZF-2,'c-white');   /* table frame */
- for(let z=ZN+6;z<ZF-6;z+=zw(70))L1+=boxR(x0+1,x1-1,221,224,z,Math.min(z+zw(45),ZF-6),'c-red');   /* red suction belts */
- for(const [a,b] of [[ZN+2,ZN+6],[ZF-6,ZF-2]])L1+=boxR(x0,x1,220,224,a,b,'c-blue');   /* blue chain edges */
+ INFTAB=boxR(x0,x1,224,234,ZN+2,ZF-2,'c-white');   /* table frame */
+ for(let z=ZN+6;z<ZF-6;z+=zw(70))INFTAB+=boxR(x0+1,x1-1,221,224,z,Math.min(z+zw(45),ZF-6),'c-red');   /* red suction belts */
+ for(const [a,b] of [[ZN+2,ZN+6],[ZF-6,ZF-2]])INFTAB+=boxR(x0,x1,220,224,a,b,'c-blue');   /* blue chain edges */
  L1+=ln(x0+2,214,-2,x1-4,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"');
  INFBACK=SOLID?boxR(131,134,GT,222,ZN-4,ZF+4,'c-white'):'';   /* infeed back cover: always drawn with the infeed guides when covers are solid (Denis) */   /* back panel of the infeed: from the belts up to the roof; the front guides and side align plates sit on it (Denis) */   /* back panel behind the guides, full width and height, so the chain is not seen from the infeed (Denis, photo) */
  L1+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */

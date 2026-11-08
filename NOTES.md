@@ -127,6 +127,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v274: orderWorld() was showing the die layout inset and scale again at turn 0; now they stay hidden at every angle.
   v275: Line stacks: the blank outline of a bundle is now centred on its real outer edges (lOutC), not on its grid cell in the die. Barcaffe blanks sat ~35 mm off centre, so layers turned 180 deg looked offset left/right on the pallet. Logic positions were already straight.
   v276: Camera freedom: pan/zoom limits now follow the drawn scene (updBounds from #world bbox + 15% margin, recalculated on every tilt/turn), so the whole machine and line can be reached at any angle. Zoom-in limit 110 -> 40, turn slider in 1 deg steps.
+  v277: Infeed suction table (white frame, red belts, blue edges) moved into the infeed top layer (INFTAB), drawn first under the stack, so the belts are no longer hidden behind the machine body at some angles.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
