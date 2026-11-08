@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v289 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v290 · 8 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -378,6 +378,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <label>Tilt <input type="range" id="camT" min="0" max="90" step="1" value="35" aria-label="Camera tilt, 0 side view to 90 top view"><output id="camTo">35°</output></label>
           <label>Turn <input type="range" id="camY" min="-180" max="180" step="1" value="0" aria-label="Turn the camera round the machine, 360 degrees"><output id="camYo">0°</output></label>
           <button id="camR" aria-label="Reset camera">Reset view</button>
+          <button id="cineB" aria-pressed="false" title="Camera circles the machine slowly; touch the Turn slider or press again to stop">Cinematic</button>
           <button id="fsB" aria-pressed="false" title="Show the 3D view on the whole screen (Esc to leave)">Full screen</button>
         </div>
       </div>
@@ -2300,6 +2301,12 @@ function gTick(){if(!$('gClk'))return;if($('gSfL0')){const sOk=mode!=='estop';$(
  sv('gPlt',(((k+p)%1)*360).toFixed(1));$('gFmt').textContent=`${SHL} × ${SHW} mm`;$('gThk').textContent=THK+' mm';$('gStk').textContent=STACK;$('gBar').style.width=(100*(mode==='run'?vAct:0)/6500)+'%';}
 function g1Fit(){const w=$('g1').clientWidth,k=Math.max(w,720)/1000;$('g1In').style.transform=`scale(${k})`;$('g1').style.height=(560*k)+'px';$('g1Wrap').style.overflowX=w<720?'auto':'hidden';}
 function hmiFit(){g1Fit();const w=$('hmi2').clientWidth,k=Math.max(w,720)/1000;$('hmi2In').style.transform=`scale(${k})`;$('hmi2').style.height=(640*k)+'px';$('hmi2Wrap').style.overflowX=w<720?'auto':'hidden';}
+/* cinematic mode: the camera turns round the machine slowly, 1 degree at a time (about one round in a minute), until switched off (v290) */
+{const b=$('cineB'),y=$('camY');let tm=0;
+ const stop=()=>{clearInterval(tm);tm=0;b.setAttribute('aria-pressed','false');b.textContent='Cinematic';};
+ b.onclick=()=>{if(tm){stop();return;}b.setAttribute('aria-pressed','true');b.textContent='Cinematic: on';
+  tm=setInterval(()=>{if(document.hidden)return;let v=+y.value+1;if(v>180)v-=360;y.value=v;y.dispatchEvent(new Event('input'));},170);};
+ y.addEventListener('pointerdown',()=>{if(tm)stop();});$('camR').addEventListener('click',()=>{if(tm)stop();});}
 /* full screen: the real browser full screen when allowed, otherwise the view card covers the whole window (v289) */
 {const vfs=$('stage').parentElement,b=$('fsB');vfs.classList.add('vfs');
  const set=on=>{b.textContent=on?'Exit full screen':'Full screen';b.setAttribute('aria-pressed',on);document.body.style.overflow=on?'hidden':'';};
