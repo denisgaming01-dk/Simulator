@@ -137,6 +137,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by Denis w
   v284: Reverted the v283 frame. Turntable top has no cross bar at the ends: the spokes end bare, as on the real turntable (Denis).
   v285: Turntable top open on all 4 sides: outer edge spokes removed too, every spoke ends bare.
   v286: Turntable spokes clipped to one circle (radius min(H-250, LHW-10) = 800 mm): outer spokes shorter, so no spoke tip pokes over the belt edge at any turn angle.
+  v287: Turntable spoke circle radius = min(H,LHW)-150 = 900 mm: spoke tips 150 mm from the belt edge at any turn angle.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
