@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v348 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v349 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -369,7 +369,6 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <button data-l="always" aria-pressed="false">Layout always</button>
         </div>
         <div class="seg"><button id="boardB" aria-pressed="false" title="Show or hide all board, so only the machine is seen">Board: shown</button></div>
-        <div class="seg"><button id="glB" aria-pressed="true" title="3D view (WebGL) or the classic drawing">View: 3D</button></div>
         <div class="seg"><button id="solidB" aria-pressed="false" title="Full machine: solid covers, walkway, platforms and the equipment round it. Inside: see-through covers to watch the machine work">Machine: inside</button></div>
         <div class="seg">
           <button id="zin" aria-label="Zoom in">+</button>
@@ -2935,7 +2934,7 @@ function setGL(on){if(on&&!GLV.init()){alert('This browser has no WebGL 2, the 3
  $('world').style.display=on?'none':'';GLV.cv.style.display=on?'block':'none';$('mach').style.background='transparent';
  GLV.resetColours();buildStatic();if(!on){setCam(CAM,YAW);}}
 
-$('glB').onclick=()=>setGL(!GLON);
 /* the 3D view is the main view (v307); browsers without WebGL 2 stay on the classic drawing */
-try{if(GLV.init())setGL(true);else{const b=$('glB');b.setAttribute('aria-pressed','false');b.textContent='View: classic';}}catch(e){}
+/* the 3D view is the only view since v349 (the View button is gone); a browser without WebGL 2 still falls back to the flat drawing so the page keeps working */
+try{if(GLV.init())setGL(true);}catch(e){}
 </script>
