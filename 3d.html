@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v298 3D preview 2 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v298 3D preview 3 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -2625,14 +2625,14 @@ const GLV=(function(){
  /* ---------- WebGL ---------- */
  let cv=null,gl=null,progT,progL,bufT,bufL,bufH;
  const VS_T=`#version 300 es
- in vec3 p;in vec3 n;in vec4 col;in float od;uniform mat4 M;out vec4 v;
- void main(){gl_Position=M*vec4(p,1.);gl_Position.z-=od*2e-6;float f=.80+.20*abs(n.y)-.06*abs(n.x);v=vec4(col.rgb*f,col.a);}`;
+ in vec3 p;in vec3 n;in vec4 col;in float od;uniform mat4 M;uniform vec3 off;out vec4 v;
+ void main(){gl_Position=M*vec4(p+off,1.);gl_Position.z-=od*2e-6;float f=.92+.08*abs(n.y)-.07*abs(n.x);v=vec4(col.rgb*f,col.a);}`;
  const FS=`#version 300 es
  precision mediump float;in vec4 v;out vec4 o;void main(){o=v;}`;
  const VS_L=`#version 300 es
- in vec3 a;in vec3 b;in float sd;in float w;in vec4 col;uniform mat4 M;uniform vec2 px;uniform float k;out vec4 v;
- void main(){vec4 pa=M*vec4(a,1.),pb=M*vec4(b,1.);vec2 sa=pa.xy*px,sb=pb.xy*px;vec2 d=sb-sa;float l=length(d);d=l>1e-6?d/l:vec2(1.,0.);
-  vec2 nn=vec2(-d.y,d.x)*max(w*k,1.)*.5*sd;pa.xy+=nn/px;pa.z-=.0006;gl_Position=pa;v=col;}`;
+ in vec3 a;in vec3 b;in float sd;in float w;in vec4 col;uniform mat4 M;uniform vec3 off;uniform vec2 px;uniform float k;out vec4 v;
+ void main(){vec4 pa=M*vec4(a+off,1.),pb=M*vec4(b+off,1.);vec2 sa=pa.xy*px,sb=pb.xy*px;vec2 d=sb-sa;float l=length(d);d=l>1e-6?d/l:vec2(1.,0.);
+  vec2 nn=vec2(-d.y,d.x)*max(w*k,1.)*.5*sd;pa.xy+=nn/px;pa.z-=.00004*pa.w;gl_Position=pa;v=col;}`;
  function sh(t,src){const s2=gl.createShader(t);gl.shaderSource(s2,src);gl.compileShader(s2);if(!gl.getShaderParameter(s2,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s2));return s2;}
  function prog(vs,fs){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(p));return p;}
  function init(){if(gl)return true;cv=document.createElement('canvas');cv.id='gl3d';cv.style.cssText='position:absolute;left:0;top:0;pointer-events:none;display:none';
@@ -2641,7 +2641,8 @@ const GLV=(function(){
   progT=prog(VS_T,FS);progL=prog(VS_L,FS);return true;}
  /* mesh per group: interleaved arrays, uploaded when the group changes */
  function build(id){const r=parse(STR[id],/^L[35]/.test(id));const mm={};
-  const T=new Float32Array(r.T);const op=[],tr=[];for(let i=0;i<T.length;i+=33){const a=T[i+9];(a>.985?op:tr).push(T.subarray(i,i+33));}
+  const T=new Float32Array(r.T);for(let i=9;i<T.length;i+=11)if(T[i]<=.985)T[i]*=.6;   /* see-through parts lighter than in the classic view: in 3D they really lie in front of what is behind them */
+  const op=[],tr=[];for(let i=0;i<T.length;i+=33){const a=T[i+9];(a>.985?op:tr).push(T.subarray(i,i+33));}
   const cat=list=>{const o=new Float32Array(list.length*33);list.forEach((x,i)=>o.set(x,i*33));return o;};
   mm.op=cat(op);mm.tr=cat(tr);
   /* lines: 4 vertices per segment (this, other, side, width, colour) -> 6 indices */
@@ -2675,6 +2676,9 @@ const GLV=(function(){
   m[2]=k[0]/dr;m[6]=k[1]/dr;m[10]=k[2]/dr;m[14]=-dm/dr;
   m[15]=1;return m;}
  let BG=[.97,.97,.95];
+ /* groups the classic view moves with a transform (die platens, stripping tools): translate(0,ty) on screen = ty/c up or down in 3D */
+ const MOVERS=['knife','lower','pins','L4u'];
+ function offOf(id){if(!MOVERS.includes(id))return [0,0,0];const t=document.getElementById(id).getAttribute('transform')||'';const m=/translate\(\s*([-\d.e]+)[ ,]+([-\d.e]+)/.exec(t);return m?[0,(+m[2])/(c||1),0]:[0,0,0];}
  function draw(){if(!init())return;
   const svg=document.getElementById('mach'),st=document.getElementById('stage');const rc=svg.getBoundingClientRect(),rs=st.getBoundingClientRect();
   const dpr=Math.min(2,window.devicePixelRatio||1),W=Math.max(2,Math.round(rc.width*dpr)),H=Math.max(2,Math.round(rc.height*dpr));
@@ -2685,19 +2689,20 @@ const GLV=(function(){
   const M=matrix(W,H),ids=Object.keys(UP);
   gl.useProgram(progT);gl.uniformMatrix4fv(gl.getUniformLocation(progT,'M'),false,M);
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,1);gl.depthMask(true);
-  for(const id of ids){const u=UP[id];if(!u.nop)continue;gl.bindBuffer(gl.ARRAY_BUFFER,u.op);attT();gl.drawArrays(gl.TRIANGLES,0,u.nop);}
+  const uoT=gl.getUniformLocation(progT,'off'),uoL=gl.getUniformLocation(progL,'off');
+  for(const id of ids){const u=UP[id];if(!u.nop)continue;gl.uniform3fv(uoT,offOf(id));gl.bindBuffer(gl.ARRAY_BUFFER,u.op);attT();gl.drawArrays(gl.TRIANGLES,0,u.nop);}
   /* panels with windows: even-odd fill through the stencil */
   gl.enable(gl.STENCIL_TEST);
-  for(const id of ids)for(const h of UP[id].h){if(!h.n)continue;gl.bindBuffer(gl.ARRAY_BUFFER,h.b);attT();
+  for(const id of ids)for(const h of UP[id].h){if(!h.n)continue;gl.uniform3fv(uoT,offOf(id));gl.bindBuffer(gl.ARRAY_BUFFER,h.b);attT();
    gl.colorMask(false,false,false,false);gl.depthMask(false);gl.stencilFunc(gl.ALWAYS,0,255);gl.stencilOp(gl.KEEP,gl.KEEP,gl.INVERT);gl.drawArrays(gl.TRIANGLES,0,h.n);
    gl.colorMask(true,true,true,true);gl.depthMask(true);gl.stencilFunc(gl.NOTEQUAL,0,255);gl.stencilOp(gl.ZERO,gl.ZERO,gl.ZERO);gl.drawArrays(gl.TRIANGLES,0,h.n);}
   gl.disable(gl.STENCIL_TEST);
   /* edges */
   gl.useProgram(progL);gl.uniformMatrix4fv(gl.getUniformLocation(progL,'M'),false,M);gl.uniform2f(gl.getUniformLocation(progL,'px'),W/2,H/2);gl.uniform1f(gl.getUniformLocation(progL,'k'),W/vb[2]);
-  for(const id of ids){const u=UP[id];if(!u.nl)continue;idxFor(u.nl);gl.bindBuffer(gl.ARRAY_BUFFER,u.l);attL();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,lineIdx);gl.drawElements(gl.TRIANGLES,u.nl*6,gl.UNSIGNED_INT,0);}
+  for(const id of ids){const u=UP[id];if(!u.nl)continue;gl.uniform3fv(uoL,offOf(id));idxFor(u.nl);gl.bindBuffer(gl.ARRAY_BUFFER,u.l);attL();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,lineIdx);gl.drawElements(gl.TRIANGLES,u.nl*6,gl.UNSIGNED_INT,0);}
   /* see-through parts last, without writing depth */
   gl.useProgram(progT);gl.depthMask(false);
-  for(const id of ids){const u=UP[id];if(!u.ntr)continue;gl.bindBuffer(gl.ARRAY_BUFFER,u.tr);attT();gl.drawArrays(gl.TRIANGLES,0,u.ntr);}
+  for(const id of ids){const u=UP[id];if(!u.ntr)continue;gl.uniform3fv(uoT,offOf(id));gl.bindBuffer(gl.ARRAY_BUFFER,u.tr);attT();gl.drawArrays(gl.TRIANGLES,0,u.ntr);}
   gl.depthMask(true);gl.disable(gl.POLYGON_OFFSET_FILL);}
  /* static scene for the 3D view: built twice, once seen from each side, so both side walls (and their windows) exist */
  function statics(bs){const sc=cyw,ss=syw;CAP=1;try{GLPASS='A';cyw=.6;syw=-.8;bs();if(SOLID){GLPASS='B';cyw=-.6;syw=-.8;bs();}}finally{GLPASS='';cyw=sc;syw=ss;CAP=0;}}

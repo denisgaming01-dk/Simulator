@@ -222,4 +222,5 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
 - Coplanar cover decals keep their SVG order with a tiny depth bias (attribute od, groups L3/L5).
 - Camera, tilt, turn, pan, zoom, cinematic are the same as classic; in 3D mode a camera move does not rebuild the scene.
 - Preview 2: parsed elements cached by their text (ECACHE), no depth sort of line/prefeeder in 3D mode: a frame costs ~4 ms strings + ~4 ms parse/draw in the test browser (was ~22 ms). Right-drag or Shift+drag turns and tilts the camera round the middle of the view.
+- Preview 3: die platen, stripping tools and lower tools move again in 3D (their group transform translate(0,ty) is applied as a 3D offset ty/c per group, MOVERS). Edge line depth bias cut to 4e-5 so inside edges no longer show through the covers. See-through parts 40 % lighter, flatter shading closer to the classic colours.
 - Open: text labels are the classic ones.
