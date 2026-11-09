@@ -151,6 +151,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v298: Cinematic camera smooth through +-90: turns about the fixed middle of the whole scene (prefeeder to bottom-sheet belt), and the view is fitted each frame from the projected 3D corners of the scene (smooth in the angle) instead of the SVG bbox (which jumped when parts switched draw order), eased in over 0.9 s and low-pass filtered.
   v299: Infeed side align plates run from 20 mm behind the front guides to the back end of the suction belts (420 mm table), was 540 mm. Same change in 3d.html.
   v300: See-through covers: at the infeed only the red suction belts (and the board) are drawn; table frame, blue edges, support roller, traverse beam, ballscrews, stops, align plates and back stop only with solid covers. Same in 3d.html.
+  v301: Grippers stick out 50 mm in front of the gripper bar (square ends) and bite 10 mm, so the bar runs 40 mm ahead of the sheet edge (GOUT/GOFF); photocells moved with it (PCB 100 mm). Same in 3d.html.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
