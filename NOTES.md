@@ -159,6 +159,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v306: Bottom guillotine knife moved 20 mm forward, toward the delivery end. Same in 3d.html.
   v307: The 3D view is now the main version. index.html opens in 3D, and the "View: 3D / classic" button switches back to the classic drawing. Browsers without WebGL 2 start in classic. 3d.html is the same file. Restore point for the last classic-only version: branch svg-v306.
   v308: Removed the blue door switches and the yellow-ring reset buttons from the see-through guard doors.
+  v309: Drive side modelled from the trainer's photos. The drive-side wall now goes down to the floor and has the stripping window (1450 x 500) and the small delivery window (600 x 340, 1200 from the delivery end), both with the bottom edge at the bottom chain. Also added the grille panel and double door at die-cutting, the stripping-window platform (deck 1150 above the floor, with a steep ladder), the front-waste column with its slide into the floor conveyor, the control box on its stand, the delivery platform with stairs, and the waste extraction (cyclone with filter and bin, fan, hydraulic unit). Sizes not measured are estimates, kept together in DSM in the code.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

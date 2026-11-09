@@ -331,13 +331,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* SVG */
 #mach .th{font-family:var(--f-label);font-weight:600;font-size:13px;fill:var(--ink)}
 #mach .ts{font-family:var(--f-body);font-size:11px;fill:var(--muted)}
-.c-gray{fill:var(--m-fill);stroke:var(--m-stroke)} .c-wood{fill:#C89A62;stroke:#7A5530} .c-red{fill:#E07070;stroke:#A84848} .c-inox{fill:#C9CED3;stroke:#7D848B} .c-white{fill:#F2F3F4;stroke:#9AA0A6} .c-steel{fill:#4A4E55;stroke:#2A2D31} .c-blue{fill:var(--mb-fill);stroke:var(--mb-stroke)} .c-purple{fill:var(--mp-fill);stroke:var(--mp-stroke)}
+.c-gray{fill:var(--m-fill);stroke:var(--m-stroke)} .c-wood{fill:#C89A62;stroke:#7A5530} .c-red{fill:#E07070;stroke:#A84848} .c-inox{fill:#C9CED3;stroke:#7D848B} .c-white{fill:#F2F3F4;stroke:#9AA0A6} .c-steel{fill:#4A4E55;stroke:#2A2D31} .c-blue{fill:var(--mb-fill);stroke:var(--mb-stroke)} .c-purple{fill:var(--mp-fill);stroke:var(--mp-stroke)} .c-rail{fill:#7B7F84;stroke:#4E5257} .c-deck{fill:#8C8F93;stroke:#5E6266} .c-cream{fill:#E8E3D3;stroke:#A39E8E} .c-mesh{fill:#9C988D;stroke:#6E6A61} .c-dark{fill:#3A3D42;stroke:#222428} .c-ylw{fill:#F2C21B;stroke:#9C7A0A} .c-cab{fill:#DCDFE2;stroke:#8E959C}
 </style>
 
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v308 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v309 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -386,7 +386,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <div class="stage" id="stage">
         <svg id="mach" viewBox="0 0 680 445" role="img" aria-label="3D view of the die-cutter">
           <g id="world" transform="matrix(-1 0 0 1 680 0)">
-          <g id="LP"></g><g id="L0"></g><g id="L1"></g><g id="lower"></g><g id="pdash"></g><g id="bed"></g><g id="pile"></g><g id="outs"></g><g id="fing"></g><g id="wbItems"></g><g id="lstrip"></g>
+          <g id="DS"></g><g id="LP"></g><g id="L0"></g><g id="L1"></g><g id="lower"></g><g id="pdash"></g><g id="bed"></g><g id="pile"></g><g id="outs"></g><g id="fing"></g><g id="wbItems"></g><g id="lstrip"></g>
           <g id="dyn"></g><g id="linIn"></g>
           <g id="L4u"></g><g id="pins"></g><g id="knife"></g><g id="sens"></g>
           <g id="belt"></g><g id="beltItems"></g>
@@ -740,6 +740,104 @@ function stairs(x0,sx,z0,z1){const P=[[x0,GF]];for(let i=0;i<4;i++){const h=GP+(
  for(const [z,n] of [[z0,-1],[z1,1]])if(CAP||n*v[2]<-1e-9)F.push({k:PDEP(x0+2*sx,z)+(n>0?0:0),d:'M'+P.map(([x,y])=>pt(x,y,z)).join(' L')+' Z',side:true});
  return F;}
 let LPSVG='';
+/* ===== drive side (AS), from the trainer's photos (v309) =====
+   m = mm from the delivery end of the covers, h = mm above the floor, d = mm out from the drive-side wall.
+   Measured: stripping-window platform deck 1150 above the floor; stripping window 1450 x 500 and the small delivery window
+   600 x 340 (1200 from the delivery end), both with the bottom edge level with the bottom chain. Everything else is estimated
+   from the photos and is easy to change here. */
+const DSM={
+ smallWin:{m0:1200,w:600,ht:340},                 /* measured */
+ stripWin:{w:1450,ht:500},                        /* measured, centred in the stripping section */
+ stripPlat:{m0:2600,m1:4300,dep:1000,deck:1150,ladW:600,ladRun:450},   /* deck height measured, size estimated */
+ delPlat:{m0:0,m1:1700,dep:1300,deck:900,stairW:800,stairRun:850},     /* estimated */
+ waste:{m0:2150,m1:2550,dep:700,head:1800},       /* front waste conveyor column and chute into the floor conveyor, estimated */
+ box:{m0:1750,m1:2100,d0:300,d1:600,h0:1000,h1:1800},   /* control box on its stand, estimated */
+ vent:{m0:4270,m1:4970,door1:5960},               /* grille panel and double door in the die-cutting section, estimated */
+ cyc:{m:6500,d:850,r:450,rf:330},                 /* cyclone and filter of the waste extraction, estimated */
+ fan:{m:5850,d:420,r:330},hyd:{m0:5000,m1:5700,d0:60,d1:700}};
+const DSX=m=>XE-m*VS,DSY=h=>GF-h*VS,DSZ=d=>ZF+16+d*VS/DZ,DSP=(m,h,d)=>[DSX(m),DSY(h),DSZ(d)];
+const DSY_CH=(GF-210)/VS;   /* bottom chain, mm above the floor */
+function dsFaces(F,cen,cls,shade){/* F: faces as lists of [x,y,z] (z in model units); cen: a point inside the solid. Only the faces turned to the camera are drawn */
+ const vr=[syw*c,s,cyw*c],C=[cen[0],cen[1],cen[2]*DZ];let o='';
+ for(const P of F){const R=P.map(p=>[p[0],p[1],p[2]*DZ]);let n=[0,0,0];for(let i=0;i<R.length;i++){const a=R[i],b=R[(i+1)%R.length];n[0]+=(a[1]-b[1])*(a[2]+b[2]);n[1]+=(a[2]-b[2])*(a[0]+b[0]);n[2]+=(a[0]-b[0])*(a[1]+b[1]);}
+  const g=R.reduce((q,p)=>[q[0]+p[0]/R.length,q[1]+p[1]/R.length,q[2]+p[2]/R.length],[0,0,0]);if((g[0]-C[0])*n[0]+(g[1]-C[1])*n[1]+(g[2]-C[2])*n[2]<0)n=n.map(q=>-q);
+  const nl=Math.hypot(...n)||1;if(!CAP&&(n[0]*vr[0]+n[1]*vr[1]+n[2]*vr[2])/nl>-1e-6)continue;
+  const dd=`d="M${P.map(p=>pt(...p)).join(' L')} Z"`;o+=`<path class="${cls}" ${dd} stroke-width="0.5"/>`;if(shade!==false&&!CAP&&Math.abs(n[1]/nl)<.5)o+=`<path ${dd} fill="#000" fill-opacity="0.12"/>`;}
+ return o;}
+function dsBox(m0,m1,h0,h1,d0,d1,cls){return boxR(DSX(m1),DSX(m0),DSY(h1),DSY(h0),DSZ(d0),DSZ(d1),cls);}
+function dsCyl(m,d,h0,h1,r0,r1,cls,N=20){/* upright cylinder or cone, radii in mm (r0 at the bottom, r1 at the top) */
+ const ring=(h,r)=>Array.from({length:N},(_,i)=>{const a=i/N*Math.PI*2;return [DSX(m)+r*VS*Math.cos(a),DSY(h),DSZ(d)+r*VS*Math.sin(a)/DZ];});
+ const A=ring(h0,r0),B=ring(h1,r1),F=[];for(let i=0;i<N;i++){const j=(i+1)%N;F.push([A[i],A[j],B[j],B[i]]);}F.push(B.slice().reverse(),A);
+ return dsFaces(F,DSP(m,(h0+h1)/2,d),cls);}
+function dsCylZ(m,h,d0,d1,r,cls,N=20){/* lying cylinder with its axis out from the machine (fan housing, motor) */
+ const ring=d=>Array.from({length:N},(_,i)=>{const a=i/N*Math.PI*2;return [DSX(m)+r*VS*Math.cos(a),DSY(h)+r*VS*Math.sin(a),DSZ(d)];});
+ const A=ring(d0),B=ring(d1),F=[];for(let i=0;i<N;i++){const j=(i+1)%N;F.push([A[i],A[j],B[j],B[i]]);}F.push(A,B.slice().reverse());
+ return dsFaces(F,DSP(m,h,(d0+d1)/2),cls);}
+function dsBeam(a,b,w,t,cls){/* straight duct or slide from point a to b (m,h,d), w wide along the machine, t thick across */
+ const A=DSP(...a),B=DSP(...b),dh=b[1]-a[1],dd=b[2]-a[2],L=Math.hypot(dh,dd)||1,ph=-dd/L*t/2,pd=dh/L*t/2;
+ const V=(p,sm,sn)=>DSP(p[0]+sm*w/2,p[1]+sn*ph,p[2]+sn*pd),F=[];
+ const a4=[V(a,-1,-1),V(a,1,-1),V(a,1,1),V(a,-1,1)],b4=[V(b,-1,-1),V(b,1,-1),V(b,1,1),V(b,-1,1)];
+ for(let i=0;i<4;i++){const j=(i+1)%4;F.push([a4[i],a4[j],b4[j],b4[i]]);}F.push(a4,b4);
+ return dsFaces(F,DSP((a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2),cls);}
+const DSR='stroke="#6F7378" stroke-width="4" stroke-linecap="round"';   /* railing tube, about 40 mm */
+const dsLn=(a,b,at=DSR)=>ln(...DSP(...a),...DSP(...b),at);
+function dsRail(p0,p1,top,posts){/* railing along a deck edge: posts, hand rail at +1100 and knee rail at +550; p = [m,h,d] at deck level */
+ let o='';const n=Math.max(1,posts||Math.ceil(Math.hypot(p1[0]-p0[0],p1[2]-p0[2])/1200));
+ for(let i=0;i<=n;i++){const t=i/n,p=[p0[0]+(p1[0]-p0[0])*t,p0[1],p0[2]+(p1[2]-p0[2])*t];o+=dsLn(p,[p[0],p[1]+(top||1100),p[2]]);}
+ for(const k of [550,top||1100])o+=dsLn([p0[0],p0[1]+k,p0[2]],[p1[0],p1[1]+k,p1[2]]);return o;}
+function dsPlatform(m0,m1,dep,deck,cls){/* deck, white skirt on the open side and four legs */
+ let o='';for(const [m,d] of [[m0+40,40],[m1-40,40],[m0+40,dep-40],[m1-40,dep-40]])o+=dsBox(m-30,m+30,0,deck-60,d-30,d+30,'c-rail');
+ o+=dsBox(m0,m1,deck-260,deck-60,dep-60,dep,'c-white')+dsBox(m0,m1,deck-60,deck,0,dep,cls||'c-deck');return o;}
+function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
+ /* stripping-window platform with its steep ladder at the feeder end of the outer edge */
+ {const p=DSM.stripPlat,dk=p.deck,lm1=p.m1,lm0=p.m1-p.ladW;let o=dsPlatform(p.m0,p.m1,p.dep,dk);
+  o+=dsRail([p.m0,dk,0],[p.m0,dk,p.dep],0,1)+dsRail([p.m0,dk,p.dep],[lm0,dk,p.dep])+dsRail([p.m1,dk,0],[p.m1,dk,p.dep],0,1);
+  for(const m of [lm0+30,lm1-30])o+=dsLn([m,0,p.dep+p.ladRun],[m,dk,p.dep])+dsLn([m,dk,p.dep],[m,dk+1100,p.dep]);   /* ladder stiles carry on up as the hand rails */
+  for(let i=1;i<=4;i++){const t=i/5,h=dk*t,d=p.dep+p.ladRun*(1-t);o+=dsBox(lm0+40,lm1-40,h-30,h,d-90,d+90,'c-inox');}
+  add((p.m0+p.m1)/2,p.dep/2,o);}
+ /* delivery platform, stairs down at the delivery end */
+ {const p=DSM.delPlat,dk=p.deck,sd0=p.dep-p.stairW;let o=dsPlatform(p.m0,p.m1,p.dep,dk);
+  o+=dsRail([p.m1,dk,0],[p.m1,dk,p.dep],0,1)+dsRail([p.m0,dk,p.dep],[p.m1,dk,p.dep])+dsRail([p.m0,dk,0],[p.m0,dk,sd0],0,1);
+  const n=4,r=dk/(n+1),g=p.stairRun/n;for(let i=1;i<=n;i++){const h=dk-r*i,m=p.m0-g*i;o+=dsBox(m,m+g+20,h-40,h,sd0,p.dep,'c-inox');}   /* treads */
+  for(const d of [sd0+20,p.dep-20]){o+=dsLn([p.m0,dk,d],[p.m0-p.stairRun-g,0,d],'stroke="#C9CDD1" stroke-width="5"');}   /* stringers */
+  for(const d of [sd0,p.dep])o+=dsLn([p.m0,dk+1100,d],[p.m0-p.stairRun,r+1100,d])+dsLn([p.m0-p.stairRun,r,d],[p.m0-p.stairRun,r+1100,d]);
+  add((p.m0+p.m1)/2,p.dep/2,o);}
+ /* front waste: conveyor column with the gear motor on top and the slide down into the floor conveyor */
+ {const w=DSM.waste,mc=(w.m0+w.m1)/2;let o='';
+  for(const [m,d] of [[w.m0+30,60],[w.m1-30,60],[w.m0+30,w.dep-30],[w.m1-30,w.dep-30]])o+=dsBox(m-30,m+30,0,w.head-300,d-30,d+30,'c-cream');
+  o+=dsBox(w.m0,w.m1,w.head-300,w.head,0,w.dep,'c-cream')+dsBox(mc-110,mc+110,w.head,w.head+180,w.dep-420,w.dep-200,'c-inox')+dsCyl(mc,w.dep-310,w.head+180,w.head+430,90,90,'c-inox');
+  o+=dsCylZ(mc,w.head-150,w.dep,w.dep+30,110,'c-ylw');   /* yellow cover on the drive shaft */
+  add(mc,w.dep/2,o);
+  add(mc+250,1100,dsBeam([mc,w.head-320,w.dep-200],[mc+520,60,1500],380,240,'c-cream'));   /* the slide */
+  add(mc+650,2400,quad([DSP(mc+250,3,-200),DSP(mc+1050,3,-200),DSP(mc+1050,3,4400),DSP(mc+250,3,4400)],'fill="#2E3034" stroke="#1C1E21" stroke-width=".5"')+
+     quad([DSP(mc+300,4,2300),DSP(mc+1000,4,2300),DSP(mc+1000,4,3100),DSP(mc+300,4,3100)],'fill="#8E949A" stroke="#5E6266" stroke-width=".5"'));}   /* floor conveyor in its pit, grating over part of it */
+ /* control box on its wheeled stand, push buttons on the front */
+ {const b=DSM.box,mc=(b.m0+b.m1)/2;let o='';for(const m of [b.m0+40,b.m1-40])for(const d of [b.d0+30,b.d1-30])o+=dsBox(m-20,m+20,0,b.h0,d-20,d+20,'c-cream');
+  o+=dsBox(b.m0,b.m1,b.h0,b.h1,b.d0,b.d1,'c-cab')+dsCyl(b.m0+60,(b.d0+b.d1)/2,b.h1,b.h1+260,35,35,'c-red');
+  if(cyw<0||CAP)[['#2E9E4F',0],['#E8B21A',1],['#1F5FD6',2],['#C9302C',3]].forEach(([f,i])=>{o+=ell(...DSP(b.m1-60-i*70,b.h1-260,b.d1+2),2.4,2.4*c,`fill="${f}"`);});
+  add(mc,(b.d0+b.d1)/2,o);}
+ /* waste extraction at the feeder end: cyclone with the filter on top and the bin below, fan, hydraulic unit in its tray */
+ {const y=DSM.cyc;let o=dsCyl(y.m,y.d,0,420,230,230,'c-dark')+dsCyl(y.m,y.d,420,600,110,110,'c-inox')+dsCyl(y.m,y.d,600,1250,110,y.r,'c-white')+dsCyl(y.m,y.d,1250,2050,y.r,y.r,'c-white')+dsCyl(y.m,y.d,2050,2950,y.rf,y.rf,'c-mesh')+dsCyl(y.m,y.d,2950,3030,y.rf+15,y.rf+15,'c-inox');
+  for(const [dm,dd] of [[-y.r-40,0],[y.r+40,0],[0,y.r+40]])o+=dsBox(y.m+dm-25,y.m+dm+25,0,1500,y.d+dd-25,y.d+dd+25,'c-white');
+  add(y.m,y.d,o);}
+ {const f=DSM.fan,y=DSM.cyc;let o=dsBox(f.m-300,f.m+300,0,380,f.d-250,f.d+250,'c-dark')+dsCylZ(f.m,700,f.d-180,f.d+120,f.r,'c-white')+dsCylZ(f.m,700,f.d+120,f.d+520,170,'c-cab');
+  o+=dsBox(f.m-140,f.m+140,1000,1450,f.d-140,f.d+140,'c-white')+dsBeam([f.m,1450,f.d],[y.m-y.r,1900,y.d],260,260,'c-white')+dsBox(f.m-140,f.m+140,1300,1600,0,f.d-140,'c-white');   /* ducts: cyclone - fan - machine */
+  add(f.m,f.d,o);}
+ {const q=DSM.hyd;add((q.m0+q.m1)/2,(q.d0+q.d1)/2,dsBox(q.m0,q.m1,0,240,q.d0,q.d1,'c-steel')+dsBox(q.m0+120,q.m0+420,240,620,q.d0+120,q.d0+420,'c-cab')+dsCylZ(q.m0+270,430,q.d0+420,q.d0+620,120,'c-blue'));}
+ S.sort((a,b)=>b.k-a.k);return S.map(q=>q.str).join('');}
+/* drive-side wall with its openings and decals (solid covers, seen from the drive side) */
+function dsWall(){const z=ZF+16,X=DSX,Y=DSY,sw=DSM.smallWin,tw=DSM.stripWin,sc=(PNL_U1[3]+PNL_U1[4])/2/VS;
+ const W=[[sw.m0,sw.m0+sw.w,DSY_CH,DSY_CH+sw.ht],[sc-tw.w/2,sc+tw.w/2,DSY_CH,DSY_CH+tw.ht]];
+ const rp=(m0,m1,h0,h1)=>`M${pt(X(m1),Y(h1),z)} L${pt(X(m0),Y(h1),z)} L${pt(X(m0),Y(h0),z)} L${pt(X(m1),Y(h0),z)} Z`,Q=(m0,m1,h0,h1,at)=>`<path d="${rp(m0,m1,h0,h1)}" ${at}/>`;
+ let o=`<path d="M${pt(XH,GT,z)} L${pt(XE,GT,z)} L${pt(XE,GF,z)} L${pt(XH,GF,z)} Z ${W.map(w=>rp(...w)).join(' ')}" fill="#D9DCDF" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".6"/>`;
+ o+=W.map(w=>Q(...w,'fill="#BFD6E6" fill-opacity=".18" stroke="#3B3F45" stroke-width="1.2"')).join('');   /* glass: the machine shows through */
+ const v=DSM.vent;o+=Q(v.m0+15,v.door1-15,300,2750,'fill="none" stroke="#9AA0A6" stroke-width=".8"')+Q(v.m1,v.m1+2,300,2750,'fill="#9AA0A6"')+Q((v.m1+v.door1)/2,(v.m1+v.door1)/2+2,300,2750,'fill="#9AA0A6"');
+ for(const m of [(v.m1+v.door1)/2-60,(v.m1+v.door1)/2+40])o+=Q(m,m+20,1300,1500,'fill="#3B3F45"');   /* door handles */
+ for(let i=0;i<4;i++){const h1=2650-i*560,h0=h1-450,m0=v.m0+25,m1=v.m1-25;o+=Q(m0,m1,h0,h1,'fill="#F2F3F4" stroke="#8A9096" stroke-width=".6"');
+  for(let r=0;r<2;r++)for(let k=0;k<4;k++){const cw=(m1-m0-50)/4,ch=(h1-h0-60)/2;o+=Q(m0+25+k*cw+8,m0+25+(k+1)*cw-8,h0+25+r*ch+8,h0+25+(r+1)*ch-8,'fill="#3D4045"');}
+  o+=Q(m0-10,m0+40,h1-40,h1+10,'fill="#1C1E21"')+Q(m1-40,m1+10,h1-40,h1+10,'fill="#1C1E21"');}   /* grille frames, 2 x 4 mesh openings, black clamps */
+ for(const u of [87,203,247,386,548,640]){const m=U(u)/VS;let hs=[0,3000];for(const w of W)if(m>w[0]&&m<w[1])hs=[0,w[2],w[3],3000];for(let i=0;i<hs.length;i+=2)o+=ln(X(m),Y(hs[i+1]),z,X(m),Y(hs[i]),z,'stroke="#9AA0A6" stroke-width=".7"');}   /* panel seams */
+ return o;}
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
  /* look of the real machine, from the 3D views on the Safety screen: wooden platform deck, dark steel railings and stairs,
     light grey guard doors, dark lower panels at die-cutting and stripping, white roof covers */
@@ -765,15 +863,16 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
    {const oL=o.length;{const sm='stroke="#8A6236" stroke-width=".5" stroke-opacity=".6"';for(let x=xE2-40;x>xS1;x-=80)o+=ln(x,GP,x>xN?z2:zW,x,GP,zM,sm);for(let x=px1-80;x>px0;x-=80)o+=ln(x,GP,zD,x,GP,zW,sm);
     for(let z=zW+40;z<zM;z+=40)o+=ln(xS1,GP,z,z<z2?xN:xE2,GP,z,sm);for(let z=zD+40;z<zW;z+=40)o+=ln(px0,GP,z,px1,GP,z,sm);for(let z=z2+40;z<zM;z+=40)o+=ln(d0,GP,z,xS1,GP,z,sm);}
    LPSVG+=o.slice(oL);o=o.slice(0,oL);}
-   o+=SOLID?boxR(XH,XE,GT,GP,ZF+12,ZF+16,'c-white')+quad([[XH,GT,ZF+12],[XE,GT,ZF+12],[XE,GP,ZF+12],[XH,GP,ZF+12]],'fill="#E2E5E8" stroke="#9AA0A6" stroke-width=".5"'):`<g opacity=".22">`+boxR(0,640,GT,GP,ZF+12,ZF+16,'c-gray')+`</g>`;   /* drive-side frame wall; solid: light inside face, so the machine shows up against it in dark mode too */
+   o+=SOLID?(()=>{const z=ZF+12,sw=DSM.smallWin,tw=DSM.stripWin,sc=(PNL_U1[3]+PNL_U1[4])/2/VS,rp=(m0,m1,h0,h1)=>`M${pt(DSX(m1),DSY(h1),z)} L${pt(DSX(m0),DSY(h1),z)} L${pt(DSX(m0),DSY(h0),z)} L${pt(DSX(m1),DSY(h0),z)} Z`;
+     return `<path d="M${pt(XH,GT,z)} L${pt(XE,GT,z)} L${pt(XE,GF,z)} L${pt(XH,GF,z)} Z ${rp(sw.m0,sw.m0+sw.w,DSY_CH,DSY_CH+sw.ht)} ${rp(sc-tw.w/2,sc+tw.w/2,DSY_CH,DSY_CH+tw.ht)}" fill="#E2E5E8" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".5"/>`;})():`<g opacity=".22">`+boxR(0,640,GT,GP,ZF+12,ZF+16,'c-gray')+`</g>`;   /* drive-side frame wall; solid: light inside face, so the machine shows up against it in dark mode too */
    if(!SOLID)o+=quad([[0,GT,ZN-6],[640,GT,ZN-6],[640,GT,ZF+12],[0,GT,ZF+12]],'fill="#EEF0F2" fill-opacity=".45" stroke="#9AA0A6" stroke-width=".6"');   /* roof covers */
    if(!SOLID){for(const x of [150,315,475])o+=ln(x,GT,ZN-6,x,GT,ZF+12,'stroke="#7E848B" stroke-width=".7"');
    o+=ln(0,GT,(ZN+ZF)/2,640,GT,(ZN+ZF)/2,'stroke="#9AA0A6" stroke-width=".5"');}}
  else{let p=o;o='';const st='stroke="#3B3F45" stroke-width="1.8" stroke-linecap="round"',st2='stroke="#3B3F45" stroke-width="1.1"';
    o+=`<g opacity=".45">`+ln(0,GP,ZN-6,0,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GP,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,0,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GT,ZN-6,640,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+`</g>`;rail=o;o=p;}   /* operator-side frame outline, 3000 mm high (drawn after the guards) */
    if(front&&SOLID&&cyw<0){/* seen from the drive side: solid drive-side wall and roof in front of everything */
-    const zt=ZF+12;let o=quad([[XS,GT,ZN-8],[XE,GT,ZN-8],[XE,GT,zt],[XS,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+quad([[XH,GT,ZF+16],[XE,GT,ZF+16],[XE,GP,ZF+16],[XH,GP,ZF+16]],'fill="#D9DCDF" stroke="#9AA0A6" stroke-width=".6"');
-    for(const x of [87,203,247,386,548,640].map(u=>XE-U(u)))o+=ln(x,GT,ZF+16,x,GP,ZF+16,'stroke="#9AA0A6" stroke-width=".7"')+ln(x,GT,ZN-8,x,GT,zt,'stroke="#7E848B" stroke-width=".7"');WALLS=o;}
+    const zt=ZF+12;let o=quad([[XS,GT,ZN-8],[XE,GT,ZN-8],[XE,GT,zt],[XS,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+dsWall();   /* drive-side wall down to the floor, with its windows and grille panel (v309) */
+    for(const x of [87,203,247,386,548,640].map(u=>XE-U(u)))o+=ln(x,GT,ZN-8,x,GT,zt,'stroke="#7E848B" stroke-width=".7"');WALLS=o;}
    else if(front){const zp=ZN-8,Q=(x0,x1,y0,y1,f)=>quad([[x0,y0,zp],[x1,y0,zp],[x1,y1,zp],[x0,y1,zp]],f);
     const bandT=GT+60*VS,bandB=GT+260*VS,winT=GP-1750*VS,winB=GP-1000*VS,lowT=GP-950*VS;
     const WN=[[8,150],[160,300],[330,470],[480,632]],rp=(x0,x1,y0,y1)=>`M${pt(x0,y0,zp)} L${pt(x1,y0,zp)} L${pt(x1,y1,zp)} L${pt(x0,y1,zp)} Z`;
@@ -885,7 +984,7 @@ INFSVG=INF;
 XOF=0;
 {const g=SD-617;BKN=boxR(608.8+20*KU+g,608.8+50*KU+g,210,250,ZN,ZF,'c-gray');}   /* bottom knife 30 mm wide along the feed, 20 mm further forward (v306); drawn with the lifting belt so the belt no longer covers it (v305) */   /* guillotine moves with the chain */
 L1+=(SOLID?[]:[[...CHN.WD,CWR],[...CHN.WI,CWRI]]).map(([x,y,rr])=>ell(x,y,ZN,rr,rr*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('');   /* chain wheels drawn behind the gripper bars and photocells; with solid covers the infeed wheel is hidden inside the closed infeed */
-$('L1').innerHTML=L1;$('infTop').innerHTML=infLayer(INFSTK);$('LP')   /* keep the last drawn infeed stack: a camera change must not wipe it (v293) */.innerHTML=LPSVG;
+$('L1').innerHTML=L1;$('infTop').innerHTML=infLayer(INFSTK);$('LP')   /* keep the last drawn infeed stack: a camera change must not wipe it (v293) */.innerHTML=LPSVG;$('DS').innerHTML=dsSVG();
 $('lower').innerHTML=boxR(PX0,PXR,220,260,ZN-6,ZF+6,'c-gray');
 let creaseD='';BOFF.forEach(o=>CRS(o).forEach(([u0,v0,u1,v1])=>creaseD+=seg3(SC,194,u0,v0,u1,v1)+' '));
 let U=`<g opacity=".42">`+boxR(PX0,PXR,128,174,ZN-6,ZF+6,'c-gray')+quad([[PX0+2,174,ZN-4],[PXR-2,174,ZN-4],[PXR-2,182,ZN-4],[PX0+2,182,ZN-4]],'fill="#888780" stroke="#5F5E5A" stroke-width="0.5"')+`</g>`;
@@ -939,7 +1038,7 @@ function orderWorld(){const wd=$('world');if(!WORLD0)WORLD0=[...wd.children];con
  let dc=WORLD0.filter(e=>!ov.includes(e)&&e!==ln_&&e!==pf);if(cyw<0)dc=dc.reverse();dc=dc.filter(e=>e.id!=='L5'&&e.id!=='infTop').concat(dc.filter(e=>e.id==='L5'),dc.filter(e=>e.id==='infTop'));   /* solid covers always on top */
  const parts=[{k:PDEP(340,32),e:dc},{k:PDEP(680+(1300+10*2400)/2*KU,32),e:[ln_]},{k:PDEP(-120,32),e:[pf]}].sort((a,b)=>b.k-a.k);
  parts.forEach(q=>q.e.forEach(e=>wd.appendChild(e)));
- if(cyw>0)wd.appendChild($('LP'));else wd.insertBefore($('LP'),wd.firstChild);setMasks();   /* the platform lies wholly on the operator side: seen from there it is in front of the machine, line and prefeeder (it hides what is below its deck behind it), seen from the drive side it is behind everything (v295) */   /* the platform is the ground: always drawn first */
+ if(cyw>0)wd.appendChild($('LP'));else wd.insertBefore($('LP'),wd.firstChild);if(cyw>0)wd.insertBefore($('DS'),wd.firstChild);else wd.appendChild($('DS'));setMasks();   /* the platform lies wholly on the operator side: seen from there it is in front of the machine, line and prefeeder (it hides what is below its deck behind it), seen from the drive side it is behind everything (v295) */   /* the platform is the ground: always drawn first */
  if(SOLID&&cyw>=0)wd.appendChild($('L5'));   /* solid covers: nothing behind them (prefeeder head, infeed stack) shows through, only through the windows */ov.forEach(e=>{wd.appendChild(e);e.style.display='none';});   /* die layout inset and scale hidden for now (v274) */updBounds();}
 /* camera: tilt from side view (0°) to top view (90°); the turn swivels the whole picture a little left or right */
 function setCam(tilt,yaw){if(tilt!=null){CAM=tilt;const y0=SY(270,32);const a=Math.min(88.5,Math.max(1.5,tilt))*D2R;c=Math.cos(a);s=Math.sin(a);LVY=-s*KV/(c*LVPX);if(!GLON)buildStatic();
@@ -2521,7 +2620,7 @@ setSpd();drawPile();buildMon();buildEvents();pick('overview');log('Machine runni
    depth buffer, so whatever is nearer always covers what is behind, from every angle. Camera, tilt, turn, pan and zoom are the
    same as in the classic view. */
 const GLV=(function(){
- const NS=['LP','L0','L1','lower','pdash','bed','pile','outs','fing','wbItems','lstrip','dyn','linIn','L4u','pins','knife','sens','belt','beltItems','L3','topdyn','ejector','L5','infTop','line','pref','bdash'];
+ const NS=['DS','LP','L0','L1','lower','pdash','bed','pile','outs','fing','wbItems','lstrip','dyn','linIn','L4u','pins','knife','sens','belt','beltItems','L3','topdyn','ejector','L5','infTop','line','pref','bdash'];
  const STR={},DIRTY=new Set(),MESH={};
  const ihD=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');
  NS.forEach(id=>{const el=document.getElementById(id);if(!el)return;
