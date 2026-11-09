@@ -190,6 +190,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v338: The Covers button is now "Machine: full / inside". Full shows the solid covers plus the grinder, waste extraction (cyclone, filter, fan) and hydraulic unit; Inside shows the see-through covers without that equipment (platforms, walkway and stairs stay in both). In Inside the front-waste belt stops at the machine side.
   v339: Removed the floor conveyor pit under the grinder chute. Rotation drum rings drawn as real round tubes in 3D (no more teeth on the edge). Cinematic turns 10% slower (5.4 degrees a second). Legs under the interleave board table.
   v340: Exit turntable after the palletizer (after the photo): the full pallet now drives across the line from the stacking belt over transfer rollers onto a round turntable with three belts (400 wide, 15 mm apart, the middle one 2200 long, side ones 1900 estimated). It turns -90 degrees, drives the pallet out over rollers onto an exit belt, and turns back +90. The next pallet waits until the turntable is back.
+  v341: The exit turntable takes 5 s for each turn (was 2 s).
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

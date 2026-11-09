@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v340 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v341 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1525,15 +1525,16 @@ let lItems=[],lNext=1,lineWait=false,lExitOff=0,lCol=[],lColN=0,lBoardN=0,lineFa
 let lSheet={col:[0],colOK:true,rdy:[0],ready:true,pend:0,move:0},lBot={rb:null,placed:0,i:0},lColBelt=0;
 /* exit turntable beside the stacking belt (v340, after the photo): the full pallet drives across onto it, it turns -90 degrees,
    drives the pallet out onto the exit belt and turns back. Three belts 400 wide with 15 mm between them; the middle one 2200 long */
-const XT={R:1200,roll:200,bw:400,bg:15,bl:2200,sl:1900,out:2200},XT_CL=LHW+XT.roll+XT.R;   /* centre of the turntable across the line */
+const XT={R:1200,roll:200,bw:400,bg:15,bl:2200,sl:1900,out:2200,turn:5},   /* a turn takes 5 s each way (v341) */
+ XT_CL=LHW+XT.roll+XT.R;   /* centre of the turntable across the line */
 let lXT={ph:'idle',a:0,t:0,its:[],sh:[]};
 function lXTStep(dt){const S=lXT,cs=LCOL,cl=XT_CL;if(S.ph==='idle')return;
  const put=()=>{const th=S.a*D2R,c=Math.cos(th),n=Math.sin(th);S.its.forEach(q=>{q.s=cs+(q.s0-cs)*c-(q.l0-cl)*n;q.l=cl+(q.s0-cs)*n+(q.l0-cl)*c;q.rot=(q.r0||0)+S.a;});};
- if(S.ph==='turn'){S.t+=dt;S.a=-90*ease(Math.min(1,S.t/2));put();if(S.t>=2){S.ph='out';S.t=0;S.its.forEach(q=>q.sb=q.s);}}
+ if(S.ph==='turn'){S.t+=dt;S.a=-90*ease(Math.min(1,S.t/XT.turn));put();if(S.t>=XT.turn){S.ph='out';S.t=0;S.its.forEach(q=>q.sb=q.s);}}
  else if(S.ph==='out'){S.t+=dt;const D=XT.R+XT.roll+XT.out,d=D/665,f=Math.min(1,S.t/d);S.dx=D*f;S.op=Math.max(0,1-Math.max(0,f-.7)/.3);
   S.its.forEach(q=>{q.s=q.sb+D*f;q.op=S.op;});
   if(S.t>=d){lItems=lItems.filter(q=>!S.its.includes(q));S.its=[];S.sh=[];S.dx=0;S.ph='back';S.t=0;}}
- else if(S.ph==='back'){S.t+=dt;S.a=-90*(1-ease(Math.min(1,S.t/2)));if(S.t>=2){S.a=0;S.ph='idle';}}}
+ else if(S.ph==='back'){S.t+=dt;S.a=-90*(1-ease(Math.min(1,S.t/XT.turn)));if(S.t>=XT.turn){S.a=0;S.ph='idle';}}}
 let LVY=-s*KV/(c*LVPX);
 const lpt=(sm,ym,lm)=>LPF?PJ(680+pfS(sm)*KU+DI,YEX-pfY(ym)*LVPX,(LMID+lm)*KV):PJ(680+sm*KU,YEX-ym*LVPX,(LMID+lm)*KV);
 /* seen-ness of a face with normal n given in mm (along, up, across): below 0 the face is turned to the camera */
