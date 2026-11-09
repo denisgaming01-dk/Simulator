@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v328 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v329 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -750,7 +750,7 @@ let LPSVG='';
 const DSM={
  smallWin:{m0:1200,w:600,ht:340},                 /* measured */
  stripWin:{w:1450,ht:500},                        /* measured, centred in the stripping section */
- stripPlat:{m0:2600,m1:4300,dep:1000,deck:1150,ladW:600,cut:450},   /* deck height measured, size estimated */
+ stripPlat:{m0:2600,m1:4300,dep:1000,deck:1150,ladW:600,cut:450,endRail:700},   /* deck height measured, size estimated */
  sidePlat:{w:800,len:2750},   /* measured */
  walk:{w:1000,len:2600,inOS:300,inDS:450,h:800,n:3,rise:200,tr:200,tw:800,run:700},   /* measured: deck 800 above the G-Cut flooring, 3 treads 800 x 200, 200 apart */
  waste:{w:650,dep:600,d0:300,dm:400,hb:1950,ht:2330,run:650,dOut:1100},   /* stands 300 from the machine and about 400-450 toward the feeder from the front-waste belt (v328) */
@@ -807,15 +807,16 @@ function dsPlatform(m0,m1,dep,deck,cls){/* deck, white skirt on the open side an
  o+=dsBox(m0,m1,deck-260,deck-60,dep-60,dep,'c-white')+dsBox(m0,m1,deck-60,deck,0,dep,cls||'c-deck');return o;}
 function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
  /* stripping-window platform: the corner at the delivery end of the outer edge is cut off at 45 degrees to clear the grinder chute;
-    straight (vertical) ladder on the outer edge at the feeder end (v327) */
- {const p=DSM.stripPlat,dk=p.deck,lm1=p.m1,lm0=p.m1-p.ladW,C=p.cut,m0=p.m0,m1=p.m1,D=p.dep;let o='';
+    straight (vertical) ladder on the feeder-side end at the outer edge, the end rail beside it 400 lower (v329) */
+ {const p=DSM.stripPlat,dk=p.deck,C=p.cut,m0=p.m0,m1=p.m1,D=p.dep;let o='';
   for(const [m,d] of [[m0+40,40],[m1-40,40],[m0+40,D-C-40],[m0+C+40,D-40],[m1-40,D-40]])o+=dsBox(m-30,m+30,0,dk-60,d-30,d+30,'c-rail');   /* legs */
   const k=60/Math.SQRT2;
   o+=dsPrism([[m0+C,D-60],[m1,D-60],[m1,D],[m0+C,D]],dk-260,dk-60,'c-white')+dsPrism([[m0,D-C-2*k],[m0+C,D-60],[m0+C,D],[m0,D-C]],dk-260,dk-60,'c-white');   /* skirt */
   o+=dsPrism([[m0,0],[m1,0],[m1,D],[m0+C,D],[m0,D-C]],dk-60,dk,'c-deck');   /* deck with the cut corner */
-  o+=dsRail([m0,dk,0],[m0,dk,D-C],0,1)+dsRail([m0,dk,D-C],[m0+C,dk,D],0,1)+dsRail([m0+C,dk,D],[lm0,dk,D])+dsRail([m1,dk,0],[m1,dk,D],0,1);
-  const ld=D+60;for(const m of [lm0+30,lm1-30])o+=dsLn([m,0,ld],[m,dk+1100,ld])+dsLn([m,dk,D],[m,dk,ld]);   /* stiles straight up, carrying on as the hand rails */
-  for(let i=1;i<=4;i++){const h=dk*i/5;o+=dsBox(lm0+40,lm1-40,h-30,h,ld-60,ld+60,'c-inox');}   /* rungs */
+  const ld0=D-p.ladW;   /* ladder on the feeder-side end of the platform, at the outer edge (v329) */
+  o+=dsRail([m0,dk,0],[m0,dk,D-C],0,1)+dsRail([m0,dk,D-C],[m0+C,dk,D],0,1)+dsRail([m0+C,dk,D],[m1,dk,D])+dsRail([m1,dk,0],[m1,dk,ld0],p.endRail,1);   /* the end rail beside the ladder is 400 lower */
+  const lm=m1+60;for(const d of [ld0+30,D-30])o+=dsLn([lm,0,d],[lm,dk+1100,d])+dsLn([m1,dk,d],[lm,dk,d]);   /* stiles straight up, carrying on as the hand rails */
+  for(let i=1;i<=4;i++){const h=dk*i/5;o+=dsBox(lm-60,lm+60,h-30,h,ld0+40,D-40,'c-inox');}   /* rungs */
   add((m0+m1)/2,D/2,o);}
  /* walkway across the front of the machine (delivery end): 1000 wide, 2600 long, its operator-side end 300 short of the operator-side panels (v315; on the real machine the drive-side end is 450 short of the drive side), deck 800 above the G-Cut
     flooring; stairs at the drive-side end: 3 grating treads 800 x 200, 200 apart (all measured). The drive-side stairs come down
