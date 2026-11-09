@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v329 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v330 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -753,7 +753,7 @@ const DSM={
  stripPlat:{m0:2600,m1:4300,dep:1000,deck:1150,ladW:600,cut:450,endRail:700},   /* deck height measured, size estimated */
  sidePlat:{w:800,len:2750},   /* measured */
  walk:{w:1000,len:2600,inOS:300,inDS:450,h:800,n:3,rise:200,tr:200,tw:800,run:700},   /* measured: deck 800 above the G-Cut flooring, 3 treads 800 x 200, 200 apart */
- waste:{w:650,dep:600,d0:300,dm:400,hb:1950,ht:2330,run:650,dOut:1100},   /* stands 300 from the machine and about 400-450 toward the feeder from the front-waste belt (v328) */
+ waste:{w:650,dep:600,d0:300,gap:60,hb:1950,ht:2330,run:650,dOut:1100},   /* stands 300 from the machine, its delivery side (control box) against the end railing of the drive-side platform (v330) */
    /* front waste grinder, centred on the front-waste belt; housing top just under the belt (about 2350 above the floor); sizes estimated from the photo */
  box:{w:450,dep:250,h0:1050,h1:1750},   /* control box on the grinder stand, estimated */
  vent:{m0:4270,m1:4970,door1:5960},               /* grille panel and double door in the die-cutting section, estimated */
@@ -842,14 +842,15 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
     front-waste belt, which drops the waste in from the machine over a green slide; gear motor upright on top, yellow cap on the
     delivery-side face; the white chute leaves under the housing and runs down toward the feeder into the floor conveyor; the
     control box sits under the grinder on the outer face of the stand, a small box under it; beacon on the housing */
- {const w=DSM.waste,mc=(XE-(SF+15))/VS+w.dm,hw=w.w/2,m0=mc-hw,m1=mc+hw,d0=w.d0,d1=w.d0+w.dep,hb=w.hb,ht=w.ht;let o='';
+ {const w=DSM.waste,mbelt=(XE-(SF+15))/VS,mc=DSM.sidePlat.len-DSM.walk.w+w.gap+w.w/2,   /* right up to the end railing of the drive-side platform (v330) */
+  hw=w.w/2,m0=mc-hw,m1=mc+hw,d0=w.d0,d1=w.d0+w.dep,hb=w.hb,ht=w.ht;let o='';
   for(const m of [m0+25,m1-25])for(const d of [d0+25,d1-25])o+=dsBox(m-25,m+25,60,hb,d-25,d+25,'c-cream')+dsBox(m-35,m+35,0,60,d-35,d+35,'c-dark');   /* posts, castors */
   for(const h of [350,1200])o+=dsBox(m0,m1,h-40,h,d0,d0+50,'c-cream')+dsBox(m0,m1,h-40,h,d1-50,d1,'c-cream')+dsBox(m0,m0+50,h-40,h,d0,d1,'c-cream')+dsBox(m1-50,m1,h-40,h,d0,d1,'c-cream');   /* cross rails */
   o+=dsBox(m0,m1,hb,ht,d0,d1,'c-cream');   /* grinder housing */
   o+=dsBox(mc+40,mc+hw-40,ht,ht+170,d0+150,d1-150,'c-inox')+dsCyl(mc+hw/2+20,(d0+d1)/2,ht+170,ht+560,115,115,'c-cab')+dsCyl(mc+hw/2+20,(d0+d1)/2,ht+560,ht+620,80,80,'c-inox');   /* gear motor */
   o+=dsCylM(m0-30,m0,(hb+ht)/2,(d0+d1)/2,110,'c-ylw');   /* yellow cap on the shaft */
   add(mc,(d0+d1)/2,o);
-  add(mc,d0/2,dsBeam([mc-w.dm,ht+40,-60],[mc,ht-30,d0+200],300,30,'c-grn'));   /* green slide from the machine into the housing */
+  add(mc,d0/2,dsBeam([mbelt,ht+40,-60],[mc,ht-30,d0+200],300,30,'c-grn'));   /* green slide from the machine into the housing */
   const ce=mc+w.run;add((mc+ce)/2,(d0+d1)/2,dsBeamD([mc+200,hb,d1-200],[ce,40,w.dOut],420,240,'c-white'));   /* chute down to the floor conveyor */
   add(ce,2400,quad([DSP(ce-400,3,-200),DSP(ce+400,3,-200),DSP(ce+400,3,4400),DSP(ce-400,3,4400)],'fill="#2E3034" stroke="#1C1E21" stroke-width=".5"')+
      quad([DSP(ce-350,4,2300),DSP(ce+350,4,2300),DSP(ce+350,4,3100),DSP(ce-350,4,3100)],'fill="#8E949A" stroke="#5E6266" stroke-width=".5"'));   /* floor conveyor in its pit, grating over part of it */
