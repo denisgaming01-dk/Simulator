@@ -197,6 +197,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v345: The operator-side stripping window is drawn as one 1440 x 1000 opening with a 20 mm black bar across the middle where its two sashes meet (one opens up, one down), instead of two separate windows.
   v346: Smoother 3D, especially in Cinematic: the drum rings and the exit turntable's plate, rollers and exit belt are drawn once into the static 3D scene instead of every frame; while Cinematic runs, the camera is redrawn every frame but the moving parts are rebuilt about 30 times a second, and the 3D picture is drawn at a slightly lower resolution on high-resolution screens.
   v347: The panelling on both sides is drawn 300 mm thick: inner faces with the same openings, window and opening tunnels through the thickness and closed end faces, so no gaps show at the edges. Align table: the front plate now comes back up only once the whole stack has passed it.
+  v348: Interleave boards now turn with their stacks (on the exit turntable they used to stay pointing the old way).
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

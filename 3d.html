@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v347 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v348 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1792,7 +1792,7 @@ function lShift(dt){const st=LS.shift,S=LSET.shift;if(!st.its.length)return;
   case 'shift':if(lAllAt(st.its))st.ph='out';break;
   case 'out':if(lSendOn('shift')){st.ph='idle';seqNext('shift');}break;}}
 function lPlaceBoard(its){const e=lExt(its),B=LSET.brd,sc=(e.s0+e.s1)/2,lc=(e.l0+e.l1)/2,b0=sc-B.L/2,b1=sc+B.L/2,c0=lc-B.W/2,c1=lc+B.W/2;
- const o=its[0];its.forEach(q=>{q.board=true;q.bo=o;});o.bd={ds:sc-o.s,dl:lc-o.l,L:B.L,W:B.W};
+ const o=its[0];its.forEach(q=>{q.board=true;q.bo=o;});o.bd={ds:sc-o.s,dl:lc-o.l,L:B.L,W:B.W,r0:o.rot||0};
  const miss=its.filter(q=>{const d=lDims(q);return Math.min(b1,q.s+d.al/2)-Math.max(b0,q.s-d.al/2)<30||Math.min(c1,q.l+d.ac/2)-Math.max(c0,q.l-d.ac/2)<30;}).length;
  if(miss)log(`Robot 3: board ${B.L} × ${B.W} mm is too small, it does not reach ${miss} of ${its.length} stacks, so they are not tied together`,'f');
  const over=Math.max(e.s0-b0,b1-e.s1,e.l0-c0,c1-e.l1);if(over>50)log(`Robot 3: board ${B.L} × ${B.W} mm is too big, it sticks out ${Math.round(over)} mm past the block (${Math.round(e.len)} × ${Math.round(e.wid)} mm)`,'f');}
@@ -1983,7 +1983,8 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
  const bLast=new Map();its.forEach((it,i)=>{if(it.board&&it.bo)bLast.set(it.bo,i);});
  its.forEach((it,i)=>{lAdd(lStackSVG(it),lStkBox(it));
    for(const [o,j] of bLast)if(j===i&&o.bd&&!it.roll&&Math.abs(it.pitch||0)<20){const mem=its.filter(q=>q.bo===o),top=Math.max(...mem.map(q=>q.y+q.h));
-     mid+=lbox({s:o.s+o.bd.ds,l:o.l+o.bd.dl,y:top,du:o.bd.L/2,dv:o.bd.W/2,h:6,pitch:o.pitch,piv:o.piv,pivY:o.pivY,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4,op:Math.min(...mem.map(q=>q.op))});}});
+     const dr=((o.rot||0)-(o.bd.r0||0)),th=dr*D2R,bs=o.bd.ds*Math.cos(th)-o.bd.dl*Math.sin(th),bl=o.bd.ds*Math.sin(th)+o.bd.dl*Math.cos(th);   /* the board turns with its stacks (exit turntable, v348) */
+     mid+=lbox({s:o.s+bs,l:o.l+bl,y:top,du:o.bd.L/2,dv:o.bd.W/2,h:6,rot:dr,pitch:o.pitch,piv:o.piv,pivY:o.pivY,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4,op:Math.min(...mem.map(q=>q.op))});}});
  /* separator presses */
  ['sep1','sep2'].forEach(kk=>{const S=st[kk],it=S.its[0],cc=LC[kk],H=HS(kk);const dn=S.ph==='down'?ease(Math.min(1,S.t/Math.max(.2,(LSET.batchH-(it?it.h:0))/40))):(S.ph==='tilt'||S.ph==='upB'||S.ph==='upF')?1:0;
    const dB=S.ph==='upB'?1-ease(Math.min(1,S.t/SEP_UP)):S.ph==='upF'?0:dn,dF=S.ph==='upF'?1-ease(Math.min(1,S.t/SEP_UP)):dn;
