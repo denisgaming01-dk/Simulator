@@ -155,6 +155,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v302: Undo the v301 bar shift: gripper bar back in its old place, photocells back (PCB 60 mm); the grippers now reach 50 mm out in front of the bar.
   v303: Grippers hold the 15 mm front waste at their tips: sheets are drawn 40 mm behind the bar (SHO), and everything matched to the sheet moves with them (die rules and creases, stripping tools, infeed feed end, front waste drop, delivery pile, photocell position on the sheet). Bar, photocells and covers unchanged. Same in 3d.html.
   v304: Bottom guillotine knife 30 mm wide along the feed (was 162 mm), centred under the upper part. Same in 3d.html.
+  v305: The whole bottom guillotine knife is now 30 mm wide, the tall part too (it was 59 mm). Its cutting edge stays where it was. It is drawn after the lifting belt, which used to cover it, so you can see it now. Same in 3d.html.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
