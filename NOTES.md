@@ -157,6 +157,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v304: Bottom guillotine knife 30 mm wide along the feed (was 162 mm), centred under the upper part. Same in 3d.html.
   v305: The whole bottom guillotine knife is now 30 mm wide, the tall part too (it was 59 mm). Its cutting edge stays where it was. It is drawn after the lifting belt, which used to cover it, so you can see it now. Same in 3d.html.
   v306: Bottom guillotine knife moved 20 mm forward, toward the delivery end. Same in 3d.html.
+  v307: The 3D view is now the main version. index.html opens in 3D, and the "View: 3D / classic" button switches back to the classic drawing. Browsers without WebGL 2 start in classic. 3d.html is the same file. Restore point for the last classic-only version: branch svg-v306.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
@@ -221,8 +222,8 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
 - MP4 videos (1000 / 3000 / 6500 sheets/h) for PowerPoint – on hold.
 - Real stack-change timings from machine data (current estimates OK).
 
-## 3D view (WebGL) – preview in 3d.html (index.html untouched)
-- Restore point: branch svg-v298 = the classic version before any 3D work.
+## 3D view (WebGL) – main view since v307 (index.html and 3d.html are the same file)
+- Restore points: branch svg-v298 = the classic version before any 3D work; branch svg-v306 = the last classic-only version.
 - 3d.html = v298 plus a "View: classic / 3D (new)" button. The model code is unchanged: while CAP is set, PJ returns the 3D point packed into
   its two numbers (x, round(z*1000)*1e7 + y + 5e6), f1 keeps full precision, and back-face culling is skipped. The world groups do not write to
   the page in 3D mode: their innerHTML setters keep the strings (GLV.STR), which are parsed into triangles (ear clipping), thick lines and
