@@ -150,6 +150,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v297: Solid covers: inside face of the far side wall drawn first (L0), so the end and side windows no longer look through the machine at the floor. Delivery lift post is a real thin box ending on the exit belt (was a flat strip through the belt). Second palletizer pillar + carriage side beam on the operator side. Four legs (lLegs) under belt 1, both separators, align table and rotation press.
   v298: Cinematic camera smooth through +-90: turns about the fixed middle of the whole scene (prefeeder to bottom-sheet belt), and the view is fitted each frame from the projected 3D corners of the scene (smooth in the angle) instead of the SVG bbox (which jumped when parts switched draw order), eased in over 0.9 s and low-pass filtered.
   v299: Infeed side align plates run from 20 mm behind the front guides to the back end of the suction belts (420 mm table), was 540 mm. Same change in 3d.html.
+  v300: See-through covers: at the infeed only the red suction belts (and the board) are drawn; table frame, blue edges, support roller, traverse beam, ballscrews, stops, align plates and back stop only with solid covers. Same in 3d.html.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

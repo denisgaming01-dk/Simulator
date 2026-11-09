@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v299 3D preview 4 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v300 3D preview 4 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -849,7 +849,7 @@ $('L0').innerHTML=(SOLID&&!GLON?(()=>{const z=cyw>0?ZF+16:ZN-8;return quad([[XH,
  gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
 [[...CHN.WD,CWR],[...CHN.WI,CWRI]].map(([x,y,rr])=>ln(x,y,ZF,x,y,ZN,'stroke="var(--faint)" stroke-width="3"')+ell(x,y,ZF,rr,rr*c,'fill="none" stroke="var(--faint)" stroke-width="2"')).join('');
 let L1='';XOF=DIF;
-L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke-linecap="round"')+ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--panel)" stroke-width="10.5" stroke-linecap="round"');
+if(SOLID)L1+=ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--muted)" stroke-width="13.5" stroke-linecap="round"')+ln(35,216,ZF-6,35,216,ZN+6,'stroke="var(--panel)" stroke-width="10.5" stroke-linecap="round"');
 let INF='';
 {/* infeed, from the photo of the empty infeed (seen from the stack side):
    - suction table 420 mm along the feed: white frame, red suction belt strips across the whole width, blue chain edges at both sides
@@ -857,12 +857,12 @@ let INF='';
    - two side tampers (align plates) at the sheet edges: stainless plates along the feed with a bent lead-in at the back, white holders outside
    - white traverse beam above with two ballscrews (left and right of a centre bearing), a carriage over each stop, a centre photocell */
  const zw=mm=>mm*KV,x1=122,x0=x1-420*VS,zc=SZ0+SZW/2;
- INFTAB=boxR(x0,x1,224,234,ZN+2,ZF-2,'c-white');   /* table frame */
+ INFTAB=SOLID?boxR(x0,x1,224,234,ZN+2,ZF-2,'c-white'):'';   /* table frame; see-through covers: only the suction belts are shown at the infeed (v300) */
  for(let z=ZN+6;z<ZF-6;z+=zw(70))INFTAB+=boxR(x0+1,x1-1,221,224,z,Math.min(z+zw(45),ZF-6),'c-red');   /* red suction belts */
- for(const [a,b] of [[ZN+2,ZN+6],[ZF-6,ZF-2]])INFTAB+=boxR(x0,x1,220,224,a,b,'c-blue');   /* blue chain edges */
+ if(SOLID)for(const [a,b] of [[ZN+2,ZN+6],[ZF-6,ZF-2]])INFTAB+=boxR(x0,x1,220,224,a,b,'c-blue');   /* blue chain edges */
  L1+=ln(x0+2,214,-2,x1-4,214,-2,'id="beltdash" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 4"');
  INFBACK=SOLID?boxR(131,134,GT,222,ZN-4,ZF+4,'c-white'):'';   /* infeed back cover: always drawn with the infeed guides when covers are solid */   /* back panel of the infeed: from the belts up to the roof; the front guides and side align plates sit on it */   /* back panel behind the guides, full width and height, so the chain is not seen from the infeed (photo) */
- L1+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */
+ const L1i=L1.length;L1+=boxR(122,142,112,126,ZN-4,ZF+4,'c-white');   /* traverse beam */
  for(const [a,b] of [[ZN,zc-zw(60)],[zc+zw(60),ZF]])L1+=ln(120,127,a,120,127,b,'stroke="#8E949A" stroke-width="2.4"')+ln(120,127,a,120,127,b,'stroke="#C9CED3" stroke-width="1" stroke-dasharray="1.2 1"');   /* two ballscrews */
  L1+=boxR(117,135,118,138,zc-zw(60),zc+zw(60),'c-white')+boxR(128,132,138,146,zc-zw(15),zc+zw(15),'c-blue');   /* centre bearing block, centre photocell */
  INF+=boxR(130,134,176,184,ZN+6,ZF-6,'c-inox');   /* rail the stops sit on */
@@ -879,6 +879,7 @@ let INF='';
    const zo=dir<0?[za-zw(160),za]:[zb,zb+zw(160)];INF+=boxR(tx0+20*VS,tx1-80*VS,ty+6,ty+40,...zo,'c-white');}}   /* white tamper holder outside */
  {const xb=125-SLX,zh=zw(70);   /* back stop: white column on the floor, arm and a white plate against the back of the stack */
   L1+=boxR(xb-16,xb-8,214,GP,zc-zh,zc+zh,'c-white')+boxR(xb-16,xb-2,206,214,zc-zh,zc+zh,'c-white')+boxR(xb-4,xb-1,192,212,zc-zw(150),zc+zw(150),'c-white');}
+ if(!SOLID){L1=L1.slice(0,L1i);INF='';}   /* see-through: no beam, screws, stops, align plates or back stop */
 }
 INFSVG=INF;
 XOF=0;
