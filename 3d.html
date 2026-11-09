@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v299 3D preview 3 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v299 3D preview 4 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -2581,6 +2581,12 @@ const GLV=(function(){
    if(!cut){for(let i=1;i<V.length-1;i++)tri.push(V[0],V[i],V[i+1]);V.length=0;break;}}
   if(V.length===3)tri.push(V[0],V[1],V[2]);
   return {pts,tri};}
+ function tube(a,b,r,col,al,T){const A=[a[0],a[1],a[2]*DZ],B=[b[0],b[1],b[2]*DZ],d=[B[0]-A[0],B[1]-A[1],B[2]-A[2]],L=Math.hypot(...d);if(L<1e-6)return;const e=d.map(q=>q/L);
+  const t=Math.abs(e[1])<.9?[0,1,0]:[1,0,0];let u=[e[1]*t[2]-e[2]*t[1],e[2]*t[0]-e[0]*t[2],e[0]*t[1]-e[1]*t[0]];const ul=Math.hypot(...u);u=u.map(q=>q/ul);const v=[e[1]*u[2]-e[2]*u[1],e[2]*u[0]-e[0]*u[2],e[0]*u[1]-e[1]*u[0]];
+  const N=10,P=(c0,k)=>{const an=k/N*Math.PI*2,ca=Math.cos(an),sa=Math.sin(an);const n=[u[0]*ca+v[0]*sa,u[1]*ca+v[1]*sa,u[2]*ca+v[2]*sa];return {p:[c0[0]+n[0]*r,c0[1]+n[1]*r,(c0[2]+n[2]*r)/DZ],n};};
+  const put=(q,n)=>T.push(q[0],q[1],q[2],n[0],n[1],n[2],col[0],col[1],col[2],al,0);
+  for(let k=0;k<N;k++){const a0=P(A,k),a1=P(A,k+1),b0=P(B,k),b1=P(B,k+1);put(a0.p,a0.n);put(b0.p,b0.n);put(b1.p,b1.n);put(a0.p,a0.n);put(b1.p,b1.n);put(a1.p,a1.n);
+   put([A[0],A[1],A[2]/DZ],e);put(a1.p,e);put(a0.p,e);put([B[0],B[1],B[2]/DZ],e);put(b0.p,e);put(b1.p,e);}}
  function pip(p,Q){let c2=false;for(let i=0,j=Q.length-1;i<Q.length;j=i++){const a=Q[i],b=Q[j];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])c2=!c2;}return c2;}
  const ATT=/([\w:-]+)="([^"]*)"/g,TAG=/<(\/?)(\w+)([^>]*?)(\/?)>/g;
  /* one element -> its triangles, lines and hole polygons; results are cached by the element text, so parts that did not change are not worked out again (v3d-2) */
@@ -2599,7 +2605,7 @@ const GLV=(function(){
    let subs=[],closed=[];
    if(tag==='path'){const r=pathPts(A.d||'');subs=r.sub;closed=r.closed;}
    else if(tag==='polygon'||tag==='polyline'){const n=(A.points||'').match(NUM)||[];const P=[];for(let i=0;i+1<n.length;i+=2)P.push(dec(+n[i],+n[i+1]));subs=[P];closed=[tag==='polygon'];}
-   else if(tag==='line'){const a=dec(+A.x1,+A.y1),b=dec(+A.x2,+A.y2);if(stroke&&sw>0)Lsg.push([a,b,sw,stroke,so]);return;}
+   else if(tag==='line'){const a=dec(+A.x1,+A.y1),b=dec(+A.x2,+A.y2);if(stroke&&sw>=3&&so>.01){tube(a,b,sw/2,stroke,so,T);return;}if(stroke&&sw>0)Lsg.push([a,b,sw,stroke,so]);return;}   /* thick lines (rollers, rods, forks) become real round tubes */
    else{const c0=dec(+A.cx,+A.cy),rx=+(A.rx!=null?A.rx:A.r),ry=+(A.ry!=null?A.ry:A.r);if(!(rx>0))return;const P=[],flat=A['data-pl']?A['data-pl']==='h':ry/rx<.6;
     for(let i=0;i<24;i++){const t=i/24*Math.PI*2;P.push(flat?[c0[0]+rx*Math.cos(t),c0[1],c0[2]+rx*Math.sin(t)/DZ]:[c0[0]+rx*Math.cos(t),c0[1]+rx*Math.sin(t),c0[2]]);}subs=[P];closed=[true];}
    subs=subs.filter(P=>P.length>1);if(!subs.length)return;
