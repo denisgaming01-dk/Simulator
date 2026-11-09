@@ -194,6 +194,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v342: Stacking belt and bottom-sheet belt are now blue modular belts with yellow edges, like the exit turntable; the exit belt got yellow edges too.
   v343: The front walkway with its stairs, the drive-side platform and the stripping-window platform now also hide with "Machine: inside" and show with "Machine: full".
   v344: The infeed guarding (2000 x 2000 infeed door, corner posts and top rails) now also hides with "Machine: inside".
+  v345: The operator-side stripping window is drawn as one 1440 x 1000 opening with a 20 mm black bar across the middle where its two sashes meet (one opens up, one down), instead of two separate windows.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

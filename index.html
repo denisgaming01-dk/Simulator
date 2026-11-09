@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v344 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v345 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -933,21 +933,22 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
      const P1=PNL_U1,X1=m=>XE-m,R1=(m0,m1,v0,v1)=>rp(X1(m1),X1(m0),Y(v0),Y(v1)),F1=(m0,m1,v0,v1,f)=>Q(X1(m1),X1(m0),Y(v0),Y(v1),f),
       mid=(i,w)=>{const c=(P1[i]+P1[i+1])/2;return[c-w*VS/2,c+w*VS/2];},Vy=y=>(y-GT)/(GP-GT),WC=Vy(210);
      const dW=mid(1,1000),sW=mid(3,1440),cW=mid(4,1480),dv0=Vy(210-420*VS),sv0=.327,sv1=sv0+1000*VS/(GP-GT),sm=(sv0+sv1)/2,cv0=Vy(210-160*VS),cv1=cv0+320*VS/(GP-GT);   /* die-cutting window centred on the bottom chain */
-     const WIN=[[...dW,dv0,WC],[...sW,sv0,sm-.01],[...sW,sm+.01,sv1],[...cW,cv0,cv1]];
+     const WIN=[[...dW,dv0,WC],[...sW,sv0,sv1],[...cW,cv0,cv1]];   /* stripping: one opening, its two sashes split by a 20 mm black bar (v345) */
      const FWW=[XE-(SF+15-FWBK)-150*VS,XE-(SF+15-FWBK)+150*VS,.21-190*VS/(GP-GT),.21+190*VS/(GP-GT)];   /* window over the front waste belt, 300 x 380 mm, a real opening */
      o+=`<path d="${rp(XS,XE,GT,GP)} ${WIN.map(w=>R1(...w)).join(' ')} ${R1(...FWW)}" fill="#E8EAEC" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".6"/>`;   /* white panels */
      o+=`<path d="${R1(P1[1],P1[2],.06,dv0-.04)} ${R1(...FWW)}" fill="#D2D5D8" fill-rule="evenodd"/>`+`<path d="${R1(P1[4],P1[5],.06,cv0-.11)}" fill="#D2D5D8"/>`;   /* grey upper covers */
      o+=`<path d="${R1(P1[1],P1[5],.316,.805)} ${WIN.map(w=>R1(...w)).join(' ')}" fill="#2E3136" fill-rule="evenodd"/>`;   /* black-grey painted band from the delivery to the end of die-cutting */
      o+=`<path d="${R1(P1[1],P1[2],dv0-.04,WC+.15)} ${R1(...WIN[0])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame round the delivery window */
-     o+=`<path d="${R1(sW[0]-5,sW[1]+5,.16,sv1+.04)} ${R1(...WIN[1])} ${R1(...WIN[2])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame, stripping windows */
-     o+=`<path d="${R1(P1[4],P1[5],cv0-.11,cv1+.03)} ${R1(...WIN[3])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark band with the die-cutting window */
+     o+=`<path d="${R1(sW[0]-5,sW[1]+5,.16,sv1+.04)} ${R1(...WIN[1])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame, stripping window */
+     o+=`<path d="${R1(P1[4],P1[5],cv0-.11,cv1+.03)} ${R1(...WIN[2])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark band with the die-cutting window */
      {/* the glass sits 210 mm back from the panel face (v315): reveals round each opening, only the ones turned to the camera */
       const vr=[syw*c,s,cyw*c],G=(m0,m1,v0,v1,f)=>quad([[X1(m1),Y(v0),ZWIN],[X1(m0),Y(v0),ZWIN],[X1(m0),Y(v1),ZWIN],[X1(m1),Y(v1),ZWIN]],f),
        RV=(m0,m1,v0,v1)=>{const a=X1(m1),b=X1(m0),t=Y(v0),u=Y(v1),f='fill="#C4C8CC" stroke="#9AA0A6" stroke-width=".4"';let r='';
         if(CAP||vr[1]<0)r+=quad([[a,t,zp],[b,t,zp],[b,t,ZWIN],[a,t,ZWIN]],f);if(CAP||vr[1]>0)r+=quad([[a,u,zp],[b,u,zp],[b,u,ZWIN],[a,u,ZWIN]],f);
         if(CAP||vr[0]<0)r+=quad([[a,t,zp],[a,u,zp],[a,u,ZWIN],[a,t,ZWIN]],f);if(CAP||vr[0]>0)r+=quad([[b,t,zp],[b,u,zp],[b,u,ZWIN],[b,t,ZWIN]],f);return r;};
       o+=G(...FWW,'fill="#BFD6E6" fill-opacity=".18" stroke="#1C1E21" stroke-width="1.2"')+RV(...FWW);   /* glass of the front-waste window */
-      o+=WIN.map((w,i)=>G(...w,`fill="${i===3?'#3A4A58':'#BFD6E6'}" fill-opacity="${i===3?.35:.18}" stroke="#1C1E21" stroke-width="1"`)+RV(...w)).join('');}   /* glass: the running machine shows through */
+      o+=WIN.map((w,i)=>G(...w,`fill="${i===2?'#3A4A58':'#BFD6E6'}" fill-opacity="${i===2?.35:.18}" stroke="#1C1E21" stroke-width="1"`)+RV(...w)).join('');
+      {const hb=10*VS/(GP-GT);o+=G(sW[0],sW[1],sm-hb,sm+hb,'fill="#1C1E21"');}}   /* the bar where the two sashes of the stripping window meet (one opens up, one down) */   /* glass: the running machine shows through */
      {const sw=mid(2,320),bw=mid(2,380),sh=220*VS/(GP-GT),bz=30*VS/(GP-GT),sc=.405;
       o+=F1(bw[0],bw[1],sc-sh/2-bz,sc+sh/2+bz,'fill="#C9CDD1" stroke="#1C1E21" stroke-width=".5"')+F1(sw[0],sw[1],sc-sh/2,sc+sh/2,'fill="#3D7FC2"');}   /* HMI column: touch screen 320 x 220 mm in a grey bezel */
      o+=F(207,243,.49,.66,'fill="#DCDFE2" stroke="#8A9096" stroke-width=".5"');
