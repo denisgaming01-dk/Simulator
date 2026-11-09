@@ -158,6 +158,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v305: The whole bottom guillotine knife is now 30 mm wide, the tall part too (it was 59 mm). Its cutting edge stays where it was. It is drawn after the lifting belt, which used to cover it, so you can see it now. Same in 3d.html.
   v306: Bottom guillotine knife moved 20 mm forward, toward the delivery end. Same in 3d.html.
   v307: The 3D view is now the main version. index.html opens in 3D, and the "View: 3D / classic" button switches back to the classic drawing. Browsers without WebGL 2 start in classic. 3d.html is the same file. Restore point for the last classic-only version: branch svg-v306.
+  v308: Removed the blue door switches and the yellow-ring reset buttons from the see-through guard doors.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v307 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v308 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -742,7 +742,7 @@ function stairs(x0,sx,z0,z1){const P=[[x0,GF]];for(let i=0;i<4;i++){const h=GP+(
 let LPSVG='';
 function gcutEnv(front){let o='',rail='';const zr=ZN-80;
  /* look of the real machine, from the 3D views on the Safety screen: wooden platform deck, dark steel railings and stairs,
-    light grey guard doors with blue door switches, dark lower panels at die-cutting and stripping, white roof covers */
+    light grey guard doors, dark lower panels at die-cutting and stripping, white roof covers */
 if(!front){/* operator platform shape (measurements, railings left out for now): a 1600 mm walkway along the whole machine,
      and in front of the delivery and stripping a 4000 mm wide area that reaches 5200 mm out from the machine */
    /* platform from the marked photo (mm from the machine face): floor 3600 deep from the delivery end to the back stairs; a 4000 mm wide
@@ -832,8 +832,7 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
     o+=Q(0,640,bandT,bandB,'fill="#3A3B3F" fill-opacity=".18"');   /* dark band */
     o+=Q(160,470,lowT,GP-4,'fill="#2B2E33" fill-opacity=".22"');   /* dark lower panels at stripping and die-cutting */
     for(const [x0,x1] of [[8,150],[160,300],[330,470],[480,632]]){o+=Q(x0,x1,winT,winB,'fill="none" stroke="var(--muted)" stroke-width=".8" stroke-opacity=".4"');   /* inspection windows in the guard doors */
-     const xs=x1-14;o+=Q(xs,xs+7,winT-14,winT-2,'fill="#1F5FD6" stroke="#0E3A8C" stroke-width=".5"');   /* blue door switch (as on the Safety screen) */
-     o+=ell(x0+16,lowT+10,zp,3.4,3.4*c,'fill="#1F5FD6" stroke="#F2D21B" stroke-width="1.6"');}}   /* reset button, yellow ring */
+     }}   /* blue door switches and yellow-ring reset buttons removed (v308) */
      if(!SOLID){/* see-through: the infeed guarding (corner posts, top beam, 2000 x 2000 door) is kept too, as light glass, so the infeed panel stays visible */
       const d1=XS-3,d0=d1-2000*VS,dT=GP-2000*VS;
       o+=boxR(XH,XH+10,GT,GP,ZN-12,ZN-4,'c-white')+boxR(XH,XH+10,GT,GP,ZF+8,ZF+16,'c-white')+boxR(XH,XS,GT,GT+12,ZN-12,ZN-6,'c-white')+boxR(XH,XS,GT,GT+12,ZF+8,ZF+14,'c-white');
