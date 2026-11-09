@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v337 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v338 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -370,7 +370,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         </div>
         <div class="seg"><button id="boardB" aria-pressed="false" title="Show or hide all board, so only the machine is seen">Board: shown</button></div>
         <div class="seg"><button id="glB" aria-pressed="true" title="3D view (WebGL) or the classic drawing">View: 3D</button></div>
-        <div class="seg"><button id="solidB" aria-pressed="false" title="Guard doors and roof covers: see-through or solid">Covers: see-through</button></div>
+        <div class="seg"><button id="solidB" aria-pressed="false" title="Full machine: solid covers, platforms and the equipment round it. Inside: see-through covers to watch the machine work">Machine: inside</button></div>
         <div class="seg">
           <button id="zin" aria-label="Zoom in">+</button>
           <button id="zout" aria-label="Zoom out">−</button>
@@ -761,7 +761,7 @@ const DSM={
  fan:{m:6850,d:420,r:330},hyd:{m0:5000,m1:5700,d0:60,d1:700}};
 const DSX=m=>XE-m*VS,DSY=h=>GF-h*VS,DSZ=d=>ZDS+d*VS/DZ,DSP=(m,h,d)=>[DSX(m),DSY(h),DSZ(d)];
 const DSY_CH=(GF-210)/VS;
-const FWBK=100*VS,FWZE=()=>ZDS+(DSM.waste.d0+30)*KV;   /* the front-waste belt runs out through the wall straight into the grinder inlet (v336) */   /* front-waste belt and ejector moved 100 mm back toward the feeder (v333) */
+const FWBK=100*VS,FWZE=()=>SOLID?ZDS+(DSM.waste.d0+30)*KV:ZF+30;   /* the front-waste belt runs out through the wall straight into the grinder inlet (v336) */   /* front-waste belt and ejector moved 100 mm back toward the feeder (v333) */
 const DSFWO=()=>{const mb=(XE-(SF+15-FWBK))/VS,hb=(GF-150)/VS-20;return [mb-150,mb+150,hb,hb+200];};   /* 300 x 200 opening in the drive-side wall where the 300 wide front-waste belt comes out (v331) */   /* bottom chain, mm above the floor */
 function dsFaces(F,cen,cls,shade){/* F: faces as lists of [x,y,z] (z in model units); cen: a point inside the solid. Only the faces turned to the camera are drawn */
  const vr=[syw*c,s,cyw*c],C=[cen[0],cen[1],cen[2]*DZ];let o='';
@@ -846,6 +846,7 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
     front-waste belt, which drops the waste in from the machine over a green slide; gear motor upright on top, yellow cap on the
     delivery-side face; the white chute leaves under the housing and runs down toward the feeder into the floor conveyor; the
     control box sits under the grinder on the outer face of the stand, a small box under it; beacon on the housing */
+ if(SOLID){   /* the grinder, the waste extraction and the hydraulic unit only show with the full machine (v338) */
  {const w=DSM.waste,mbelt=(XE-(SF+15-FWBK))/VS,mc=DSM.sidePlat.len-DSM.walk.w+w.gap+w.w/2,   /* right up to the end railing of the drive-side platform (v330) */
   hw=w.w/2,m0=mc-hw,m1=mc+hw,d0=w.d0,d1=w.d0+w.dep,hb=w.hb,ht=w.ht;let o='';
   for(const m of [m0+25,m1-25])for(const d of [d0+25,d1-25])o+=dsBox(m-25,m+25,60,hb,d-25,d+25,'c-cream')+dsBox(m-35,m+35,0,60,d-35,d+35,'c-dark');   /* posts, castors */
@@ -870,6 +871,7 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
   o+=dsBox(f.m-140,f.m+140,1000,1450,f.d-140,f.d+140,'c-white')+dsBeam([f.m,1450,f.d],[y.m-y.r,1900,y.d],260,260,'c-white')+dsBox(f.m-140,f.m+140,1300,1600,0,f.d-140,'c-white');   /* ducts: cyclone - fan - machine */
   add(f.m,f.d,o);}
  {const q=DSM.hyd;add((q.m0+q.m1)/2,(q.d0+q.d1)/2,dsBox(q.m0,q.m1,0,240,q.d0,q.d1,'c-steel')+dsBox(q.m0+120,q.m0+420,240,620,q.d0+120,q.d0+420,'c-cab')+dsCylZ(q.m0+270,430,q.d0+420,q.d0+620,120,'c-blue'));}
+ }
  S.sort((a,b)=>b.k-a.k);return S.map(q=>q.str).join('');}
 /* drive-side wall with its openings and decals (solid covers, seen from the drive side) */
 function dsWall(){const z=ZDS,X=DSX,Y=DSY,sw=DSM.smallWin,tw=DSM.stripWin,sc=(PNL_U1[3]+PNL_U1[4])/2/VS;
@@ -1064,7 +1066,7 @@ $('scale').innerHTML=`<line x1="${SC}" y1="${scY}" x2="${SS}" y2="${scY}" stroke
 }
 buildStatic();
 $('boardB').onclick=()=>{NOBOARD=!NOBOARD;const b=$('boardB');b.setAttribute('aria-pressed',NOBOARD);b.textContent='Board: '+(NOBOARD?'hidden':'shown');buildStatic();};
-$('solidB').onclick=()=>{SOLID=!SOLID;const b=$('solidB');b.setAttribute('aria-pressed',SOLID);b.textContent='Covers: '+(SOLID?'solid':'see-through');buildStatic();orderWorld();
+$('solidB').onclick=()=>{SOLID=!SOLID;const b=$('solidB');b.setAttribute('aria-pressed',SOLID);b.textContent='Machine: '+(SOLID?'full':'inside');buildStatic();orderWorld();
  [...$('mach').querySelectorAll('text.ts')].filter(e=>/^(Ejector axle|Guillotine|Front waste belt|Gripper chains|Board stack|Support roller|Suction belts|\d+ mm)/.test(e.textContent)||e.id==='infL').forEach(e=>e.style.display=SOLID?'none':'');};   /* labels of parts inside the machine hide behind solid covers */
 /* cover masks (v294): groups drawn after the machine (infeed parts, prefeeder) are hidden where a solid cover face is between them and
    the camera. A face only counts when it points toward the camera and the group is behind its plane, which is exact for flat faces in this
