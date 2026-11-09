@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v316 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v317 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -726,8 +726,8 @@ let BKN='';let PLAT=null,SOLID=false,WALLS='';let INFSVG='',INFBACK='',INFTAB=''
    HMI column 550, stripping 1530 (rechecked), die-cutting 1690, infeed (feeder screen) 950. The drawing was laid out from the photo in "u" units
    (old section edges below); U() maps them onto the measured widths, so windows and buttons keep their place inside each panel. */
 const PNL_MM=[1000,1190,550,1530,1690,950],PNL_U0=[0,87,203,247,386,548,640],PNL_U1=PNL_MM.reduce((a,m)=>(a.push(a[a.length-1]+m*VS),a),[0]);
-const ZOP=ZN-300*KV,ZWIN=ZOP+210*KV;   /* operator side: the panels stand 300 mm out from the chain, the windows sit 210 mm back from the panel face (measured, v315) */
-const ZDS=ZF+500*KV;   /* drive side: the panels stand 500 mm out from the chain (measured, v316) */
+const ZOP=ZN-350*KV,ZWIN=ZOP+210*KV;   /* operator side: the panels stand 350 mm out from the chain (v317), the windows sit 210 mm back from the panel face (measured, v315) */
+const ZDS=ZOP+3120*KV;   /* drive side: the machine is 3120 mm wide over the panels (front window 2000 wide, 500 from the operator-side panel and 620 from the drive-side panel, measured, v317), so the drive-side panels stand about 550 mm out from the chain */
 const U=u=>{for(let i=0;i<6;i++)if(u<=PNL_U0[i+1]||i===5)return PNL_U1[i]+(u-PNL_U0[i])*(PNL_U1[i+1]-PNL_U1[i])/(PNL_U0[i+1]-PNL_U0[i]);};
 const XE=(617-1640*VS)-2+(PNL_U1[3]+PNL_U1[4])/2-720*VS,   /* covers are fixed now (v236): they no longer follow the chain */
          /* covers placed from the trainer: at 0° the stripping gripper bar sits right after (delivery side of) the stripping window */
@@ -1023,7 +1023,7 @@ $('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+(SOLID?'':`<path d="${chainPa
 $('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;
 /* delivery end face of the machine (solid covers, seen when the view is turned toward the delivery end): dark grey panel, window 2000 x 500 mm
    starting 1150 mm above the platform, three controls above it (photo); open below 450 mm above the exit belt so the stacks drive out */
-if(SOLID&&syw<0){const x=XE,z0=ZOP,z1=ZDS-4,zc=(z0+z1)/2,ww=1000*KV,yb=GP-1150*VS,yt=yb-500*VS,P=(a)=>'M'+a.map(([y,z])=>pt(x,y,z)).join(' L')+' Z';
+if(SOLID&&syw<0){const x=XE,z0=ZOP,z1=ZDS-4,zc=z0+1500*KV,ww=1000*KV,yb=GP-1150*VS,yt=yb-500*VS,P=(a)=>'M'+a.map(([y,z])=>pt(x,y,z)).join(' L')+' Z';
  let e=`<path d="${P([[GT,z0],[GT,z1],[YEX-450*VS,z1],[YEX-450*VS,z0]])} ${P([[yt,zc-ww],[yt,zc+ww],[yb,zc+ww],[yb,zc-ww]])}" fill="#3A3D42" fill-rule="evenodd" stroke="#24272B" stroke-width=".6"/>`;
  e+=`<path d="${P([[yt,zc-ww],[yt,zc+ww],[yb,zc+ww],[yb,zc-ww]])}" fill="#BFD6E6" fill-opacity=".15" stroke="#C9CED3" stroke-width="1"/>`;   /* glass, light frame */
  e+=`<path d="${P([[yb,zc-ww-8],[yb,zc+ww+8],[yb+6,zc+ww+8],[yb+6,zc-ww-8]])}" fill="#2A2D31"/>`;   /* dark ledge under the window */
