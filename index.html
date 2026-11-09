@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v305 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v306 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -882,7 +882,7 @@ let INF='';
 }
 INFSVG=INF;
 XOF=0;
-{const g=SD-617;BKN=boxR(608.8+g,608.8+30*KU+g,210,250,ZN,ZF,'c-gray');}   /* bottom knife 30 mm wide along the feed, cutting edge unchanged; drawn with the lifting belt so the belt no longer covers it (v305) */   /* guillotine moves with the chain */
+{const g=SD-617;BKN=boxR(608.8+20*KU+g,608.8+50*KU+g,210,250,ZN,ZF,'c-gray');}   /* bottom knife 30 mm wide along the feed, 20 mm further forward (v306); drawn with the lifting belt so the belt no longer covers it (v305) */   /* guillotine moves with the chain */
 L1+=(SOLID?[]:[[...CHN.WD,CWR],[...CHN.WI,CWRI]]).map(([x,y,rr])=>ell(x,y,ZN,rr,rr*c,'fill="#D9483B" fill-opacity=".85" stroke="#8E2A22" stroke-width="1"')+ell(x,y,ZN,3,3*c,'fill="#3A2A28"')).join('');   /* chain wheels drawn behind the gripper bars and photocells; with solid covers the infeed wheel is hidden inside the closed infeed */
 $('L1').innerHTML=L1;$('infTop').innerHTML=infLayer(INFSTK);$('LP')   /* keep the last drawn infeed stack: a camera change must not wipe it (v293) */.innerHTML=LPSVG;
 $('lower').innerHTML=boxR(PX0,PXR,220,260,ZN-6,ZF+6,'c-gray');
