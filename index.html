@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v331 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v332 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -751,7 +751,7 @@ const DSM={
  smallWin:{m0:1200,w:600,ht:340},                 /* measured */
  stripWin:{w:1450,ht:500},                        /* measured, centred in the stripping section */
  stripPlat:{m0:2600,m1:4300,dep:1000,deck:1150,ladW:600,cut:450,endRail:700},   /* deck height measured, size estimated */
- sidePlat:{w:800,len:2750},   /* measured */
+ sidePlat:{w:800,len:2750,gap:150},   /* size measured; stands about 100-150 off the machine */
  walk:{w:1000,len:2600,inOS:300,inDS:450,h:800,n:3,rise:200,tr:200,tw:800,run:700},   /* measured: deck 800 above the G-Cut flooring, 3 treads 800 x 200, 200 apart */
  waste:{w:650,dep:600,d0:300,gap:60,hb:1950,ht:2330,run:650,dOut:1100},   /* stands 300 from the machine, its delivery side (control box) against the end railing of the drive-side platform (v330) */
    /* front waste grinder, centred on the front-waste belt; housing top just under the belt (about 2350 above the floor); sizes estimated from the photo */
@@ -824,12 +824,12 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
     onto the drive-side platform: 800 wide, 2750 long, along the machine from the end of the stairs (measured, v313), at the level of
     the operator platform, with a stair down to the hall floor at its front end (estimated). */
  {const p=DSM.walk,fl=(GF-GP)/VS,dk=fl+p.h,d0=(ZOP-(ZDS))*DZ/VS+p.inOS,d1=d0+p.len,dc=(d0+d1)/2,m0=-p.w,m1=0;let o='';
-  {const q=DSM.sidePlat,a0=m0,a1=m0+q.len;   /* drive-side platform */
-   for(const m of [a0+40,(a0+a1)/2,a1-40])for(const d of [40,q.w-40])o+=dsBox(m-30,m+30,0,fl-60,d-30,d+30,'c-rail');
-   o+=dsBox(a0,a1,fl-200,fl-60,q.w-60,q.w,'c-white')+dsBox(a0,a1,fl-60,fl,0,q.w,'c-deck');
-   o+=dsRail([a0,fl,q.w],[a1,fl,q.w])+dsRail([a1,fl,0],[a1,fl,q.w],0,1);   /* railing on the outer side and at the far end */
-   const g=700/3;for(let i=1;i<=3;i++){const h=fl-fl/4*i;o+=dsBox(a0-g*i,a0-g*i+200,h-40,h,40,q.w-40,'c-inox');}   /* stair down to the hall floor */
-   for(const d of [25,q.w-25])o+=dsLn([a0,fl,d],[a0-700,0,d],'stroke="#C9CDD1" stroke-width="5"')+dsLn([a0,fl+1000,d],[a0-700,fl/4+1000,d])+dsLn([a0-700,fl/4,d],[a0-700,fl/4+1000,d]);}
+  {const q=DSM.sidePlat,a0=m0,a1=m0+q.len,e0=q.gap,e1=q.gap+q.w;   /* drive-side platform, standing q.gap off the machine (v332) */
+   for(const m of [a0+40,(a0+a1)/2,a1-40])for(const d of [e0+40,e1-40])o+=dsBox(m-30,m+30,0,fl-60,d-30,d+30,'c-rail');
+   o+=dsBox(a0,a1,fl-200,fl-60,e1-60,e1,'c-white')+dsBox(a0,a1,fl-60,fl,e0,e1,'c-deck');
+   o+=dsRail([a0,fl,e1],[a1,fl,e1])+dsRail([a1,fl,e0],[a1,fl,e1],0,1);   /* railing on the outer side and at the far end */
+   const g=700/3;for(let i=1;i<=3;i++){const h=fl-fl/4*i;o+=dsBox(a0-g*i,a0-g*i+200,h-40,h,e0+40,e1-40,'c-inox');}   /* stair down to the hall floor */
+   for(const d of [e0+25,e1-25])o+=dsLn([a0,fl,d],[a0-700,0,d],'stroke="#C9CDD1" stroke-width="5"')+dsLn([a0,fl+1000,d],[a0-700,fl/4+1000,d])+dsLn([a0-700,fl/4,d],[a0-700,fl/4+1000,d]);}
   for(const m of [m0+40,m1-40])for(const d of [d0+40,dc,d1-40])o+=dsBox(m-30,m+30,fl,dk-60,d-30,d+30,'c-rail');
   o+=dsBox(m0,m1,dk-200,dk-60,d0,d1,'c-white')+dsBox(m0,m1,dk-60,dk,d0,d1,'c-deck');
   o+=dsRail([m0,dk,d0],[m0,dk,d1]);   /* railing on the side away from the machine */

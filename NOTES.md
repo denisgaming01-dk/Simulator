@@ -181,6 +181,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v329: The stripping-platform ladder moves to the feeder-side end of the platform, at the outer edge, still vertical; the end railing beside it is 400 mm lower (700 instead of 1100).
   v330: Front waste grinder pushed toward the delivery until its control box is against the end railing of the drive-side platform.
   v331: Walkway stairs: the outer hand rail now carries straight on from the walkway railing. 300 x 200 opening in the drive-side wall where the 300 wide front-waste belt comes out.
+  v332: The drive-side platform now stands 150 mm off the machine instead of against it.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
