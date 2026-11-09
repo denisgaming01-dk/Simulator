@@ -185,6 +185,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v333: Front-waste belt and front-waste ejector moved 100 mm back toward the feeder (the waste now lands 100 mm further back, and the wall opening and window moved with the belt). The grinder housing has an inlet opening on the side toward the machine, and the green slide runs into it.
   v334: Waste extraction (cyclone with filter and bin, fan and its ducts) moved 1000 mm toward the feeder; the hydraulic unit stays.
   v335: Grinder housing made taller: the bottom of its inlet opening is now 20 mm below the bottom of the front-waste belt, so the green slide falls slightly into it.
+  v336: The front-waste belt now runs straight out through the wall into the grinder inlet (no green slide); the inlet sits at the delivery-side edge of the housing, lined up with the belt, with only a strip of wall left beside it.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v335 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v336 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -761,7 +761,7 @@ const DSM={
  fan:{m:6850,d:420,r:330},hyd:{m0:5000,m1:5700,d0:60,d1:700}};
 const DSX=m=>XE-m*VS,DSY=h=>GF-h*VS,DSZ=d=>ZDS+d*VS/DZ,DSP=(m,h,d)=>[DSX(m),DSY(h),DSZ(d)];
 const DSY_CH=(GF-210)/VS;
-const FWBK=100*VS;   /* front-waste belt and ejector moved 100 mm back toward the feeder (v333) */
+const FWBK=100*VS,FWZE=()=>ZDS+(DSM.waste.d0+30)*KV;   /* the front-waste belt runs out through the wall straight into the grinder inlet (v336) */   /* front-waste belt and ejector moved 100 mm back toward the feeder (v333) */
 const DSFWO=()=>{const mb=(XE-(SF+15-FWBK))/VS,hb=(GF-150)/VS-20;return [mb-150,mb+150,hb,hb+200];};   /* 300 x 200 opening in the drive-side wall where the 300 wide front-waste belt comes out (v331) */   /* bottom chain, mm above the floor */
 function dsFaces(F,cen,cls,shade){/* F: faces as lists of [x,y,z] (z in model units); cen: a point inside the solid. Only the faces turned to the camera are drawn */
  const vr=[syw*c,s,cyw*c],C=[cen[0],cen[1],cen[2]*DZ];let o='';
@@ -851,11 +851,10 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
   for(const m of [m0+25,m1-25])for(const d of [d0+25,d1-25])o+=dsBox(m-25,m+25,60,hb,d-25,d+25,'c-cream')+dsBox(m-35,m+35,0,60,d-35,d+35,'c-dark');   /* posts, castors */
   for(const h of [350,1200])o+=dsBox(m0,m1,h-40,h,d0,d0+50,'c-cream')+dsBox(m0,m1,h-40,h,d1-50,d1,'c-cream')+dsBox(m0,m0+50,h-40,h,d0,d1,'c-cream')+dsBox(m1-50,m1,h-40,h,d0,d1,'c-cream');   /* cross rails */
   o+=dsBox(m0,m1,hb,ht,d0,d1,'c-cream');   /* grinder housing */
-  o+=quad([DSP(mc-220,ht-60,d0-2),DSP(mc+220,ht-60,d0-2),DSP(mc+220,ht-260,d0-2),DSP(mc-220,ht-260,d0-2)],'fill="#1C1E21" stroke="#0E0F11" stroke-width=".5"');   /* inlet opening on the side toward the machine, where the waste goes in (v333) */
+  o+=quad([DSP(m0+15,ht-60,d0-2),DSP(m0+455,ht-60,d0-2),DSP(m0+455,ht-260,d0-2),DSP(m0+15,ht-260,d0-2)],'fill="#1C1E21" stroke="#0E0F11" stroke-width=".5"');   /* inlet opening on the side toward the machine, where the waste goes in (v333) */
   o+=dsBox(mc+40,mc+hw-40,ht,ht+170,d0+150,d1-150,'c-inox')+dsCyl(mc+hw/2+20,(d0+d1)/2,ht+170,ht+560,115,115,'c-cab')+dsCyl(mc+hw/2+20,(d0+d1)/2,ht+560,ht+620,80,80,'c-inox');   /* gear motor */
   o+=dsCylM(m0-30,m0,(hb+ht)/2,(d0+d1)/2,110,'c-ylw');   /* yellow cap on the shaft */
   add(mc,(d0+d1)/2,o);
-  add(mc,d0/2,dsBeam([mbelt,(GF-150)/VS-15,-60],[mc,ht-260+15,d0+40],300,30,'c-grn'));   /* slide from the bottom of the belt down 20 mm into the inlet (v335) */   /* green slide from the machine into the housing */
   const ce=mc+w.run;add((mc+ce)/2,(d0+d1)/2,dsBeamD([mc+200,hb,d1-200],[ce,40,w.dOut],420,240,'c-white'));   /* chute down to the floor conveyor */
   add(ce,2400,quad([DSP(ce-400,3,-200),DSP(ce+400,3,-200),DSP(ce+400,3,4400),DSP(ce-400,3,4400)],'fill="#2E3034" stroke="#1C1E21" stroke-width=".5"')+
      quad([DSP(ce-350,4,2300),DSP(ce+350,4,2300),DSP(ce+350,4,3100),DSP(ce-350,4,3100)],'fill="#8E949A" stroke="#5E6266" stroke-width=".5"'));   /* floor conveyor in its pit, grating over part of it */
@@ -1049,7 +1048,7 @@ $('lstrip').innerHTML=`<path d="${BL.map(pl=>rulePath(SS,212,pl)).join(' ')}" fi
 $('pins').innerHTML=`<g opacity=".42">`+boxR(PN0,SS-10,183.2,186.4,ZN-4,ZF+4,'c-gray')+`</g>`+`<path d="${BL.map(pl=>rulePath(SS,183.2,pl)).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="0.6" stroke-dasharray="2 1.5"/>`+PINS.map(([u,v])=>{const x=tx(SS,u),z=v*KV+SZ0;return ln(x,186.4,z,x,196,z,'stroke="#5F5E5A" stroke-width="1.6" stroke-linecap="round"')+ell(x,197,z,1.8,1.3,'fill="#5F5E5A"');}).join('');
 {const g=SD-617;$('knife').innerHTML=boxR(602.4+g,608.6+g,180,198,ZN,ZF,'c-gray')+boxR(596+g,612+g,175,180,ZN,ZF,'c-gray');   /* guillotine half as high */}
 drawSens();
-$('belt').innerHTML=boxR(SF+15-FWBK-150*VS,SF+15-FWBK+150*VS,146,150,ZN-5,ZF+30,'c-gray')+'<g id="bdash"></g>';
+$('belt').innerHTML=boxR(SF+15-FWBK-150*VS,SF+15-FWBK+150*VS,146,150,ZN-5,FWZE(),'c-gray')+'<g id="bdash"></g>';
 $('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+(SOLID?'':`<path d="${chainPath(ZN)}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`)+   /* solid covers hide the chain centre line too */
 '';
 $('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;
@@ -1302,7 +1301,7 @@ const fo=SD-617;let fg='';if(be>0){fg+=forks(FL,644+fo-be*136,644+fo,646+fo);fg+
 if(se>0){fg+=forks(FS,630+fo-se*30,630+fo,632+fo)+forks(FS,496+fo,496+fo+se*30,494+fo);fg+=pileSVG(sCount,fo,1,FS-.5);}
 $('fing').innerHTML=fg;
 let pd='';const po=lExitOff%20;for(let x=508+po%20;x<620;x+=20)pd+=ln(x,by,ZF+4,x,by,ZN-4,'stroke="var(--faint)" stroke-width="1"');$('pdash').innerHTML=pd;
-let bd='';const off=(g*80)%22;for(let z=ZN-5+off;z<ZF+30;z+=22)bd+=ln(SF+15-FWBK-150*VS,146,z,SF+15-FWBK+150*VS,146,z,'stroke="var(--faint)" stroke-width="1"');$('bdash').innerHTML=bd;
+let bd='';const off=(g*80)%22;for(let z=ZN-5+off;z<FWZE();z+=22)bd+=ln(SF+15-FWBK-150*VS,146,z,SF+15-FWBK+150*VS,146,z,'stroke="var(--faint)" stroke-width="1"');$('bdash').innerHTML=bd;
 wbelt=wbelt.filter(t=>g-t<1.6&&g>=t);let wb='';wbelt.forEach(t=>{const a=g-t,f=a/1.6;wb+=sp(SS,210,0,[SKEL,...BL],52+a*70,CO,COS,.65*(1-f)*(1-f),0);});$('wbItems').innerHTML=wb;
 $('topdyn').innerHTML=top+barsTop;
 const ej=p<.68?ease(seg(.52,.62)):1-ease(seg(.7,.8));
