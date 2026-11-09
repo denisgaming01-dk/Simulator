@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v333 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v334 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -757,8 +757,8 @@ const DSM={
    /* front waste grinder, centred on the front-waste belt; housing top just under the belt (about 2350 above the floor); sizes estimated from the photo */
  box:{w:450,dep:250,h0:1050,h1:1750},   /* control box on the grinder stand, estimated */
  vent:{m0:4270,m1:4970,door1:5960},               /* grille panel and double door in the die-cutting section, estimated */
- cyc:{m:6500,d:850,r:450,rf:330},                 /* cyclone and filter of the waste extraction, estimated */
- fan:{m:5850,d:420,r:330},hyd:{m0:5000,m1:5700,d0:60,d1:700}};
+ cyc:{m:7500,d:850,r:450,rf:330},                 /* cyclone and filter of the waste extraction, estimated; moved 1000 toward the feeder (v334) */
+ fan:{m:6850,d:420,r:330},hyd:{m0:5000,m1:5700,d0:60,d1:700}};
 const DSX=m=>XE-m*VS,DSY=h=>GF-h*VS,DSZ=d=>ZDS+d*VS/DZ,DSP=(m,h,d)=>[DSX(m),DSY(h),DSZ(d)];
 const DSY_CH=(GF-210)/VS;
 const FWBK=100*VS;   /* front-waste belt and ejector moved 100 mm back toward the feeder (v333) */
