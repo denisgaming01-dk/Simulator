@@ -191,6 +191,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v339: Removed the floor conveyor pit under the grinder chute. Rotation drum rings drawn as real round tubes in 3D (no more teeth on the edge). Cinematic turns 10% slower (5.4 degrees a second). Legs under the interleave board table.
   v340: Exit turntable after the palletizer (after the photo): the full pallet now drives across the line from the stacking belt over transfer rollers onto a round turntable with three belts (400 wide, 15 mm apart, the middle one 2200 long, side ones 1900 estimated). It turns -90 degrees, drives the pallet out over rollers onto an exit belt, and turns back +90. The next pallet waits until the turntable is back.
   v341: The exit turntable takes 5 s for each turn (was 2 s).
+  v342: Stacking belt and bottom-sheet belt are now blue modular belts with yellow edges, like the exit turntable; the exit belt got yellow edges too.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v341 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v342 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1897,8 +1897,8 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
  const sB=(XE+14-680)/KU,inM=it=>SOLID&&it.s<sB&&it.y<300;   /* with solid covers: the part of belt 1 inside the machine and the batches on it go with the machine (v295) */
  /* stacking belt (section 6) under the column, running across the line; the bottom-sheet robot beside it */
  /* stacking belt (6) and, beside it on the operator side, the bottom-sheet belt */
- back+=lslab(LCOL-675,LCOL+675,-1050,1050,LGND,LPB-15)+lslab(LCOL-655,LCOL+655,-1030,1030,LPB-15,LPB,1,'belt');   /* stacking belt (6): 1350 mm along the line, 2100 mm across */
- back+=lslab(LCOL-675,LCOL+675,-3250,-1150,LGND,LPB-15)+lslab(LCOL-655,LCOL+655,-3230,-1170,LPB-15,LPB,1,'belt');   /* bottom-sheet belt: 1350 x 2100 mm like the stacking belt */
+ back+=lslab(LCOL-675,LCOL+675,-1050,1050,LGND,LPB-15)+lslab(LCOL-655,LCOL+655,-1030,1030,LPB-15,LPB,1,'blue')+lslab(LCOL-655,LCOL-625,-1030,1030,LPB-14,LPB+1,1,'yel')+lslab(LCOL+625,LCOL+655,-1030,1030,LPB-14,LPB+1,1,'yel');   /* blue modular belt with yellow edges, like the exit turntable (v342) */   /* stacking belt (6): 1350 mm along the line, 2100 mm across */
+ back+=lslab(LCOL-675,LCOL+675,-3250,-1150,LGND,LPB-15)+lslab(LCOL-655,LCOL+655,-3230,-1170,LPB-15,LPB,1,'blue')+lslab(LCOL-655,LCOL-625,-3230,-1170,LPB-14,LPB+1,1,'yel')+lslab(LCOL+625,LCOL+655,-3230,-1170,LPB-14,LPB+1,1,'yel');   /* bottom-sheet belt: 1350 x 2100 mm like the stacking belt */
  back+=lslab(LSTORE-600,LSTORE+600,LREADY-650,LREADY+650,LGND,LPB-20)+lbox({s:LSTORE,l:LREADY,y:LPB-20,du:560,dv:600,h:60,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4});
  {const mvv=lSheet.move||0;
   const SH=(ss,ll,op,i)=>{const tr=LSET.bot.rot&&LSET.bot.rot[i];return lbox({s:ss,l:ll,y:LPB,du:(tr?LSET.bot.W:LSET.bot.L)/2,dv:(tr?LSET.bot.L:LSET.bot.W)/2,h:6,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4,op});};
@@ -1917,7 +1917,7 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
    const e0=cs+R+XT.roll,e1=e0+XT.out;
    for(let k=0;k<4;k++){const ss=cs+R+25+k*50;o+=lslab(ss-18,ss+18,cl-640,cl+640,yb-36,yb-2,1,'steel');}   /* rollers onto the exit belt */
    for(const ss of [e0+80,e1-80])for(const ll of [cl-560,cl+560])o+=lslab(ss-35,ss+35,ll-35,ll+35,LGND,yb-15,1,'gph');
-   o+=lslab(e0,e1,cl-650,cl+650,yb-15,yb,1,'blue');   /* exit belt */
+   o+=lslab(e0,e1,cl-650,cl+650,yb-15,yb,1,'blue')+lslab(e0,e1,cl-650,cl-620,yb-14,yb+1,1,'yel')+lslab(e0,e1,cl+620,cl+650,yb-14,yb+1,1,'yel');   /* exit belt */
    back+=o;}
   lSheet.rdy.forEach((x,i)=>back+=SH(LCOL,x+LREADY*(1-mvv),1,i));}
  back+=lbody(LC.belt2-HS('belt2'),LC.belt2+HS('belt2'),-90)+lbody(LC.shift-HS('shift'),LC.shift+HS('shift'),-90)+['tt1','tt2'].map(kk=>lbody(LC[kk]-HS(kk)-40,LC[kk]+HS(kk)+40,-120)).join('');   /* bodies under transfer belt 2 (before separator 1), the shift belt and both turntables */
