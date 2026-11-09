@@ -163,6 +163,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v310: The guessed drive-side delivery platform is replaced by the walkway across the front of the machine (delivery end): 1000 wide, 2600 long, centred on the machine, deck 800 above the G-Cut flooring. Stairs at the drive-side end: 3 grating treads 800 x 200, 200 apart. The flooring strip in front of the machine runs on under the stairs, with a short stair down to the hall floor (estimated).
   v311: The same 3-step stairs at the operator-side end of the front walkway, down onto the operator platform.
   v312: Both walkway stairs now reach 700 mm out from the walkway in all (3 treads 200 deep, 200 apart in height).
+  v313: Drive-side platform, 800 wide and 2750 long, along the machine from the end of the walkway stairs, at the level of the operator platform. Railing on the outer side and at the far end, and a stair down to the hall floor at the front end (estimated). It replaces the guessed flooring strip.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
