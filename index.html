@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v320 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v321 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -621,8 +621,8 @@ const CHN=(()=>{const r=CWR,rI=CWRI,TOP=CHT,arc=(cx,cy,a0,a1,n,o,rr)=>{rr=rr||r;
  const P=path(WDx,WI,T),C=cum(P);return{P,C,s0:SI-WI,WD:[WDx,TOP+r],WI:[WI,210-rI],T,tot:C[P.length]};})();
 function chainPt(q){const TOT=NB*PIT,{P,C,s0}=CHN;q=(((q+s0)%TOT)+TOT)%TOT;let lo=0,hi=P.length;while(hi-lo>1){const m=(lo+hi)>>1;if(C[m]<=q)lo=m;else hi=m;}
  const A=P[lo],B=P[(lo+1)%P.length],f=(q-C[lo])/((C[lo+1]-C[lo])||1);return[A[0]+(B[0]-A[0])*f,A[1]+(B[1]-A[1])*f,Math.atan2(B[1]-A[1],B[0]-A[0])*180/Math.PI];}
-/* the machine is built for the 2100 mm max sheet width: its frames, chains and bars run from ZN to ZF (about 2230 mm), the 1223 mm sheet runs centred from 0 to W */
-const ZN=-26,ZF=W+26;let CAM=35,c=Math.cos(CAM*D2R),s=Math.sin(CAM*D2R);
+/* the machine is built for the 2100 mm max sheet width: its frames, chains and bars run from ZN to ZF (2300 mm between the chains, measured, v321), the 1223 mm sheet runs centred from 0 to W */
+const ZN=W/2-1150*W/1223,ZF=W/2+1150*W/1223;let CAM=35,c=Math.cos(CAM*D2R),s=Math.sin(CAM*D2R);
 const OR='#FAC775',ORS='#854F0B',ORE='#BA7517',CO='#F5C4B3',COS='#993C1D',COE='#D85A30',GR='#639922';
 const SY=(y,z)=>B+y*c-z*s;
 let CAP=0,GLON=0,GLPASS='';   /* 3D (WebGL) view: while CAP is set, PJ returns the 3D point packed into the two numbers instead of a screen point */
@@ -727,7 +727,7 @@ let BKN='';let PLAT=null,SOLID=false,WALLS='';let INFSVG='',INFBACK='',INFTAB=''
    (old section edges below); U() maps them onto the measured widths, so windows and buttons keep their place inside each panel. */
 const PNL_MM=[1000,1190,550,1530,1690,950],PNL_U0=[0,87,203,247,386,548,640],PNL_U1=PNL_MM.reduce((a,m)=>(a.push(a[a.length-1]+m*VS),a),[0]);
 const ZOP=ZN-350*KV,ZWIN=ZOP+210*KV;   /* operator side: the panels stand 350 mm out from the chain (v317), the windows sit 210 mm back from the panel face (measured, v315) */
-const ZDS=ZOP+3330*KV;   /* drive side: the machine is 3330 mm wide over the panels (front window 2130 wide, 550 from the operator-side panel and 650 from the drive-side panel, measured, v320), so the drive-side panels stand about 760 mm out from the chain */
+const ZDS=ZOP+3330*KV;   /* drive side: the machine is 3330 mm wide over the panels (front window 2130 wide, 550 from the operator-side panel and 650 from the drive-side panel, measured, v320), so with 2300 mm between the chains the drive-side panels stand 680 mm out from the chain */
 const U=u=>{for(let i=0;i<6;i++)if(u<=PNL_U0[i+1]||i===5)return PNL_U1[i]+(u-PNL_U0[i])*(PNL_U1[i+1]-PNL_U1[i])/(PNL_U0[i+1]-PNL_U0[i]);};
 const XE=(617-1640*VS)-2+(PNL_U1[3]+PNL_U1[4])/2-720*VS,   /* covers are fixed now (v236): they no longer follow the chain */
          /* covers placed from the trainer: at 0° the stripping gripper bar sits right after (delivery side of) the stripping window */
