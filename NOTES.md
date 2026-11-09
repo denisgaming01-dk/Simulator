@@ -169,6 +169,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v316: Drive side measured: the panels stand 500 mm out from the chain (was about 300). The drive-side wall, roof, infeed guarding and everything modelled on the drive side move out with it.
   v317: Operator-side panels 350 mm out from the chain. Machine 3120 mm wide over the panels: the 2000 mm front window is 500 from the operator-side panel and 620 from the drive-side panel (measured), which puts the drive-side panels about 550 mm out from the chain.
   v318: Front window measured 2130 wide (not 2000): the machine is now 3250 mm wide over the panels (500 + 2130 + 620), so the drive-side panels stand about 680 mm out from the chain.
+  v319: Front window 550 from the operator-side panel (not 500): the machine is 3300 mm wide over the panels (550 + 2130 + 620).
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
