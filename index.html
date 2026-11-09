@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v338 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v339 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -857,8 +857,6 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
   o+=dsCylM(m0-30,m0,(hb+ht)/2,(d0+d1)/2,110,'c-ylw');   /* yellow cap on the shaft */
   add(mc,(d0+d1)/2,o);
   const ce=mc+w.run;add((mc+ce)/2,(d0+d1)/2,dsBeamD([mc+200,hb,d1-200],[ce,40,w.dOut],420,240,'c-white'));   /* chute down to the floor conveyor */
-  add(ce,2400,quad([DSP(ce-400,3,-200),DSP(ce+400,3,-200),DSP(ce+400,3,4400),DSP(ce-400,3,4400)],'fill="#2E3034" stroke="#1C1E21" stroke-width=".5"')+
-     quad([DSP(ce-350,4,2300),DSP(ce+350,4,2300),DSP(ce+350,4,3100),DSP(ce-350,4,3100)],'fill="#8E949A" stroke="#5E6266" stroke-width=".5"'));   /* floor conveyor in its pit, grating over part of it */
   const b=DSM.box,bm0=m0-30,bm1=bm0+b.w,bd0=d1-60,bd1=bd0+b.dep;   /* under the grinder, on the outer face of the stand (v325) */
   let q=dsBox(bm0,bm1,b.h0,b.h1,bd0,bd1,'c-cab')+dsBox(bm0+80,bm1-80,b.h0-420,b.h0-60,bd0,bd1-30,'c-cab')+dsCyl(m0+90,d1-90,ht,ht+240,35,35,'c-red');
   if(cyw<0||CAP)[['#2E9E4F',0],['#E8B21A',1],['#1F5FD6',2],['#C9302C',3]].forEach(([f,i])=>{q+=ell(...DSP(bm1-70-i*80,b.h1-300,bd1+2),2.4,2.4*c,`fill="${f}"`);});
@@ -1911,6 +1909,7 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
    {const sp=(2*LHW-20)/6;for(let g=-LHW+10+sp;g<=LHW-10-sp+1;g+=sp)back+=gb(0,g,hl(g),18);}   /* no spoke on the outer edges either: open on all 4 sides (v285) */
    const hq=lpt(cc,ly,0);return `<ellipse cx="${f1(hq[0])}" cy="${f1(hq[1])}" rx="7" ry="2.8" fill="#F4F3EE" stroke="#77756E" stroke-width=".7"/>`;});});   /* belt, turning grid and hub as one piece */
  back+=lbelt(LC.align-HS("align"),LC.align+HS("align"));
+ for(const ss of [LC.align-500,LC.align+500])for(const ll of [-LHW-1640,-LHW-660])back+=lslab(ss-35,ss+35,ll-35,ll+35,LGND,-90,1,'gph');   /* legs under the interleave board table (v339) */
  back+=lslab(LC.align-560,LC.align+560,-LHW-1700,-LHW-600,-90,-20)+lbox({s:LC.align,l:-LHW-1150,y:-20,du:520,dv:540,h:60,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4});
  back+=lbelt(LC.press-HS("press"),LC.press+HS("press"),(LS.press&&LS.press.lift)||0);   /* bottom belt lifts while the drum clamps */
  {const fh=PR_OPEN+200,cc=LC.press;far+=lslab(cc-HS("press")-60,cc-HS("press")-20,LHW,LHW+60,-90,fh)+lslab(cc+HS("press")+20,cc+HS("press")+60,LHW,LHW+60,-90,fh)+lslab(cc-HS("press")-60,cc+HS("press")+60,LHW,LHW+60,fh,fh+50);}
@@ -1954,8 +1953,11 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
    else front+=lslab(cc-PR_L/2,cc+PR_L/2,-PR_W/2,PR_W/2,py,py+40,1,'belt')+lslab(cc-PR_L/2-20,cc+PR_L/2+20,-PR_W/2-20,PR_W/2+20,py+40,py+110,1,'white');   /* upper mesh belt on its frame */
    /* the drum: a big ring on each side of the line; the whole drum turns the stack over */
    {const Rr=760,yc=PR_OPEN/2,rl=((bi.length&&S.ph==='roll')?bi[0].pitch:0)*D2R;
-    for(const lr of [-PR_W/2-80,PR_W/2+80]){let d='',rg='';for(let i=0;i<=48;i++){const a=i/48*2*Math.PI,q=lpt(cc+Rr*Math.cos(a),yc+Rr*Math.sin(a),lr);d+=(i?' L':'M')+lstr(q);}
-      rg+=`<path d="${d}" fill="none" stroke="var(--m-stroke)" stroke-width="7" opacity=".55"/><path d="${d}" fill="none" stroke="#ECECE8" stroke-width="5" opacity=".8"/>`;
+    for(const lr of [-PR_W/2-80,PR_W/2+80]){let d='',rg='';const NS=48;for(let i=0;i<=NS;i++){const a=i/NS*2*Math.PI,q=lpt(cc+Rr*Math.cos(a),yc+Rr*Math.sin(a),lr);d+=(i?' L':'M')+lstr(q);}
+      if(CAP){/* 3D: the ring as a real round tube (torus) so its edge is a smooth circle, not a chain of short tubes (v339) */
+       const NA=72,NB=6,rt=34,P=(i,j)=>{const a=i/NA*2*Math.PI,c=j/NB*2*Math.PI,R=Rr+rt*Math.cos(c);return lstr(lpt(cc+R*Math.cos(a),yc+R*Math.sin(a),lr+rt*Math.sin(c)));};
+       for(let i=0;i<NA;i++)for(let j=0;j<NB;j++)rg+=`<path d="M${P(i,j)} L${P(i+1,j)} L${P(i+1,j+1)} L${P(i,j+1)} Z" fill="#DCDDD9"/>`;}
+      else rg+=`<path d="${d}" fill="none" stroke="var(--m-stroke)" stroke-width="7" opacity=".55"/><path d="${d}" fill="none" stroke="#ECECE8" stroke-width="5" opacity=".8"/>`;
       for(let k=0;k<4;k++){const a=rl+k*Math.PI/2,q0=lpt(cc+(Rr-90)*Math.cos(a),yc+(Rr-90)*Math.sin(a),lr),q1=lpt(cc+(Rr+10)*Math.cos(a),yc+(Rr+10)*Math.sin(a),lr);rg+=`<path d="M${lstr(q0)} L${lstr(q1)}" stroke="#8E9398" stroke-width="2.4"/>`;}
       lAdd(rg,[cc-Rr-10,cc+Rr+10,lr-12,lr+12,yc-Rr-10,yc+Rr+10]);}}}   /* each drum ring is its own piece: the far one behind the stack, the near one in front */
  /* palletizer align plates, closing on the stack over the column */
@@ -2548,7 +2550,7 @@ function gTick(){if(!$('gClk'))return;if($('gSfL0')){const sOk=mode!=='estop';$(
 function g1Fit(){const w=$('g1').clientWidth,k=Math.max(w,720)/1000;$('g1In').style.transform=`scale(${k})`;$('g1').style.height=(560*k)+'px';$('g1Wrap').style.overflowX=w<720?'auto':'hidden';}
 function hmiFit(){g1Fit();const w=$('hmi2').clientWidth,k=Math.max(w,720)/1000;$('hmi2In').style.transform=`scale(${k})`;$('hmi2').style.height=(640*k)+'px';$('hmi2Wrap').style.overflowX=w<720?'auto':'hidden';}
 /* cinematic mode: the camera turns round the machine slowly and smoothly, every animation frame by the time that passed
-   (6 degrees a second, one round a minute), in fractions of a degree, until switched off (v290, smooth v291) */
+   (5.4 degrees a second since v339, one round in about 67 s), in fractions of a degree, until switched off (v290, smooth v291) */
 {const b=$('cineB'),y=$('camY');let on=false,raf=0,t0=0,a=0;
  /* keep the whole machine and line in the picture, centred, as the camera goes round */
  /* one fixed view for the whole round (v298): the camera turns about the middle of the whole scene and the view is big enough for the
@@ -2565,7 +2567,7 @@ function hmiFit(){g1Fit();const w=$('hmi2').clientWidth,k=Math.max(w,720)/1000;$
   const w=Math.max(x1-x0,(y1-y0)/AR)*1.06,cx=680-(x0+x1)/2,cy=(y0+y1)/2;return [cx-w/2,cy-w*AR/2,w,w*AR];};
  let PL=null;
  const stop=()=>{on=false;cancelAnimationFrame(raf);b.setAttribute('aria-pressed','false');b.textContent='Cinematic';};
- const step=t=>{if(!on)return;const dt=Math.min(.1,(t-t0)/1000);t0=t;a+=6*dt;if(a>180)a-=360;
+ const step=t=>{if(!on)return;const dt=Math.min(.1,(t-t0)/1000);t0=t;a+=5.4*dt;if(a>180)a-=360;   /* 10% slower (v339) */
   setCam(null,a);if(PL){const T=fitTo(PL),k=vt<1?(vt=Math.min(1,vt+dt/0.9),ease(vt)):1;tw=null;vb=(vt<1?V0:vb).map((v,i)=>v+(T[i]-v)*(vt<1?k:Math.min(1,dt*4)));setVB();}const r=Math.round(a);y.value=r;$('camYo').textContent=(r>0?'+':'')+r+'°';raf=requestAnimationFrame(step);};
  b.onclick=()=>{if(on){stop();return;}on=true;a=+y.value||.01;setCam(null,a);PL=plan();PCX=PL.cx;PCZ=PL.cz;V0=vb.slice();vt=0;b.setAttribute('aria-pressed','true');b.textContent='Cinematic: on';raf=requestAnimationFrame(t=>{t0=t;step(t);});};
  y.addEventListener('pointerdown',()=>{if(on)stop();});$('camR').addEventListener('click',()=>{if(on)stop();});}

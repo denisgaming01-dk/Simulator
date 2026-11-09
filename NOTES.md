@@ -188,6 +188,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v336: The front-waste belt now runs straight out through the wall into the grinder inlet (no green slide); the inlet sits at the delivery-side edge of the housing, lined up with the belt, with only a strip of wall left beside it.
   v337: Front walkway legs: the middle legs that stood over the belt are gone; the walkway now stands only on legs at its very ends, clear of the exit belt and the line.
   v338: The Covers button is now "Machine: full / inside". Full shows the solid covers plus the grinder, waste extraction (cyclone, filter, fan) and hydraulic unit; Inside shows the see-through covers without that equipment (platforms, walkway and stairs stay in both). In Inside the front-waste belt stops at the machine side.
+  v339: Removed the floor conveyor pit under the grinder chute. Rotation drum rings drawn as real round tubes in 3D (no more teeth on the edge). Cinematic turns 10% slower (5.4 degrees a second). Legs under the interleave board table.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
