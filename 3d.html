@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v313 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v314 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -750,7 +750,7 @@ const DSM={
  stripWin:{w:1450,ht:500},                        /* measured, centred in the stripping section */
  stripPlat:{m0:2600,m1:4300,dep:1000,deck:1150,ladW:600,ladRun:450},   /* deck height measured, size estimated */
  sidePlat:{w:800,len:2750},   /* measured */
- walk:{w:1000,len:2600,h:800,n:3,rise:200,tr:200,tw:800,run:700},   /* measured: deck 800 above the G-Cut flooring, 3 treads 800 x 200, 200 apart */
+ walk:{w:1000,len:2600,inDS:450,h:800,n:3,rise:200,tr:200,tw:800,run:700},   /* measured: deck 800 above the G-Cut flooring, 3 treads 800 x 200, 200 apart */
  waste:{m0:2150,m1:2550,dep:700,head:1800},       /* front waste conveyor column and chute into the floor conveyor, estimated */
  box:{m0:1750,m1:2100,d0:300,d1:600,h0:1000,h1:1800},   /* control box on its stand, estimated */
  vent:{m0:4270,m1:4970,door1:5960},               /* grille panel and double door in the die-cutting section, estimated */
@@ -796,11 +796,11 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
   for(const m of [lm0+30,lm1-30])o+=dsLn([m,0,p.dep+p.ladRun],[m,dk,p.dep])+dsLn([m,dk,p.dep],[m,dk+1100,p.dep]);   /* ladder stiles carry on up as the hand rails */
   for(let i=1;i<=4;i++){const t=i/5,h=dk*t,d=p.dep+p.ladRun*(1-t);o+=dsBox(lm0+40,lm1-40,h-30,h,d-90,d+90,'c-inox');}
   add((p.m0+p.m1)/2,p.dep/2,o);}
- /* walkway across the front of the machine (delivery end): 1000 wide, 2600 long, centred on the machine, deck 800 above the G-Cut
+ /* walkway across the front of the machine (delivery end): 1000 wide, 2600 long, ending 450 short of the drive side (v314), deck 800 above the G-Cut
     flooring; stairs at the drive-side end: 3 grating treads 800 x 200, 200 apart (all measured). The drive-side stairs come down
     onto the drive-side platform: 800 wide, 2750 long, along the machine from the end of the stairs (measured, v313), at the level of
     the operator platform, with a stair down to the hall floor at its front end (estimated). */
- {const p=DSM.walk,fl=(GF-GP)/VS,dk=fl+p.h,dc=((ZN+ZF)/2-(ZF+16))*DZ/VS,d0=dc-p.len/2,d1=dc+p.len/2,m0=-p.w,m1=0;let o='';
+ {const p=DSM.walk,fl=(GF-GP)/VS,dk=fl+p.h,d1=-p.inDS,d0=d1-p.len,dc=(d0+d1)/2,m0=-p.w,m1=0;let o='';
   {const q=DSM.sidePlat,a0=m0,a1=m0+q.len;   /* drive-side platform */
    for(const m of [a0+40,(a0+a1)/2,a1-40])for(const d of [40,q.w-40])o+=dsBox(m-30,m+30,0,fl-60,d-30,d+30,'c-rail');
    o+=dsBox(a0,a1,fl-200,fl-60,q.w-60,q.w,'c-white')+dsBox(a0,a1,fl-60,fl,0,q.w,'c-deck');
