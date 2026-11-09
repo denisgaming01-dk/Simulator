@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v301 3D preview 4 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v302 3D preview 4 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -695,7 +695,7 @@ BOFF.forEach(o=>{RCR.forEach(u=>{PINS.push([TWL+u,o+RT/2]);PINS.push([TWL+u,o+JO
 PINS.sort((a,b)=>b[1]-a[1]);
 /* photocells: AS = drive side (far), BS = operator side (near) */
 const ST={odl:{n:'Sheet delivery',e:'after the guillotine'},izv:{n:'Stripping exit',e:'stripping station',ex:2},izt:{n:'Die-cut exit',e:'die-cutting station',ex:1},pred:{n:'Sheet transfer',e:'gripper takes the sheet',ex:0},lays:{n:'Front lays',e:'infeed front stop'}};
-const PCB=(40+60)*KU;   /* photocells sit over the middle of the gripper bar (120 mm wide) when the chain stops at 0° */
+const PCB=60*KU;   /* photocells sit over the middle of the gripper bar (120 mm wide) when the chain stops at 0° */
 const SENS=[
  {k:'OA',st:'odl',side:'AS',x:SD+PCB,mm:null},{k:'OB',st:'odl',side:'BS',x:SD+PCB,mm:null},
  {k:'ZA',st:'izv',side:'AS',x:SS+PCB,mm:[100,Math.min(950,SHL-100)]},{k:'ZB',st:'izv',side:'BS',x:SS+PCB,mm:[100,Math.min(950,SHL-100)]},
@@ -1013,9 +1013,9 @@ return h;}
 const GZ=Array.from({length:12},(_,i)=>ZN+3+i*(ZF-ZN-6)/11);   /* 12 grippers spread along the bar */
 /* gripper bar: the bar sits just ahead of the sheet, the grippers bite 10 mm into the 15 mm front waste */
 const GBITE=10*KU;
-const GOUT=50*KU,GOFF=GOUT-GBITE;   /* grippers stick out 50 mm in front of the bar and bite 10 mm into the front waste, so the bar runs 40 mm ahead of the sheet edge (v301) */
-const bar=(x,y,a)=>{const A=a*D2R,ca=Math.cos(A),sa=Math.sin(A),R=(lx,ly)=>[x+lx*ca-ly*sa,y+lx*sa+ly*ca];const q0=R(-GBITE,-4),q1=R(GOFF+3,-4),bc=R(2.6,-4);
-const BW=120*KU,b0=R(GOFF,-6),b1=R(GOFF+BW,-6),b2=R(GOFF+BW,-1.5),b3=R(GOFF,-1.5);   /* gripper bar 120 mm wide */
+const GOUT=50*KU;   /* grippers stick out 50 mm in front of the gripper bar; the bar stays where it was (v302) */
+const bar=(x,y,a)=>{const A=a*D2R,ca=Math.cos(A),sa=Math.sin(A),R=(lx,ly)=>[x+lx*ca-ly*sa,y+lx*sa+ly*ca];const q0=R(-GOUT,-4),q1=R(3,-4),bc=R(2.6,-4);
+const BW=120*KU,b0=R(0,-6),b1=R(BW,-6),b2=R(BW,-1.5),b3=R(0,-1.5);   /* gripper bar 120 mm wide */
 let o=quad([[b0[0],b0[1],ZF+4],[b1[0],b1[1],ZF+4],[b1[0],b1[1],ZN-4],[b0[0],b0[1],ZN-4]],'fill="#3A3D42" stroke="#1E2125" stroke-width=".5"')
  +quad([[b0[0],b0[1],ZN-4],[b1[0],b1[1],ZN-4],[b2[0],b2[1],ZN-4],[b3[0],b3[1],ZN-4]],'fill="#25282C" stroke="#1E2125" stroke-width=".5"');
 GZ.forEach(z=>o+=ln(q0[0],q0[1],z,q1[0],q1[1],z,'stroke="#D85A30" stroke-width="2.6" stroke-linecap="butt"'));return o;};
