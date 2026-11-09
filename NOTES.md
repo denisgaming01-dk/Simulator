@@ -174,6 +174,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v321: Gripper chains 2300 mm apart, centre to centre (measured; was an estimate of 2217), still centred on the sheet. Operator-side panels 450 mm out from the chain (measured). With 3330 mm over the panels the drive-side panels come 580 mm out from the chain.
   v323: Front waste grinder raised: its head now sits at the front-waste belt, about 2350 mm above the floor, with the motor on top and a longer slide down to the floor conveyor.
   v324: Front waste grinder redrawn after the photo: open cream stand on castors, grinder housing at the height of the front-waste belt and centred on it (green slide from the machine into the housing), upright gear motor on top, yellow cap on the delivery-side face, white chute running down toward the feeder into the floor conveyor, control box with push buttons, small box under it and beacon hanging on the delivery side of the stand.
+  v325: The grinder's control box (and the small box under it) now sits under the grinder housing on the outer face of the stand, as on the machine; the beacon is on the housing and the chute leaves from the feeder side of the housing.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
