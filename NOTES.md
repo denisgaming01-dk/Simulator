@@ -172,8 +172,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v319: Front window 550 from the operator-side panel (not 500): the machine is 3300 mm wide over the panels (550 + 2130 + 620).
   v320: Front window 650 from the drive-side panel (not 620): the machine is 3330 mm wide over the panels (550 + 2130 + 650).
   v321: Gripper chains 2300 mm apart, centre to centre (measured; was an estimate of 2217), still centred on the sheet. Operator-side panels 450 mm out from the chain (measured). With 3330 mm over the panels the drive-side panels come 580 mm out from the chain.
-  v321: Chains measured 2300 mm apart (was an estimated 2217), centred on the sheet. Operator-side panels stay 350 from the chain and the machine stays 3330 over the panels, so the drive-side panels are 680 from the chain.
-  v322: Operator-side panels measured 450 from the chain (was 350). Machine stays 3330 over the panels, so the drive-side panels are 580 from the chain.
+  v323: Front waste grinder raised: its head now sits at the front-waste belt, about 2350 mm above the floor, with the motor on top and a longer slide down to the floor conveyor.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.

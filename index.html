@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v321 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v323 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -753,7 +753,7 @@ const DSM={
  stripPlat:{m0:2600,m1:4300,dep:1000,deck:1150,ladW:600,ladRun:450},   /* deck height measured, size estimated */
  sidePlat:{w:800,len:2750},   /* measured */
  walk:{w:1000,len:2600,inOS:300,inDS:450,h:800,n:3,rise:200,tr:200,tw:800,run:700},   /* measured: deck 800 above the G-Cut flooring, 3 treads 800 x 200, 200 apart */
- waste:{m0:2150,m1:2550,dep:700,head:1800},       /* front waste conveyor column and chute into the floor conveyor, estimated */
+ waste:{m0:2150,m1:2550,dep:700,head:2350},       /* front waste grinder: column with the motor on top and the slide into the floor conveyor; its head sits at the front-waste belt, about 2350 above the floor (v323), the rest estimated */
  box:{m0:1750,m1:2100,d0:300,d1:600,h0:1000,h1:1800},   /* control box on its stand, estimated */
  vent:{m0:4270,m1:4970,door1:5960},               /* grille panel and double door in the die-cutting section, estimated */
  cyc:{m:6500,d:850,r:450,rf:330},                 /* cyclone and filter of the waste extraction, estimated */
