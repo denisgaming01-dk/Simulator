@@ -171,6 +171,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v318: Front window measured 2130 wide (not 2000): the machine is now 3250 mm wide over the panels (500 + 2130 + 620), so the drive-side panels stand about 680 mm out from the chain.
   v319: Front window 550 from the operator-side panel (not 500): the machine is 3300 mm wide over the panels (550 + 2130 + 620).
   v320: Front window 650 from the drive-side panel (not 620): the machine is 3330 mm wide over the panels (550 + 2130 + 650).
+  v321: Gripper chains 2300 mm apart, centre to centre (measured; was an estimate of 2217), still centred on the sheet. Operator-side panels 450 mm out from the chain (measured). With 3330 mm over the panels the drive-side panels come 580 mm out from the chain.
   v321: Chains measured 2300 mm apart (was an estimated 2217), centred on the sheet. Operator-side panels stay 350 from the chain and the machine stays 3330 over the panels, so the drive-side panels are 680 from the chain.
   v322: Operator-side panels measured 450 from the chain (was 350). Machine stays 3330 over the panels, so the drive-side panels are 580 from the chain.
 
