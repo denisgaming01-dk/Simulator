@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v336 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v337 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -831,7 +831,7 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
    o+=dsRail([a0,fl,e1],[a1,fl,e1])+dsRail([a1,fl,e0],[a1,fl,e1],0,1);   /* railing on the outer side and at the far end */
    const g=700/3;for(let i=1;i<=3;i++){const h=fl-fl/4*i;o+=dsBox(a0-g*i,a0-g*i+200,h-40,h,e0+40,e1-40,'c-inox');}   /* stair down to the hall floor */
    for(const d of [e0+25,e1-25])o+=dsLn([a0,fl,d],[a0-700,0,d],'stroke="#C9CDD1" stroke-width="5"')+dsLn([a0,fl+1000,d],[a0-700,fl/4+1000,d])+dsLn([a0-700,fl/4,d],[a0-700,fl/4+1000,d]);}
-  for(const m of [m0+40,m1-40])for(const d of [d0+40,dc,d1-40])o+=dsBox(m-30,m+30,fl,dk-60,d-30,d+30,'c-rail');
+  for(const m of [m0+40,m1-40])for(const d of [d0+30,d1-30])o+=dsBox(m-30,m+30,fl,dk-60,d-30,d+30,'c-rail');   /* legs only at the very ends, clear of the exit belt and the line (v337) */
   o+=dsBox(m0,m1,dk-200,dk-60,d0,d1,'c-white')+dsBox(m0,m1,dk-60,dk,d0,d1,'c-deck');
   o+=dsRail([m0,dk,d0],[m0,dk,d1]);   /* railing on the side away from the machine */
   const sm0=(m0+m1)/2-p.tw/2,sm1=sm0+p.tw;
