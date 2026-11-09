@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v314 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v315 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -726,6 +726,7 @@ let BKN='';let PLAT=null,SOLID=false,WALLS='';let INFSVG='',INFBACK='',INFTAB=''
    HMI column 550, stripping 1530 (rechecked), die-cutting 1690, infeed (feeder screen) 950. The drawing was laid out from the photo in "u" units
    (old section edges below); U() maps them onto the measured widths, so windows and buttons keep their place inside each panel. */
 const PNL_MM=[1000,1190,550,1530,1690,950],PNL_U0=[0,87,203,247,386,548,640],PNL_U1=PNL_MM.reduce((a,m)=>(a.push(a[a.length-1]+m*VS),a),[0]);
+const ZOP=ZN-300*KV,ZWIN=ZOP+210*KV;   /* operator side: the panels stand 300 mm out from the chain, the windows sit 210 mm back from the panel face (measured, v315) */
 const U=u=>{for(let i=0;i<6;i++)if(u<=PNL_U0[i+1]||i===5)return PNL_U1[i]+(u-PNL_U0[i])*(PNL_U1[i+1]-PNL_U1[i])/(PNL_U0[i+1]-PNL_U0[i]);};
 const XE=(617-1640*VS)-2+(PNL_U1[3]+PNL_U1[4])/2-720*VS,   /* covers are fixed now (v236): they no longer follow the chain */
          /* covers placed from the trainer: at 0° the stripping gripper bar sits right after (delivery side of) the stripping window */
@@ -750,7 +751,7 @@ const DSM={
  stripWin:{w:1450,ht:500},                        /* measured, centred in the stripping section */
  stripPlat:{m0:2600,m1:4300,dep:1000,deck:1150,ladW:600,ladRun:450},   /* deck height measured, size estimated */
  sidePlat:{w:800,len:2750},   /* measured */
- walk:{w:1000,len:2600,inDS:450,h:800,n:3,rise:200,tr:200,tw:800,run:700},   /* measured: deck 800 above the G-Cut flooring, 3 treads 800 x 200, 200 apart */
+ walk:{w:1000,len:2600,inOS:300,inDS:450,h:800,n:3,rise:200,tr:200,tw:800,run:700},   /* measured: deck 800 above the G-Cut flooring, 3 treads 800 x 200, 200 apart */
  waste:{m0:2150,m1:2550,dep:700,head:1800},       /* front waste conveyor column and chute into the floor conveyor, estimated */
  box:{m0:1750,m1:2100,d0:300,d1:600,h0:1000,h1:1800},   /* control box on its stand, estimated */
  vent:{m0:4270,m1:4970,door1:5960},               /* grille panel and double door in the die-cutting section, estimated */
@@ -796,11 +797,11 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
   for(const m of [lm0+30,lm1-30])o+=dsLn([m,0,p.dep+p.ladRun],[m,dk,p.dep])+dsLn([m,dk,p.dep],[m,dk+1100,p.dep]);   /* ladder stiles carry on up as the hand rails */
   for(let i=1;i<=4;i++){const t=i/5,h=dk*t,d=p.dep+p.ladRun*(1-t);o+=dsBox(lm0+40,lm1-40,h-30,h,d-90,d+90,'c-inox');}
   add((p.m0+p.m1)/2,p.dep/2,o);}
- /* walkway across the front of the machine (delivery end): 1000 wide, 2600 long, ending 450 short of the drive side (v314), deck 800 above the G-Cut
+ /* walkway across the front of the machine (delivery end): 1000 wide, 2600 long, its operator-side end 300 short of the operator-side panels (v315; on the real machine the drive-side end is 450 short of the drive side), deck 800 above the G-Cut
     flooring; stairs at the drive-side end: 3 grating treads 800 x 200, 200 apart (all measured). The drive-side stairs come down
     onto the drive-side platform: 800 wide, 2750 long, along the machine from the end of the stairs (measured, v313), at the level of
     the operator platform, with a stair down to the hall floor at its front end (estimated). */
- {const p=DSM.walk,fl=(GF-GP)/VS,dk=fl+p.h,d1=-p.inDS,d0=d1-p.len,dc=(d0+d1)/2,m0=-p.w,m1=0;let o='';
+ {const p=DSM.walk,fl=(GF-GP)/VS,dk=fl+p.h,d0=(ZOP-(ZF+16))*DZ/VS+p.inOS,d1=d0+p.len,dc=(d0+d1)/2,m0=-p.w,m1=0;let o='';
   {const q=DSM.sidePlat,a0=m0,a1=m0+q.len;   /* drive-side platform */
    for(const m of [a0+40,(a0+a1)/2,a1-40])for(const d of [40,q.w-40])o+=dsBox(m-30,m+30,0,fl-60,d-30,d+30,'c-rail');
    o+=dsBox(a0,a1,fl-200,fl-60,q.w-60,q.w,'c-white')+dsBox(a0,a1,fl-60,fl,0,q.w,'c-deck');
@@ -860,7 +861,7 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
    /* platform from the marked photo (mm from the machine face): floor 3600 deep from the delivery end to the back stairs; a 4000 mm wide
       part reaching 5200 out (1600 beyond the floor); behind it 2000 = 1000 floor + 1000 stairs, the stairs (1600 wide, outer band) run with the
       machine down to the start of the infeed door; along the stairs and the infeed door a 2000 deep walkway remains */
-   const zM=ZN-8,z2=zM-2000*KV,zW=zM-3600*KV,zD=zM-5200*KV,xA=XS-3-2000*VS,xS1=xA+1000*VS,px0=xA+2000*VS,px1=px0+4000*VS,d0=xA-2000*VS;
+   const zM=ZOP,z2=zM-2000*KV,zW=zM-3600*KV,zD=zM-5200*KV,xA=XS-3-2000*VS,xS1=xA+1000*VS,px0=xA+2000*VS,px1=px0+4000*VS,d0=xA-2000*VS;
    /* the floor stops at the machine face: no flooring under the machine */
    PLAT={zM,z2,zW,zD,xA,xS1,px0,px1,d0};
    const xN=XE,xE2=XE+1000*VS;PLAT.xN=xN;   /* past the end of the covers (after the delivery) the floor goes on 1000 mm, only 2000 deep (2000 + 1600 = 3600) */
@@ -879,15 +880,15 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
    LPSVG+=o.slice(oL);o=o.slice(0,oL);}
    o+=SOLID?(()=>{const z=ZF+12,sw=DSM.smallWin,tw=DSM.stripWin,sc=(PNL_U1[3]+PNL_U1[4])/2/VS,rp=(m0,m1,h0,h1)=>`M${pt(DSX(m1),DSY(h1),z)} L${pt(DSX(m0),DSY(h1),z)} L${pt(DSX(m0),DSY(h0),z)} L${pt(DSX(m1),DSY(h0),z)} Z`;
      return `<path d="M${pt(XH,GT,z)} L${pt(XE,GT,z)} L${pt(XE,GF,z)} L${pt(XH,GF,z)} Z ${rp(sw.m0,sw.m0+sw.w,DSY_CH,DSY_CH+sw.ht)} ${rp(sc-tw.w/2,sc+tw.w/2,DSY_CH,DSY_CH+tw.ht)}" fill="#E2E5E8" fill-rule="evenodd" stroke="#9AA0A6" stroke-width=".5"/>`;})():`<g opacity=".22">`+boxR(0,640,GT,GP,ZF+12,ZF+16,'c-gray')+`</g>`;   /* drive-side frame wall; solid: light inside face, so the machine shows up against it in dark mode too */
-   if(!SOLID)o+=quad([[0,GT,ZN-6],[640,GT,ZN-6],[640,GT,ZF+12],[0,GT,ZF+12]],'fill="#EEF0F2" fill-opacity=".45" stroke="#9AA0A6" stroke-width=".6"');   /* roof covers */
-   if(!SOLID){for(const x of [150,315,475])o+=ln(x,GT,ZN-6,x,GT,ZF+12,'stroke="#7E848B" stroke-width=".7"');
+   if(!SOLID)o+=quad([[0,GT,ZOP],[640,GT,ZOP],[640,GT,ZF+12],[0,GT,ZF+12]],'fill="#EEF0F2" fill-opacity=".45" stroke="#9AA0A6" stroke-width=".6"');   /* roof covers */
+   if(!SOLID){for(const x of [150,315,475])o+=ln(x,GT,ZOP,x,GT,ZF+12,'stroke="#7E848B" stroke-width=".7"');
    o+=ln(0,GT,(ZN+ZF)/2,640,GT,(ZN+ZF)/2,'stroke="#9AA0A6" stroke-width=".5"');}}
  else{let p=o;o='';const st='stroke="#3B3F45" stroke-width="1.8" stroke-linecap="round"',st2='stroke="#3B3F45" stroke-width="1.1"';
-   o+=`<g opacity=".45">`+ln(0,GP,ZN-6,0,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GP,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,640,GT,ZN-6,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZN-6,0,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GT,ZN-6,640,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+`</g>`;rail=o;o=p;}   /* operator-side frame outline, 3000 mm high (drawn after the guards) */
+   o+=`<g opacity=".45">`+ln(0,GP,ZOP,0,GT,ZOP,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GP,ZOP,640,GT,ZOP,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZOP,640,GT,ZOP,'stroke="var(--muted)" stroke-width="1.2"')+ln(0,GT,ZOP,0,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+ln(640,GT,ZOP,640,GT,ZF+12,'stroke="var(--muted)" stroke-width="1.2"')+`</g>`;rail=o;o=p;}   /* operator-side frame outline, 3000 mm high (drawn after the guards) */
    if(front&&SOLID&&cyw<0){/* seen from the drive side: solid drive-side wall and roof in front of everything */
-    const zt=ZF+12;let o=quad([[XS,GT,ZN-8],[XE,GT,ZN-8],[XE,GT,zt],[XS,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+dsWall();   /* drive-side wall down to the floor, with its windows and grille panel (v309) */
-    for(const x of [87,203,247,386,548,640].map(u=>XE-U(u)))o+=ln(x,GT,ZN-8,x,GT,zt,'stroke="#7E848B" stroke-width=".7"');WALLS=o;}
-   else if(front){const zp=ZN-8,Q=(x0,x1,y0,y1,f)=>quad([[x0,y0,zp],[x1,y0,zp],[x1,y1,zp],[x0,y1,zp]],f);
+    const zt=ZF+12;let o=quad([[XS,GT,ZOP],[XE,GT,ZOP],[XE,GT,zt],[XS,GT,zt]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+dsWall();   /* drive-side wall down to the floor, with its windows and grille panel (v309) */
+    for(const x of [87,203,247,386,548,640].map(u=>XE-U(u)))o+=ln(x,GT,ZOP,x,GT,zt,'stroke="#7E848B" stroke-width=".7"');WALLS=o;}
+   else if(front){const zp=ZOP,Q=(x0,x1,y0,y1,f)=>quad([[x0,y0,zp],[x1,y0,zp],[x1,y1,zp],[x0,y1,zp]],f);
     const bandT=GT+60*VS,bandB=GT+260*VS,winT=GP-1750*VS,winB=GP-1000*VS,lowT=GP-950*VS;
     const WN=[[8,150],[160,300],[330,470],[480,632]],rp=(x0,x1,y0,y1)=>`M${pt(x0,y0,zp)} L${pt(x1,y0,zp)} L${pt(x1,y1,zp)} L${pt(x0,y1,zp)} Z`;
     if(SOLID){/* solid covers, drawn after the photo of the operator side (delivery left, feeder right on screen); u = mm-ish from the delivery end, v = 0 top .. 1 platform */
@@ -907,8 +908,13 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
      o+=`<path d="${R1(P1[1],P1[2],dv0-.04,WC+.15)} ${R1(...WIN[0])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame round the delivery window */
      o+=`<path d="${R1(sW[0]-5,sW[1]+5,.16,sv1+.04)} ${R1(...WIN[1])} ${R1(...WIN[2])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark frame, stripping windows */
      o+=`<path d="${R1(P1[4],P1[5],cv0-.11,cv1+.03)} ${R1(...WIN[3])}" fill="#2E3136" fill-rule="evenodd"/>`;   /* dark band with the die-cutting window */
-     o+=F1(...FWW,'fill="#BFD6E6" fill-opacity=".18" stroke="#1C1E21" stroke-width="1.2"');   /* glass of the front-waste window */
-     o+=WIN.map((w,i)=>F1(...w,`fill="${i===3?'#3A4A58':'#BFD6E6'}" fill-opacity="${i===3?.35:.18}" stroke="#1C1E21" stroke-width="1"`)).join('');   /* glass: the running machine shows through */
+     {/* the glass sits 210 mm back from the panel face (v315): reveals round each opening, only the ones turned to the camera */
+      const vr=[syw*c,s,cyw*c],G=(m0,m1,v0,v1,f)=>quad([[X1(m1),Y(v0),ZWIN],[X1(m0),Y(v0),ZWIN],[X1(m0),Y(v1),ZWIN],[X1(m1),Y(v1),ZWIN]],f),
+       RV=(m0,m1,v0,v1)=>{const a=X1(m1),b=X1(m0),t=Y(v0),u=Y(v1),f='fill="#C4C8CC" stroke="#9AA0A6" stroke-width=".4"';let r='';
+        if(CAP||vr[1]<0)r+=quad([[a,t,zp],[b,t,zp],[b,t,ZWIN],[a,t,ZWIN]],f);if(CAP||vr[1]>0)r+=quad([[a,u,zp],[b,u,zp],[b,u,ZWIN],[a,u,ZWIN]],f);
+        if(CAP||vr[0]<0)r+=quad([[a,t,zp],[a,u,zp],[a,u,ZWIN],[a,t,ZWIN]],f);if(CAP||vr[0]>0)r+=quad([[b,t,zp],[b,u,zp],[b,u,ZWIN],[b,t,ZWIN]],f);return r;};
+      o+=G(...FWW,'fill="#BFD6E6" fill-opacity=".18" stroke="#1C1E21" stroke-width="1.2"')+RV(...FWW);   /* glass of the front-waste window */
+      o+=WIN.map((w,i)=>G(...w,`fill="${i===3?'#3A4A58':'#BFD6E6'}" fill-opacity="${i===3?.35:.18}" stroke="#1C1E21" stroke-width="1"`)+RV(...w)).join('');}   /* glass: the running machine shows through */
      {const sw=mid(2,320),bw=mid(2,380),sh=220*VS/(GP-GT),bz=30*VS/(GP-GT),sc=.405;
       o+=F1(bw[0],bw[1],sc-sh/2-bz,sc+sh/2+bz,'fill="#C9CDD1" stroke="#1C1E21" stroke-width=".5"')+F1(sw[0],sw[1],sc-sh/2,sc+sh/2,'fill="#3D7FC2"');}   /* HMI column: touch screen 320 x 220 mm in a grey bezel */
      o+=F(207,243,.49,.66,'fill="#DCDFE2" stroke="#8A9096" stroke-width=".5"');
@@ -930,8 +936,8 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
          guard door with a big glass window (dark frame, blue light) and a white lower half; the stack and back stop show through the glass */
       const h0=XH,h1=XS,gy0=GP-2000*VS+8,gy1=GP-2000*VS+(2000*VS)*.5,P=(x0,x1,y0,y1)=>`M${pt(x0,y0,zp)} L${pt(x1,y0,zp)} L${pt(x1,y1,zp)} L${pt(x0,y1,zp)} Z`;
       o+=quad([[h0,GT,zp],[h1,GT,zp],[h1,GT+12,zp],[h0,GT+12,zp]],'fill="#EEF0F2" stroke="#9AA0A6" stroke-width=".6"')+quad([[h0,GT,zp],[h1,GT,zp],[h1,GT,ZF+12],[h0,GT,ZF+12]],'fill="#EEF0F2" fill-opacity=".0" stroke="#9AA0A6" stroke-width=".6"');   /* top beam (roof open) */
-      if(!SOLID)o+=boxR(h0,h0+10,GT,GP,ZN-12,ZN-10,'c-white')+boxR(h0,h0+3,GT,GP,ZN-12,ZN-10,'c-steel');   /* corner post: only in see-through; with solid covers the post is inside the closed infeed */+boxR(h0,h0+10,GT,GP,ZF+8,ZF+16,'c-white');   /* corner posts (dark edge on the operator side); the end stays open for the prefeeder */
-      o+=boxR(h0,h1,GT,GT+12,ZN-12,ZN-10,'c-white')+boxR(h0,h1,GT,GT+12,ZF+8,ZF+14,'c-white');   /* top rails both sides */
+      if(!SOLID)o+=boxR(h0,h0+10,GT,GP,ZOP-4,ZOP-2,'c-white')+boxR(h0,h0+3,GT,GP,ZOP-4,ZOP-2,'c-steel');   /* corner post: only in see-through; with solid covers the post is inside the closed infeed */+boxR(h0,h0+10,GT,GP,ZF+8,ZF+16,'c-white');   /* corner posts (dark edge on the operator side); the end stays open for the prefeeder */
+      o+=boxR(h0,h1,GT,GT+12,ZOP-4,ZOP-2,'c-white')+boxR(h0,h1,GT,GT+12,ZF+8,ZF+14,'c-white');   /* top rails both sides */
       const d1=h1-3,d0=d1-2000*VS,dT=GP-2000*VS,dm=(d0+d1)/2,gB=dT+2000*VS*.59;   /* double door 2000 x 2000 mm: dark glass upper part, white lower part */
       o+=quad([[h0+10,GT+12,zp],[h1,GT+12,zp],[h1,dT,zp],[h0+10,dT,zp]],'fill="#E8EAEC" stroke="#9AA0A6" stroke-width=".6"');   /* fixed panel above the doors */
       for(const [a0,a1] of [[d0,dm-.6],[dm+.6,d1]]){
@@ -948,7 +954,7 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
      }}   /* blue door switches and yellow-ring reset buttons removed (v308) */
      if(!SOLID){/* see-through: the infeed guarding (corner posts, top beam, 2000 x 2000 door) is kept too, as light glass, so the infeed panel stays visible */
       const d1=XS-3,d0=d1-2000*VS,dT=GP-2000*VS;
-      o+=boxR(XH,XH+10,GT,GP,ZN-12,ZN-4,'c-white')+boxR(XH,XH+10,GT,GP,ZF+8,ZF+16,'c-white')+boxR(XH,XS,GT,GT+12,ZN-12,ZN-6,'c-white')+boxR(XH,XS,GT,GT+12,ZF+8,ZF+14,'c-white');
+      o+=boxR(XH,XH+10,GT,GP,ZOP-4,ZOP+4,'c-white')+boxR(XH,XH+10,GT,GP,ZF+8,ZF+16,'c-white')+boxR(XH,XS,GT,GT+12,ZOP-4,ZOP+2,'c-white')+boxR(XH,XS,GT,GT+12,ZF+8,ZF+14,'c-white');
       o+=quad([[XH+10,GT+12,zp],[XS,GT+12,zp],[XS,dT,zp],[XH+10,dT,zp]],'fill="#E4E7EA" fill-opacity=".22" stroke="#9AA0A6" stroke-width=".6"');
       o+=quad([[d0,dT,zp],[d1,dT,zp],[d1,GP-1,zp],[d0,GP-1,zp]],'fill="#BFD6E6" fill-opacity=".18" stroke="#1C1E21" stroke-width="1"');
       o+=ln((d0+d1)/2,dT,zp,(d0+d1)/2,GP-1,zp,'stroke="#3A3D42" stroke-width="1"');
@@ -958,7 +964,7 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
  return o+rail;}
 const DWC=XE-(PNL_U1[4]+PNL_U1[5])/2,PX0=DWC-740*VS,PXR=DWC+740*VS,PN0=Math.min(352+DS,SS-10-SLX-2);   /* platens and stripping tools cover the whole sheet */
 function buildStatic(){
-$('L0').innerHTML=(SOLID&&!GLON?(()=>{const z=cyw>0?ZF+16:ZN-8;return quad([[XH,GT,z],[XE,GT,z],[XE,GP,z],[XH,GP,z]],'fill="#B9BEC3" stroke="none"');})():'')+   /* inside face of the far wall (v297) */
+$('L0').innerHTML=(SOLID&&!GLON?(()=>{const z=cyw>0?ZF+16:ZOP;return quad([[XH,GT,z],[XE,GT,z],[XE,GP,z],[XH,GP,z]],'fill="#B9BEC3" stroke="none"');})():'')+   /* inside face of the far wall (v297) */
  gcutEnv(false)+`<path d="${chainPath(ZF)}" fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-dasharray="4 3" class="chn"/>`+
 [[...CHN.WD,CWR],[...CHN.WI,CWRI]].map(([x,y,rr])=>ln(x,y,ZF,x,y,ZN,'stroke="var(--faint)" stroke-width="3"')+ell(x,y,ZF,rr,rr*c,'fill="none" stroke="var(--faint)" stroke-width="2"')).join('');
 let L1='';XOF=DIF;
@@ -1016,7 +1022,7 @@ $('L3').innerHTML=(SOLID&&cyw>=0?'':gcutEnv(true))+(SOLID?'':`<path d="${chainPa
 $('L5').innerHTML=!SOLID?'':cyw>=0?gcutEnv(true):WALLS;
 /* delivery end face of the machine (solid covers, seen when the view is turned toward the delivery end): dark grey panel, window 2000 x 500 mm
    starting 1150 mm above the platform, three controls above it (photo); open below 450 mm above the exit belt so the stacks drive out */
-if(SOLID&&syw<0){const x=XE,z0=ZN-8,z1=ZF+12,zc=(z0+z1)/2,ww=1000*KV,yb=GP-1150*VS,yt=yb-500*VS,P=(a)=>'M'+a.map(([y,z])=>pt(x,y,z)).join(' L')+' Z';
+if(SOLID&&syw<0){const x=XE,z0=ZOP,z1=ZF+12,zc=(z0+z1)/2,ww=1000*KV,yb=GP-1150*VS,yt=yb-500*VS,P=(a)=>'M'+a.map(([y,z])=>pt(x,y,z)).join(' L')+' Z';
  let e=`<path d="${P([[GT,z0],[GT,z1],[YEX-450*VS,z1],[YEX-450*VS,z0]])} ${P([[yt,zc-ww],[yt,zc+ww],[yb,zc+ww],[yb,zc-ww]])}" fill="#3A3D42" fill-rule="evenodd" stroke="#24272B" stroke-width=".6"/>`;
  e+=`<path d="${P([[yt,zc-ww],[yt,zc+ww],[yb,zc+ww],[yb,zc-ww]])}" fill="#BFD6E6" fill-opacity=".15" stroke="#C9CED3" stroke-width="1"/>`;   /* glass, light frame */
  e+=`<path d="${P([[yb,zc-ww-8],[yb,zc+ww+8],[yb+6,zc+ww+8],[yb+6,zc-ww-8]])}" fill="#2A2D31"/>`;   /* dark ledge under the window */
@@ -1035,7 +1041,7 @@ $('solidB').onclick=()=>{SOLID=!SOLID;const b=$('solidB');b.setAttribute('aria-p
 function setMasks(){const sv=$('mach');let df=sv.querySelector('defs#cmDefs');if(!df){df=document.createElementNS('http://www.w3.org/2000/svg','defs');df.id='cmDefs';sv.insertBefore(df,sv.firstChild);}
  const tg=[['infTop','mInf'],['pref','mPref']];
  if(!SOLID){tg.forEach(([g])=>$(g)&&$(g).removeAttribute('mask'));df.innerHTML='';return;}
- const ox=XOF;XOF=0;const B='fill="#000"',zp=ZN-8,zd=ZF+16,opF=cyw>0,opD=cyw<0,opE=syw<0;
+ const ox=XOF;XOF=0;const B='fill="#000"',zp=ZOP,zd=ZF+16,opF=cyw>0,opD=cyw<0,opE=syw<0;
  const d1=XS-3,d0=d1-2000*VS,dT=GP-2000*VS,gB=dT+2000*VS*.59;
  const front=(opF?quad([[XH,GT,zp],[XE,GT,zp],[XE,dT,zp],[XH,dT,zp]],B)+quad([[XS,dT,zp],[XE,dT,zp],[XE,GP,zp],[XS,GP,zp]],B)
    +quad([[XH,dT,zp],[d0,dT,zp],[d0,GP,zp],[XH,GP,zp]],B)+quad([[d0,dT,zp],[d1,dT,zp],[d1,GP,zp],[d0,GP,zp]],B+' fill-opacity=".4"'):'');   /* the infeed doors let the stack, guides and align plates show through (wants them seen with covers on) */
