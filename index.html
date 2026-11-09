@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v342 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v343 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -370,7 +370,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         </div>
         <div class="seg"><button id="boardB" aria-pressed="false" title="Show or hide all board, so only the machine is seen">Board: shown</button></div>
         <div class="seg"><button id="glB" aria-pressed="true" title="3D view (WebGL) or the classic drawing">View: 3D</button></div>
-        <div class="seg"><button id="solidB" aria-pressed="false" title="Full machine: solid covers, platforms and the equipment round it. Inside: see-through covers to watch the machine work">Machine: inside</button></div>
+        <div class="seg"><button id="solidB" aria-pressed="false" title="Full machine: solid covers, walkway, platforms and the equipment round it. Inside: see-through covers to watch the machine work">Machine: inside</button></div>
         <div class="seg">
           <button id="zin" aria-label="Zoom in">+</button>
           <button id="zout" aria-label="Zoom out">−</button>
@@ -807,7 +807,8 @@ function dsRail(p0,p1,top,posts){/* railing along a deck edge: posts, hand rail 
 function dsPlatform(m0,m1,dep,deck,cls){/* deck, white skirt on the open side and four legs */
  let o='';for(const [m,d] of [[m0+40,40],[m1-40,40],[m0+40,dep-40],[m1-40,dep-40]])o+=dsBox(m-30,m+30,0,deck-60,d-30,d+30,'c-rail');
  o+=dsBox(m0,m1,deck-260,deck-60,dep-60,dep,'c-white')+dsBox(m0,m1,deck-60,deck,0,dep,cls||'c-deck');return o;}
-function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
+function dsSVG(){if(!SOLID)return '';   /* everything on the drive side and the front walkway only shows with the full machine (v343) */
+ const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
  /* stripping-window platform: the corner at the delivery end of the outer edge is cut off at 45 degrees to clear the grinder chute;
     straight (vertical) ladder on the feeder-side end at the outer edge, the end rail beside it 400 lower (v329) */
  {const p=DSM.stripPlat,dk=p.deck,C=p.cut,m0=p.m0,m1=p.m1,D=p.dep;let o='';
