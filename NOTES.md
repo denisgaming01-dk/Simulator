@@ -162,6 +162,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v309: Drive side modelled from the trainer's photos. The drive-side wall now goes down to the floor and has the stripping window (1450 x 500) and the small delivery window (600 x 340, 1200 from the delivery end), both with the bottom edge at the bottom chain. Also added the grille panel and double door at die-cutting, the stripping-window platform (deck 1150 above the floor, with a steep ladder), the front-waste column with its slide into the floor conveyor, the control box on its stand, the delivery platform with stairs, and the waste extraction (cyclone with filter and bin, fan, hydraulic unit). Sizes not measured are estimates, kept together in DSM in the code.
   v310: The guessed drive-side delivery platform is replaced by the walkway across the front of the machine (delivery end): 1000 wide, 2600 long, centred on the machine, deck 800 above the G-Cut flooring. Stairs at the drive-side end: 3 grating treads 800 x 200, 200 apart. The flooring strip in front of the machine runs on under the stairs, with a short stair down to the hall floor (estimated).
   v311: The same 3-step stairs at the operator-side end of the front walkway, down onto the operator platform.
+  v312: Both walkway stairs now reach 700 mm out from the walkway in all (3 treads 200 deep, 200 apart in height).
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
