@@ -176,6 +176,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v324: Front waste grinder redrawn after the photo: open cream stand on castors, grinder housing at the height of the front-waste belt and centred on it (green slide from the machine into the housing), upright gear motor on top, yellow cap on the delivery-side face, white chute running down toward the feeder into the floor conveyor, control box with push buttons, small box under it and beacon hanging on the delivery side of the stand.
   v325: The grinder's control box (and the small box under it) now sits under the grinder housing on the outer face of the stand, as on the machine; the beacon is on the housing and the chute leaves from the feeder side of the housing.
   v326: The grinder chute now starts right under the grinder housing and runs steeply down, leaning slightly toward the feeder, beside the control box, into the floor conveyor.
+  v327: Stripping-window platform: the deck corner at the delivery end of the outer edge is cut off at 45 degrees to clear the grinder chute (skirt and railing follow the cut), and the ladder is now straight (vertical) on the outer edge.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
