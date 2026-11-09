@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v325 · 9 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v326 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -753,7 +753,7 @@ const DSM={
  stripPlat:{m0:2600,m1:4300,dep:1000,deck:1150,ladW:600,ladRun:450},   /* deck height measured, size estimated */
  sidePlat:{w:800,len:2750},   /* measured */
  walk:{w:1000,len:2600,inOS:300,inDS:450,h:800,n:3,rise:200,tr:200,tw:800,run:700},   /* measured: deck 800 above the G-Cut flooring, 3 treads 800 x 200, 200 apart */
- waste:{w:650,dep:600,d0:120,hb:1950,ht:2330,run:750,dOut:1150},   /* front waste grinder, centred on the front-waste belt; housing top just under the belt (about 2350 above the floor); sizes estimated from the photo */
+ waste:{w:650,dep:600,d0:120,hb:1950,ht:2330,run:650,dOut:560},   /* front waste grinder, centred on the front-waste belt; housing top just under the belt (about 2350 above the floor); sizes estimated from the photo */
  box:{w:450,dep:250,h0:1050,h1:1750},   /* control box on the grinder stand, estimated */
  vent:{m0:4270,m1:4970,door1:5960},               /* grille panel and double door in the die-cutting section, estimated */
  cyc:{m:6500,d:850,r:450,rf:330},                 /* cyclone and filter of the waste extraction, estimated */
@@ -840,10 +840,10 @@ function dsSVG(){const S=[],add=(m,d,str)=>S.push({k:PDEP(DSX(m),DSZ(d)),str});
   o+=dsCylM(m0-30,m0,(hb+ht)/2,(d0+d1)/2,110,'c-ylw');   /* yellow cap on the shaft */
   add(mc,(d0+d1)/2,o);
   add(mc,d0/2,dsBeam([mc,ht+40,-60],[mc,ht-30,d0+200],300,30,'c-grn'));   /* green slide from the machine into the housing */
-  const ce=mc+w.run;add((mc+ce)/2,(d0+d1)/2,dsBeamD([m1-110,hb,(d0+d1)/2],[ce,40,w.dOut],420,260,'c-white'));   /* chute down to the floor conveyor */
+  const ce=mc+w.run;add((mc+ce)/2,(d0+d1)/2,dsBeamD([mc+200,hb,d1-200],[ce,40,w.dOut],420,240,'c-white'));   /* chute down to the floor conveyor */
   add(ce,2400,quad([DSP(ce-400,3,-200),DSP(ce+400,3,-200),DSP(ce+400,3,4400),DSP(ce-400,3,4400)],'fill="#2E3034" stroke="#1C1E21" stroke-width=".5"')+
      quad([DSP(ce-350,4,2300),DSP(ce+350,4,2300),DSP(ce+350,4,3100),DSP(ce-350,4,3100)],'fill="#8E949A" stroke="#5E6266" stroke-width=".5"'));   /* floor conveyor in its pit, grating over part of it */
-  const b=DSM.box,bm0=mc-b.w/2-60,bm1=bm0+b.w,bd0=d1-60,bd1=bd0+b.dep;   /* under the grinder, on the outer face of the stand (v325) */
+  const b=DSM.box,bm0=m0-30,bm1=bm0+b.w,bd0=d1-60,bd1=bd0+b.dep;   /* under the grinder, on the outer face of the stand (v325) */
   let q=dsBox(bm0,bm1,b.h0,b.h1,bd0,bd1,'c-cab')+dsBox(bm0+80,bm1-80,b.h0-420,b.h0-60,bd0,bd1-30,'c-cab')+dsCyl(m0+90,d1-90,ht,ht+240,35,35,'c-red');
   if(cyw<0||CAP)[['#2E9E4F',0],['#E8B21A',1],['#1F5FD6',2],['#C9302C',3]].forEach(([f,i])=>{q+=ell(...DSP(bm1-70-i*80,b.h1-300,bd1+2),2.4,2.4*c,`fill="${f}"`);});
   add((bm0+bm1)/2,(bd0+bd1)/2,q);}   /* control box with push buttons, beacon on top */
