@@ -221,4 +221,5 @@ Station numbers (yellow on HMI): 1010 transfer, 1310 sep 1, 1710 TT1, 1320 sep 2
   even-odd hole polygons (stencil) and drawn with WebGL 2 and a depth buffer. Static scene is built twice (camera on each side) so both side walls exist.
 - Coplanar cover decals keep their SVG order with a tiny depth bias (attribute od, groups L3/L5).
 - Camera, tilt, turn, pan, zoom, cinematic are the same as classic; in 3D mode a camera move does not rebuild the scene.
-- Open: parsing the line/prefeeder strings each frame (~20 ms in the test browser); text labels are the classic ones.
+- Preview 2: parsed elements cached by their text (ECACHE), no depth sort of line/prefeeder in 3D mode: a frame costs ~4 ms strings + ~4 ms parse/draw in the test browser (was ~22 ms). Right-drag or Shift+drag turns and tilts the camera round the middle of the view.
+- Open: text labels are the classic ones.
