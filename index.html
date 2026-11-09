@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v343 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v344 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -985,7 +985,7 @@ if(!front){/* operator platform shape (measurements, railings left out for now):
     o+=Q(160,470,lowT,GP-4,'fill="#2B2E33" fill-opacity=".22"');   /* dark lower panels at stripping and die-cutting */
     for(const [x0,x1] of [[8,150],[160,300],[330,470],[480,632]]){o+=Q(x0,x1,winT,winB,'fill="none" stroke="var(--muted)" stroke-width=".8" stroke-opacity=".4"');   /* inspection windows in the guard doors */
      }}   /* blue door switches and yellow-ring reset buttons removed (v308) */
-     if(!SOLID){/* see-through: the infeed guarding (corner posts, top beam, 2000 x 2000 door) is kept too, as light glass, so the infeed panel stays visible */
+     if(false){/* the infeed guarding (corner posts, top beam, 2000 x 2000 door) only shows with the full machine since v344; this see-through version is no longer drawn */
       const d1=XS-3,d0=d1-2000*VS,dT=GP-2000*VS;
       o+=boxR(XH,XH+10,GT,GP,ZOP-4,ZOP+4,'c-white')+boxR(XH,XH+10,GT,GP,ZDS-8,ZDS,'c-white')+boxR(XH,XS,GT,GT+12,ZOP-4,ZOP+2,'c-white')+boxR(XH,XS,GT,GT+12,ZDS-8,ZDS-2,'c-white');
       o+=quad([[XH+10,GT+12,zp],[XS,GT+12,zp],[XS,dT,zp],[XH+10,dT,zp]],'fill="#E4E7EA" fill-opacity=".22" stroke="#9AA0A6" stroke-width=".6"');

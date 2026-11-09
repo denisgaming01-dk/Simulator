@@ -193,6 +193,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v341: The exit turntable takes 5 s for each turn (was 2 s).
   v342: Stacking belt and bottom-sheet belt are now blue modular belts with yellow edges, like the exit turntable; the exit belt got yellow edges too.
   v343: The front walkway with its stairs, the drive-side platform and the stripping-window platform now also hide with "Machine: inside" and show with "Machine: full".
+  v344: The infeed guarding (2000 x 2000 infeed door, corner posts and top rails) now also hides with "Machine: inside".
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
