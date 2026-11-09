@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v298 · 8 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v299 · 9 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -870,7 +870,7 @@ let INF='';
    INF+=boxR(126,130,150,214,z0,z1,'c-inox');   /* guide bottom almost on the belt, lifted for the flute thickness */   /* stainless front stop; the sheet runs out under it */
    INF+=quad([[127,150,z0],[127,150,z1],[113,131,z1],[113,131,z0]],'fill="#C3C8CD" stroke="#7D848B" stroke-width=".5"');   /* angled flap leaning back over the stack */
    INF+=boxR(128,133,141,148,z0+zw(20),z0+zw(60),'c-blue');});   /* photocell on the stop holder */
- {const tx0=125-560*VS,tx1=125-20*VS,ty=150;   /* side tampers at the sheet edges */
+ {const tx0=x0,tx1=125-20*VS,ty=150;   /* align plates from 20 mm behind the front guides to the back end of the suction belts (v299) */   /* side tampers at the sheet edges */
   for(const [zi,dir] of [[SZ0-zw(6),-1],[SZ0+SZW+zw(6),1]]){const za=Math.min(zi,zi+dir*zw(18)),zb=Math.max(zi,zi+dir*zw(18));
    INF+=boxR(tx0,tx1,ty,214,za,zb,'c-inox');   /* stainless tamper plate */
    INF+=quad([[tx0,ty,zi],[tx0,214,zi],[tx0-60*VS,214,zi+dir*zw(80)],[tx0-60*VS,ty,zi+dir*zw(80)]],'fill="#C3C8CD" stroke="#7D848B" stroke-width=".5"');   /* bent lead-in at the back */
