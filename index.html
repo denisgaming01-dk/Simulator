@@ -380,7 +380,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v359 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v360 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -422,6 +422,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
           <label>Turn <input type="range" id="camY" min="-180" max="180" step="1" value="0" aria-label="Turn the camera round the machine, 360 degrees"><output id="camYo">0°</output></label>
           <button id="camR" aria-label="Reset camera">Reset view</button>
           <button id="cineB" aria-pressed="false" title="Camera circles the machine slowly; touch the Turn slider or press again to stop">Cinematic</button>
+          <span id="fps" title="Pictures drawn per second: shows when the view slows down" style="font:12px/1 ui-monospace,Menlo,Consolas,monospace;opacity:.7;min-width:52px;text-align:right;align-self:center">– fps</span>
           <button id="fsB" aria-pressed="false" title="Show the 3D view on the whole screen (Esc to leave)">Full screen</button>
         </div>
       </div>
@@ -553,11 +554,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
         <div class="ctrls"><button class="feed" id="pfOn" aria-pressed="true">Prefeeder on · switch off</button></div>
         <div class="speed">
           <div class="row"><label for="pfStore">Stored board</label><output id="pfStoreO">300 mm</output></div>
-          <input type="range" id="pfStore" min="100" max="400" step="10" value="300">
+          <input type="range" id="pfStore" min="100" max="580" step="10" value="300">
           <div class="row"><label for="pfBun">Bundle pushed off the stack</label><output id="pfBunO">150 mm</output></div>
-          <input type="range" id="pfBun" min="50" max="300" step="10" value="150">
+          <input type="range" id="pfBun" min="50" max="250" step="10" value="150">
           <div class="row"><span class="sub">Now</span><output id="pfStat"></output></div>
-          <div class="sub">The prefeeder keeps the G-Cut infeed stack full and stores board on its inclined belt. When the stack on the lifting bed is used up, the bed lowers, takes the next stack and lifts it again (about 25 s). Only the stored board feeds the G-Cut in that time: at 6,500 sheets/h of C flute that is about 7 mm of board per second, so too little stored board runs the infeed empty (E120). A forklift brings a new 1600 mm stack about 30 s after the waiting spot is empty. The prefeeder belt rises to 400 mm under the transfer belt, so the stored board plus the next bundle can be 400 mm at most: the next bundle only comes when it fits.</div>
+          <div class="sub">The prefeeder keeps the G-Cut infeed stack full and stores board on its inclined belt. When the stack on the lifting bed is used up, the bed lowers, takes the next stack and lifts it again (about 25 s). Only the stored board feeds the G-Cut in that time: at 6,500 sheets/h of C flute that is about 7 mm of board per second, so too little stored board runs the infeed empty (E120). A forklift brings a new 1600 mm stack about 30 s after the waiting spot is empty. The prefeeder can store 580 mm of board, so the stored board plus the next bundle can be 580 mm at most: the next bundle only comes when it fits. The biggest bundle the pusher takes is 250 mm.</div>
         </div>
       </section>
 
@@ -2093,7 +2094,7 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
    const P3=(a0,a1,f)=>{let o='';const w=(a1-a0-40)/3;for(let k=0;k<3;k++){const b0=a0+k*(w+20);o+=f(b0,b0+w);}return o;};
    front+=P3(lc-wid/2-80,lc+wid/2+80,(b0,b1)=>lslab(sF+g,sF+g+30,b0,b1,y0,y1,.8,'white')+lslab(sB-g-30,sB-g,b0,b1,y0,y1,.8,'white'));
    front+=P3(sB,sF,(b0,b1)=>lslab(b0,b1,lc+wid/2+g,lc+wid/2+g+30,y0,y1,.7,'white')+lslab(b0,b1,lc-wid/2-g-30,lc-wid/2-g,y0,y1,.7,'white'));}}
- return (GLON?LCAP.p.map(q=>q.svg).join(''):lSortSVG(LCAP.p))+back+mid+front+far;}   /* the 3D view has a depth buffer: no sorting needed */   /* belts and bodies always under the stacks, overhead parts always over them; only the frames on the far (AS) side change place with the camera side (v292) */
+ return (GLON?LCAP.p.map(q=>q.svg).join('<!--c-->')+'<!--c-->':lSortSVG(LCAP.p))+back+mid+front+far;}   /* the 3D view has a depth buffer: no sorting needed */   /* belts and bodies always under the stacks, overhead parts always over them; only the frames on the far (AS) side change place with the camera side (v292) */
 /* ---------- prefeeder (before the G-Cut infeed) ----------
    Board stack (up to 2000 mm, it has to pass under the pusher) rolls onto the lifting bed. The bed lifts the stack so the top bundle
    stands above the transfer belt, the pusher pushes it off onto the transfer belt, and the pneumatic pusher puts it on the stored board.
@@ -2111,7 +2112,7 @@ const PF_HEAD=smX(125+DIF-SLX)-50,   /* belt head (adjustable part) stops 50 mm 
 /* the prefeeder is drawn at a smaller scale about its belt head, so it matches the size of the G-Cut drawing */
 /* the prefeeder can be drawn smaller about its belt head (PF_K); it is now at true size */
 const PF_K=1;   /* true size: board of the job, stacks 1600 mm high */let LPF=false;const pfS=sm=>PF_HEAD+(sm-PF_HEAD)*PF_K,pfY=ym=>PF_HY+(ym-PF_HY)*PF_K;
-const PF_MAXST=400;   /* the prefeeder belt tail sits 400 mm under the transfer belt, so at most 400 mm of board fits under it */
+const PF_MAXST=580;   /* the prefeeder stores at most 580 mm of board (the trainer's figure, v360; 400 before); the biggest bundle pushed is 250 mm */
 const pfInc=sm=>PF_HY+(sm-PF_HEAD)*PF_TA;
 let PF={on:true,store:300,bun:150,spd:300,st:300,bed:{y:PF_TY+150-1200,h:1200},ph:'feed',t:0,wait:PF_STK,ws:PF_WC,fk:0,noStack:false,
  bd:{h:150,s:PF_TE,y:PF_TY,ph:'ready',pt:0},px:PF_PH,pn:0,run:false,acc:0,sh:0,said:false};
@@ -2684,7 +2685,10 @@ function hmiFit(){g1Fit();const w=$('hmi2').clientWidth,k=Math.max(w,720)/1000;$
  let V0=null,V1=null,vt=0;
  const plan=()=>{const P=[];const pf=LPF;for(const sm of [-1500,LCOL+1500])for(const lm of [-3400,2700])P.push([680+sm*KU,(LMID+lm)*KV]);
   LPF=true;for(const lm of [-1300,1300]){const q=[680+pfS(-12700+PFB)*KU+DI,(LMID+lm)*KV];P.push(q);}LPF=pf;
+  for(const sm of [LCOL-XT.R-200,LCOL+XT.R+XT.roll+XT.out+400])P.push([680+sm*KU,(LMID+XT_CL+XT.R+200)*KV]);   /* the exit turntable and the exit belt are in the picture too (v360) */
   for(const x of [XH-200,XE])for(const z of [ZN-30,ZF+30])P.push([x,z]);
+  if(typeof PLAT==='object'&&PLAT){P.push([PLAT.px0,PLAT.zD],[PLAT.px1,PLAT.zD],[PLAT.xN,PLAT.zW],[PLAT.xN+1000*VS,PLAT.z2],[PLAT.d0,PLAT.z2]);}   /* operator platform (v360) */
+  if(SOLID)for(const x of [XH-200,XE+1300*VS])P.push([x,DSZ(2000)]);   /* drive-side platforms and stairs (v360) */
   let x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;P.forEach(([x,z])=>{x0=Math.min(x0,x);x1=Math.max(x1,x);z0=Math.min(z0,z);z1=Math.max(z1,z);});
   const cx=(x0+x1)/2,cz=(z0+z1)/2*DZ;let R=0;P.forEach(([x,z])=>R=Math.max(R,Math.hypot(x-cx,z*DZ-cz)));
   const yT=Math.min(GT,YEX-3000*LVPX),yB=GF;return {cx,cz,P,yT,yB};};
@@ -2873,7 +2877,9 @@ const GLV=(function(){
  function pip(p,Q){let c2=false;for(let i=0,j=Q.length-1;i<Q.length;j=i++){const a=Q[i],b=Q[j];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])c2=!c2;}return c2;}
  const ATT=/([\w:-]+)="([^"]*)"/g,TAG=/<(\/?)(\w+)([^>]*?)(\/?)>/g;
  /* one element -> its triangles, lines and hole polygons; results are cached by the element text, so parts that did not change are not worked out again (v3d-2) */
- const ECACHE=new Map();
+ /* two generations: when the new one is full the old one is dropped; parts still in use move over, so nothing is worked out twice and the
+    memory stays small (before v360 the whole cache was wiped when full, which made the picture stutter more and more often) */
+ let ECACHE=new Map(),EOLD=new Map();
  function elem(tag,body,gop,od,T,Lsg,H){
    const ops=[gop];
    const A={};let am;ATT.lastIndex=0;while((am=ATT.exec(body)))A[am[1]]=am[2];
@@ -2900,7 +2906,7 @@ const GLV=(function(){
       for(const k of tri){const p=pts[k];T.push(p[0],p[1],p[2],n[0],n[1],n[2],fill[0],fill[1],fill[2],fo,od);}}}
    if(stroke&&sw>0&&so>.01)subs.forEach((P,si)=>{for(let i=0;i+1<P.length;i++)Lsg.push([P[i],P[i+1],sw,stroke,so]);if(closed[si]&&P.length>2)Lsg.push([P[P.length-1],P[0],sw,stroke,so]);});}
  function parse(str,dec2){let eo=0;const T=[],Lsg=[],H=[];
-  if(!str)return {T,L:Lsg,H};const ops=[1];let m;TAG.lastIndex=0;if(ECACHE.size>60000)ECACHE.clear();
+  if(!str)return {T,L:Lsg,H};const ops=[1];let m;TAG.lastIndex=0;if(ECACHE.size>20000){EOLD=ECACHE;ECACHE=new Map();}
   while((m=TAG.exec(str))){const close=m[1],tag=m[2],body=m[3],self=m[4];
    if(tag==='g'){if(close){if(ops.length>1)ops.pop();}else if(!self){let o=ops[ops.length-1];const a=/opacity="([^"]*)"/.exec(body);if(a)o*=+a[1];if(/display:\s*none/.test(body))o=0;ops.push(o);}continue;}
    if(close)continue;
@@ -2908,7 +2914,7 @@ const GLV=(function(){
    const gop=ops[ops.length-1];
    if(dec2){elem(tag,body,gop,eo,T,Lsg,H);continue;}   /* cover decals keep their drawing order: not cached */
    const key=gop+'|'+m[0];let c2=ECACHE.get(key);
-   if(!c2){c2={T:[],L:[],H:[]};elem(tag,body,gop,0,c2.T,c2.L,c2.H);ECACHE.set(key,c2);}
+   if(!c2){c2=EOLD.get(key);if(!c2){c2={T:[],L:[],H:[]};elem(tag,body,gop,0,c2.T,c2.L,c2.H);}ECACHE.set(key,c2);}
    for(let q=0;q<c2.T.length;q++)T.push(c2.T[q]);for(const q of c2.L)Lsg.push(q);for(const q of c2.H)H.push(q);}
   return {T,L:Lsg,H};}
  /* ---------- WebGL ---------- */
@@ -2929,18 +2935,28 @@ const GLV=(function(){
   gl=cv.getContext('webgl2',{antialias:true,stencil:true,alpha:false,preserveDrawingBuffer:true});if(!gl)return false;
   progT=prog(VS_T,FS);progL=prog(VS_L,FS);return true;}
  /* mesh per group: interleaved arrays, uploaded when the group changes */
- function build(id){const r=parse(STR[id],/^L[35]/.test(id));const mm={};
-  const T=new Float32Array(r.T);for(let i=9;i<T.length;i+=11)if(T[i]<=.985)T[i]*=.6;   /* see-through parts lighter than in the classic view: in 3D they really lie in front of what is behind them */
-  const op=[],tr=[];for(let i=0;i<T.length;i+=33){const a=T[i+9];(a>.985?op:tr).push(T.subarray(i,i+33));}
-  const cat=list=>{const o=new Float32Array(list.length*33);list.forEach((x,i)=>o.set(x,i*33));return o;};
-  mm.op=cat(op);mm.tr=cat(tr);
+ /* one drawing string -> its mesh in typed arrays */
+ function mesh(str,dec2){const r=parse(str,dec2),T=r.T,n=T.length;let no=0,nt=0;for(let i=9;i<n;i+=33){if(T[i]>.985)no++;else nt++;}
+  /* see-through parts lighter than in the classic view: in 3D they really lie in front of what is behind them */
+  const op=new Float32Array(no*33),tr=new Float32Array(nt*33);let io=0,it=0;
+  for(let i=0;i<n;i+=33){if(T[i+9]>.985){for(let k=0;k<33;k++)op[io++]=T[i+k];}else{for(let k=0;k<33;k++)tr[it++]=T[i+k];tr[it-24]*=.6;tr[it-13]*=.6;tr[it-2]*=.6;}}
   /* lines: 4 vertices per segment (this, other, side, width, colour) -> 6 indices */
-  const L=r.L,lv=new Float32Array(L.length*4*12);let j=0;
-  for(const [a,b,w,c2,al] of L){for(const [P,Q,sd] of [[a,b,1],[a,b,-1],[b,a,-1],[b,a,1]]){lv.set([P[0],P[1],P[2],Q[0],Q[1],Q[2],sd,w,c2[0],c2[1],c2[2],al],j);j+=12;}}
-  mm.l=lv;mm.nl=L.length;
+  const L=r.L,lv=new Float32Array(L.length*48);let j=0;
+  for(let q=0;q<L.length;q++){const g=L[q],a=g[0],b=g[1],w=g[2],c2=g[3],al=g[4];
+   for(let v=0;v<4;v++){const P=v<2?a:b,Q=v<2?b:a;lv[j]=P[0];lv[j+1]=P[1];lv[j+2]=P[2];lv[j+3]=Q[0];lv[j+4]=Q[1];lv[j+5]=Q[2];lv[j+6]=(v===0||v===3)?1:-1;lv[j+7]=w;lv[j+8]=c2[0];lv[j+9]=c2[1];lv[j+10]=c2[2];lv[j+11]=al;j+=12;}}
   /* hole polygons: fans of every ring (stencil even-odd) */
-  mm.h=r.H.map(({polys,col,a,od})=>{const v=[];polys.forEach(P=>{for(let i=1;i+1<P.length;i++)for(const q of [P[0],P[i],P[i+1]])v.push(q[0],q[1],q[2],0,1,0,col[0],col[1],col[2],a,od);});return new Float32Array(v);});
-  MESH[id]=mm;}
+  const h=r.H.map(({polys,col,a,od})=>{const v=[];polys.forEach(P=>{for(let i=1;i+1<P.length;i++)for(const q of [P[0],P[i],P[i+1]])v.push(q[0],q[1],q[2],0,1,0,col[0],col[1],col[2],a,od);});return new Float32Array(v);});
+  return {op,tr,l:lv,nl:L.length,h};}
+ /* a drawing made of pieces (the line: every stack, robot and frame is a piece, with SEP between them): the mesh of a piece that did not
+    change is kept, so only the pieces that move are worked out again; pieces no longer used are dropped at once (v360) */
+ const SEP='<!--c-->';let PCC=new Map(),PCO=new Map(),cgen=0;
+ function piece(s){let m=PCC.get(s);if(m)return m;m=PCO.get(s)||mesh(s,false);PCC.set(s,m);return m;}
+ const mcat=(ms,k)=>{let n=0;for(const m of ms)n+=m[k].length;const o=new Float32Array(n);let i=0;for(const m of ms){o.set(m[k],i);i+=m[k].length;}return o;};
+ function build(id){const s=STR[id]||'',dec=/^L[35]/.test(id);
+  if(dec||s.indexOf(SEP)<0){MESH[id]=mesh(s,dec);return;}
+  const ms=s.split(SEP).filter(x=>x).map(piece);if(++cgen>=3){cgen=0;PCO=PCC;PCC=new Map();}   /* short memory: a piece that stands still is used every time and stays, the others go quickly */
+  let nl=0,h=[];for(const m of ms){nl+=m.nl;if(m.h.length)h=h.concat(m.h);}
+  MESH[id]={op:mcat(ms,'op'),tr:mcat(ms,'tr'),l:mcat(ms,'l'),nl,h};}
  let lineIdx=null,lineIdxN=0;
  function idxFor(n){if(lineIdxN>=n)return;lineIdxN=Math.max(n,lineIdxN*2,1024);const a=new Uint32Array(lineIdxN*6);for(let i=0;i<lineIdxN;i++){const b=i*4;a.set([b,b+1,b+2,b,b+2,b+3],i*6);}
   if(!lineIdx)lineIdx=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,lineIdx);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,a,gl.STATIC_DRAW);}
@@ -3000,7 +3016,9 @@ const GLV=(function(){
  buildStatic=function(){if(GLON)GLV.statics(_bs);else _bs();};
  render=function(ts){if(!GLON)return _rd(ts);
   /* cinematic: the camera is redrawn every frame, the moving parts are rebuilt about 30 times a second, which halves the work per frame (v346) */
-  const now=performance.now();if(!window.CINE||now-(render.tRd||0)>=30){render.tRd=now;CAP=1;try{_rd(ts);}finally{CAP=0;}}GLV.draw();};}
+  const now=performance.now();if(!window.CINE||now-(render.tRd||0)>=30){render.tRd=now;CAP=1;try{_rd(ts);}finally{CAP=0;}}GLV.draw();
+  /* fps counter beside the Cinematic button (v360) */
+  render.fN=(render.fN||0)+1;if(now-(render.fT||0)>=500){const e=document.getElementById('fps');if(e&&render.fT)e.textContent=Math.round(render.fN*1000/(now-render.fT))+' fps';render.fT=now;render.fN=0;}};}
 /* switch between the classic view and the 3D view */
 function setGL(on){if(on&&!GLV.init()){alert('This browser has no WebGL 2, the 3D view cannot run here.');return;}
  GLON=on?1:0;const b=$('glB');if(b){b.setAttribute('aria-pressed',!!on);b.textContent='View: '+(on?'3D':'classic');}
