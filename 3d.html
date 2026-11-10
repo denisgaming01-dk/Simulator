@@ -332,12 +332,54 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 #mach .th{font-family:var(--f-label);font-weight:600;font-size:13px;fill:var(--ink)}
 #mach .ts{font-family:var(--f-body);font-size:11px;fill:var(--muted)}
 .c-gray{fill:var(--m-fill);stroke:var(--m-stroke)} .c-wood{fill:#C89A62;stroke:#7A5530} .c-red{fill:#E07070;stroke:#A84848} .c-inox{fill:#C9CED3;stroke:#7D848B} .c-white{fill:#F2F3F4;stroke:#9AA0A6} .c-steel{fill:#4A4E55;stroke:#2A2D31} .c-blue{fill:var(--mb-fill);stroke:var(--mb-stroke)} .c-purple{fill:var(--mp-fill);stroke:var(--mp-stroke)} .c-rail{fill:#7B7F84;stroke:#4E5257} .c-deck{fill:#8C8F93;stroke:#5E6266} .c-cream{fill:#E8E3D3;stroke:#A39E8E} .c-mesh{fill:#9C988D;stroke:#6E6A61} .c-dark{fill:#3A3D42;stroke:#222428} .c-ylw{fill:#F2C21B;stroke:#9C7A0A} .c-cab{fill:#DCDFE2;stroke:#8E959C} .c-grn{fill:#3FA34D;stroke:#25692F}
+/* push-button panel under the G-Cut screen (v351), after the trainer's photo */
+#gPanel{margin-top:10px;display:grid;gap:6px}
+.gpPlate{background:linear-gradient(#d9d8d3,#cfcec8);border:1px solid #a9a8a2;border-radius:6px;padding:8px 8px 4px;position:relative}
+.gpGrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.gpCell{position:relative;border:1.5px solid #3a3a3a;border-radius:9px;aspect-ratio:1/1.02;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:4px 2px 7%;min-width:0}
+.gpCell.tall{grid-row:span 2;aspect-ratio:auto;justify-content:space-around;padding:6px 2px}
+.gpCell svg.ic{width:62%;height:auto;position:absolute;top:7%;left:19%;stroke:#222;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.gpCell.tall svg.ic{position:static;width:62%;height:auto}
+.gpName{font:700 clamp(9px,1.5vw,17px)/1 "IBM Plex Sans Condensed","Arial Narrow",sans-serif;letter-spacing:.25em;color:#1c1c1c;margin:6px 2px 2px}
+.gpLbl{font:600 clamp(7px,.9vw,10px)/1.1 "IBM Plex Mono",monospace;color:#222;text-align:center}
+.gpRow{display:flex;align-items:center;justify-content:center;gap:9%;width:100%}
+/* buttons */
+.gpB{appearance:none;border:0;padding:0;cursor:pointer;border-radius:50%;width:42%;aspect-ratio:1;position:relative;
+ background:radial-gradient(circle at 50% 50%,var(--c,#eee) 0 52%,#8f9296 53% 60%,#e9eaec 61% 70%,#9a9da1 71% 100%);box-shadow:0 2px 3px rgba(0,0,0,.45)}
+.gpB::after{content:"";position:absolute;inset:22%;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.75),transparent 55%)}
+.gpB.lit{box-shadow:0 0 10px 3px var(--glow,rgba(255,255,255,.9)),0 2px 3px rgba(0,0,0,.45)}
+.gpB:active{transform:scale(.94)}
+.gpB:focus-visible,.gpSel:focus-visible,.gpE:focus-visible,.gpKey:focus-visible{outline:2px solid #1d6fd6;outline-offset:2px}
+.gpB.wht{--c:#f2f2f5}.gpB.wht.lit{--c:#fff;--glow:rgba(235,240,255,.95)}
+.gpB.red{--c:#c9201f}.gpB.red.lit{--c:#ff3b30;--glow:rgba(255,60,50,.8)}
+.gpB.grn{--c:#3c9a4c}.gpB.grn.lit{--c:#7dff8c;--glow:rgba(90,255,120,.85)}
+.gpB.blu{--c:#13379a}.gpB.blu.lit{--c:#2f6cff;--glow:rgba(60,120,255,.85)}
+.gpB.blk{--c:#1b1b1d}
+.gpB.chr{--c:#c5c8cc}
+.gpB.ring{--c:#f4f4f4;background:radial-gradient(circle at 50% 50%,#f4f4f4 0 40%,#8f9296 41% 52%,#e9eaec 53% 66%,#9a9da1 67% 100%)}
+.gpB.guard{outline:3px solid rgba(220,230,240,.75);outline-offset:3px}
+.gpLamp{width:24%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff 0 45%,#cfd3da 46% 70%,#b0b4ba 71%);opacity:.55}
+.gpLamp.on{opacity:1;box-shadow:0 0 9px 3px rgba(255,230,240,.95)}
+.gpLed{width:9%;aspect-ratio:1;border-radius:50%;background:#555;box-shadow:inset 0 0 0 1px #888}
+.gpLed.r.on{background:#ff3a30;box-shadow:0 0 6px 2px rgba(255,50,40,.8)}.gpLed.g.on{background:#7dff57;box-shadow:0 0 6px 2px rgba(110,255,80,.85)}
+/* selector switch: black knob with a white lever, turns between positions */
+.gpSel{appearance:none;border:0;padding:0;cursor:pointer;width:40%;aspect-ratio:1;border-radius:50%;position:relative;
+ background:radial-gradient(circle,#161618 0 60%,#9a9da1 61% 70%,#e3e4e6 71% 80%,#8d9094 81%);box-shadow:0 2px 3px rgba(0,0,0,.45)}
+.gpSel i{position:absolute;left:41%;top:12%;width:18%;height:76%;border-radius:4px;background:linear-gradient(#f4f4f4,#d9d9d9);transform:rotate(var(--a,0deg));transition:transform .18s}
+.gpKey{appearance:none;border:0;padding:0;cursor:pointer;width:40%;aspect-ratio:1;border-radius:50%;position:relative;background:radial-gradient(circle,#202022 0 55%,#9a9da1 56% 68%,#e3e4e6 69% 80%,#8d9094 81%)}
+.gpKey i{position:absolute;left:44%;top:18%;width:12%;height:64%;background:#c9c9c9;border-radius:2px;transform:rotate(var(--a,0deg));transition:transform .18s}
+/* emergency stop */
+.gpEs{position:absolute;top:4%;left:6%;right:6%;background:#f2d21b;color:#111;font:700 clamp(6px,.85vw,10px)/1.3 "IBM Plex Mono",monospace;text-align:center;letter-spacing:.04em}
+.gpE{appearance:none;border:0;padding:0;cursor:pointer;width:72%;aspect-ratio:1;border-radius:50%;margin-bottom:2%;
+ background:radial-gradient(circle at 50% 50%,#d81f1b 0 50%,#9e1512 51% 56%,#f2c21b 57% 100%);box-shadow:0 3px 4px rgba(0,0,0,.5)}
+.gpE.down{background:radial-gradient(circle at 50% 50%,#b71a17 0 46%,#7d100e 47% 54%,#f2c21b 55% 100%);box-shadow:0 1px 1px rgba(0,0,0,.5)}
+.gpTag{font:600 clamp(7px,.9vw,10px)/1 "IBM Plex Mono",monospace;background:#f4f4f2;border:1px solid #bbb;padding:2px 5px;position:absolute;top:8%}
 </style>
 
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v350 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v351 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -2951,4 +2993,85 @@ function setGL(on){if(on&&!GLV.init()){alert('This browser has no WebGL 2, the 3
 /* the 3D view is the main view (v307); browsers without WebGL 2 stay on the classic drawing */
 /* the 3D view is the only view since v349 (the View button is gone); a browser without WebGL 2 still falls back to the flat drawing so the page keeps working */
 try{if(GLV.init())setGL(true);}catch(e){}
+/* ===== push-button panel under the G-Cut screen (v351): copy of the real panel. The machine buttons that already exist in
+   the simulator are wired; the rest show their state and a description, and get their function as the trainer explains them */
+(function(){
+ const I={   /* line icons (24 x 24) */
+  mains:'<path d="M3 13c3-6 6-6 9 0s6 6 9 0"/>',
+  fan:'<circle cx="13" cy="12" r="6"/><path d="M13 6v12M7 12h12M7 12v6H4"/>',
+  motor:'<rect x="6" y="6" width="14" height="12" rx="1"/><path d="M2 12h4M9 6v12M12 6v12M15 6v12M18 6v12"/>',
+  lock:'<rect x="6" y="5" width="13" height="10"/><path d="M2 10h4M6 5l13 10M19 5L6 15"/><circle cx="7" cy="20" r="1.4"/><path d="M7 21.4V23M12 20h6M18 18v4"/><circle cx="20" cy="20" r="2"/>',
+  centre:'<rect x="2" y="4" width="20" height="14"/><path d="M12 4v14M5 11h4M8 10l1 1-1 1M19 11h-4M16 10l-1 1 1 1"/>',
+  feed:'<path d="M3 8h8M5 7l-2 1 2 1"/><path d="M4 11c0-1 1-2 2-2h6"/><rect x="13" y="9" width="9" height="2"/><path d="M14 9V5M14 11v3"/><circle cx="16" cy="13" r="1"/><circle cx="19" cy="13" r="1"/>',
+  rot:'<path d="M5 12a7 7 0 0 1 14 0"/><path d="M4 9l1 3 3-1M20 9l-1 3-3-1"/>',
+  pfAuto:'<path d="M8 5H19M8 5l2-1.5M8 5l2 1.5"/><circle cx="6" cy="10" r="2"/><path d="M6 8h14M6 12h10"/><path d="M8 18l2-3 2 3zM13 16h4l-1 3h-3z"/>',
+  pfBelt:'<path d="M6 7a3 3 0 0 0 0 6h14M6 7h14"/><path d="M8 18h-4M5 17l-1 1 1 1M14 18h4M17 17l1 1-1 1"/>',
+  pfBelt2:'<circle cx="6" cy="12" r="2"/><path d="M6 10h14M6 14h10"/><path d="M7 6H4M5 5l-1 1 1 1M11 6h3M13 5l1 1-1 1"/>',
+  speed:'<path d="M2 7l7-3v3z"/><path d="M12 6l-1-1M12 6l-1 1M15 6l-1-1M15 6l-1 1M18 6l-1-1M18 6l-1 1"/><circle cx="7" cy="12" r="2"/><path d="M7 10h14M7 14h10M4 19h3M17 19h4M19 17v4"/>',
+  air:'<rect x="2" y="4" width="20" height="13"/><rect x="10" y="4" width="4" height="2"/><path d="M12 6L3 17M12 6l-5 11M12 6l-1 11M12 6l3 11M12 6l6 11M12 6l9 9"/>',
+  square:'<rect x="5" y="7" width="14" height="10"/><path d="M5 5v-0M3 7h2M19 5v2M21 17h-2M5 19v-2"/><path d="M4 6l2 2M20 6l-2 2M4 18l2-2M20 18l-2-2"/>',
+  stackStop:'<path d="M3 9h5M3 11h5M3 13h5M3 15h5"/><path d="M10 16V8h11M10 16h11"/>',
+  pfLift:'<path d="M3 7v4M2 8l1-1 1 1M3 14v4M2 17l1 1 1-1"/><path d="M8 8a3 3 0 0 0 0 6h12M8 8h12M20 9v9M19 10l1-1 1 1"/>',
+  pfUp:'<circle cx="6" cy="12" r="2"/><path d="M6 10h14M6 14h10M12 6V3M11 4l1-1 1 1"/>',
+  board:'<rect x="7" y="4" width="10" height="5"/><path d="M12 8V5M11 6l1-1 1 1M5 11h14M5 13h14M5 15h14M3 18h18M5 20H2M3 19l-1 1 1 1M19 20h3M21 19l1 1-1 1"/>'};
+ const ic=k=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${I[k]}</svg>`;
+ /* cell: [icon, controls html, title] ; controls use data-k keys */
+ const sel=(k,a,lab)=>`<button class="gpSel" data-k="${k}" style="--a:${a}deg" aria-label="${lab}"><i></i></button>`;
+ const btn=(k,cls,lab)=>`<button class="gpB ${cls}" data-k="${k}" aria-label="${lab}"></button>`;
+ const top=`
+  <div class="gpCell" title="Emergency stop: stops the machine at once. Press again to pull it out, then reset."><span class="gpEs">EMERGENCY STOP</span><button class="gpE" data-k="estop" aria-label="Emergency stop"></button></div>
+  <div class="gpCell" title="Control voltage: the lamp is on while the control voltage is on. Red switches it off, white switches it on.">${ic('mains')}<div class="gpRow" style="position:absolute;top:10%;justify-content:flex-end;padding-right:12%"><span class="gpLamp on" data-k="mainsL"></span></div><div class="gpRow">${btn('mainsOff','red','Control voltage off')}${btn('mainsOn','wht lit','Control voltage on')}</div></div>
+  <div class="gpCell" title="Master reset: acknowledges the alarm after a fault or emergency stop."><span class="gpTag">master reset</span>${btn('reset','blu guard','Master reset')}</div>
+  <div class="gpCell" aria-hidden="true"></div>
+  <div class="gpCell" title="Suction fan on / off.">${ic('fan')}${btn('fan','wht lit','Suction fan')}</div>
+  <div class="gpCell tall" title="Main drive. The selector picks where the machine stops: 0° or 180°. Green starts it, the black button inches it one cycle, red STOP stops it.">${ic('motor')}
+    <div class="gpRow"><span class="gpLbl">0°</span><span class="gpLbl">180°</span></div>
+    <div class="gpRow">${sel('stopPos',-40,'Stop position 0° or 180°')}${btn('run','grn','Start')}</div>
+    <div class="gpRow" style="flex-direction:column;gap:2px">${btn('jog','blk','Jog one cycle')}<span class="gpLbl">STOP</span>${btn('stop','red lit','Stop')}</div></div>
+  <div class="gpCell" title="Drive lock: key switch that locks the main drive for work inside the machine.">${ic('lock')}<button class="gpKey" data-k="lock" aria-label="Drive lock key"><i></i></button></div>
+  <div class="gpCell" aria-hidden="true"></div>
+  <div class="gpCell" aria-hidden="true"></div>
+  <div class="gpCell" title="Centre the side lays (side guides) to the sheet size.">${ic('centre')}${btn('centre','blu','Centre side guides')}</div>
+  <div class="gpCell" title="Feeder 0 / 1: feeding sheets into the machine off or on.">${ic('feed')}<div class="gpRow"><span class="gpLbl">0</span><span class="gpLbl">1</span></div><div class="gpRow"><span class="gpLed r" data-k="feedR"></span>${sel('feed',40,'Feeder off or on')}<span class="gpLed g" data-k="feedG"></span></div></div>`;
+ const pre=`
+  <div class="gpCell" title="Prefeeder automatic on / off.">${ic('pfAuto')}${btn('pfAuto','wht lit','Prefeeder automatic')}</div>
+  <div class="gpCell" title="Prefeeder belt back / forward (hold).">${ic('pfBelt')}${sel('pfBelt',0,'Prefeeder belt back or forward')}</div>
+  <div class="gpCell" title="Prefeeder transfer belt back / forward (hold).">${ic('pfBelt2')}${sel('pfBelt2',0,'Transfer belt back or forward')}</div>
+  <div class="gpCell" title="Prefeeder speed − / +.">${ic('speed')}${sel('pfSpd',0,'Prefeeder speed minus or plus')}</div>
+  <div class="gpCell" title="Air (blowers) on / off.">${ic('air')}${btn('air','chr','Air')}</div>
+  <div class="gpCell" title="Squaring (side and back joggers) on / off.">${ic('square')}${btn('square','wht lit','Squaring')}</div>
+  <div class="gpCell" title="Stack stop.">${ic('stackStop')}${btn('stackStop','wht lit','Stack stop')}</div>
+  <div class="gpCell" title="Prefeeder lift down / up (hold).">${ic('pfLift')}${sel('pfLift',0,'Prefeeder lift down or up')}</div>
+  <div class="gpCell" title="Raise the transfer.">${ic('pfUp')}${btn('pfUp','ring','Raise')}</div>
+  <div class="gpCell" aria-hidden="true"></div>
+  <div class="gpCell" title="Prefeeder drive lock.">${ic('lock')}${btn('pfLock','chr','Prefeeder drive lock')}</div>
+  <div class="gpCell" title="Push the board stack out sideways.">${ic('board')}${btn('pfPush','ring','Push the stack out')}</div>`;
+ const host=document.getElementById('g1Wrap');if(!host)return;
+ const d=document.createElement('div');d.id='gPanel';d.setAttribute('aria-label','Push-button panel');
+ d.innerHTML=`<div class="gpPlate"><div class="gpGrid">${top}</div><div class="gpName">G-CUT</div></div><div class="gpPlate"><div class="gpGrid">${pre}</div><div class="gpName">PREFEEDER</div></div>`;
+ host.insertAdjacentElement('afterend',d);
+ const q=k=>d.querySelector(`[data-k="${k}"]`),click=id=>{const b=document.getElementById(id);if(b)b.click();};
+ const say=t=>{try{hint(t);}catch(e){}};
+ let stop180=false;
+ d.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;
+  switch(k){
+   case 'estop':if(b.classList.toggle('down'))click('bE');else say('Emergency stop pulled out. Press master reset.');break;
+   case 'reset':if(q('estop').classList.contains('down')){say('Pull the emergency stop out first.');break;}click('bReset');break;
+   case 'run':if(q('estop').classList.contains('down')){say('Emergency stop is pressed.');break;}click('bStart');break;
+   case 'stop':click(stop180?'bStop180':'bStop');break;
+   case 'jog':click('bJog');break;
+   case 'stopPos':stop180=!stop180;b.style.setProperty('--a',stop180?'40deg':'-40deg');say('Machine stops at '+(stop180?'180°':'0°')+'.');break;
+   case 'feed':click('bFeed');break;
+   case 'lock':{const on=b.classList.toggle('on');b.querySelector('i').style.setProperty('--a',on?'90deg':'0deg');say(on?'Drive locked (key turned).':'Drive unlocked.');break;}
+   default:
+    if(b.classList.contains('gpSel')){const a=parseFloat(getComputedStyle(b).getPropertyValue('--a'))||0;const n=a<0?0:a>0?-40:40;b.style.setProperty('--a',n+'deg');}
+    else if(/wht|chr|ring|blu/.test(b.className)&&k!=='centre')b.classList.toggle('lit');
+    say((b.closest('.gpCell').title||'').split('.')[0]+' – not simulated yet.');}});
+ /* lamps follow the machine */
+ setInterval(()=>{try{const m=typeof mode!=='undefined'?mode:'stop';q('run').classList.toggle('lit',m==='run');q('stop').classList.toggle('lit',m!=='run');
+  q('reset').classList.toggle('lit',m==='fault'||m==='estop');const fo=typeof feederOff!=='undefined'&&feederOff;
+  q('feedR').classList.toggle('on',fo);q('feedG').classList.toggle('on',!fo);q('feed').style.setProperty('--a',fo?'-40deg':'40deg');
+  if(m!=='estop'&&q('estop').classList.contains('down')&&m==='run')q('estop').classList.remove('down');}catch(e){}},250);
+})();
+
 </script>
