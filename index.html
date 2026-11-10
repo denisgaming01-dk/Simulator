@@ -380,7 +380,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v354 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v355 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -3026,7 +3026,7 @@ try{if(GLV.init())setGL(true);}catch(e){}
   <div class="gpCell" title="Master reset: acknowledges the alarm after a fault or emergency stop."><span class="gpTag">master reset</span>${btn('reset','blu guard','Master reset')}</div>
   <div class="gpCell" aria-hidden="true"></div>
   <div class="gpCell" title="Infeed suction on / off. The lamp is lit while the suction is on. Without suction no sheets are fed.">${ic('fan')}${btn('fan','wht lit','Suction fan')}</div>
-  <div class="gpCell tall" title="Main drive. Green starts the machine and is lit while it runs. Hold the black button to jog the machine slowly (250 sheets/h); let go and it stops. Red STOP stops the main motor and the machine; it glows while the motor runs. Selector: left stops at 0°, right at 180°.">${ic('motor')}
+  <div class="gpCell tall" title="Main drive. Green starts the machine and is lit while it runs. Hold the black button to jog the machine slowly (250 sheets/h); let go and it stops. Red STOP is an instant stop: the machine stops where it is and the main motor shuts down; it glows while the motor runs. Selector: left stops at 0°, right at 180°.">${ic('motor')}
     <div class="gpRow" style="display:grid;grid-template-columns:1fr 1fr;gap:6%"><div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span class="gpLbl">0°</span>${sel('stopPos',0,'Stop at 0° (turn left) or 180° (turn right)').replace('class="gpSel"','class="gpSel" style="width:84%;--a:0deg"')}</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span class="gpLbl">180°</span>${btn('run','grn','Start').replace('class="gpB grn"','class="gpB grn" style="width:84%"')}</div></div>
     <div class="gpRow" style="flex-direction:column;gap:2px"><span class="gpJog"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3.5 22A17 17 0 0 1 20 3"/><path d="M0.8 18.6l2.7 3.6 3.4-3"/><path d="M36.5 18A17 17 0 0 1 20 37"/><path d="M39.2 21.4l-2.7-3.6-3.4 3"/></svg>${btn('jog','blk','Jog one cycle')}</span><span class="gpLbl">STOP</span>${btn('stop','red lit','Stop')}</div></div>
   <div class="gpCell" title="Drive lock: key switch that locks the main drive for work inside the machine.">${ic('lock')}<button class="gpKey" data-k="lock" aria-label="Drive lock key"><i></i></button></div>
@@ -3067,7 +3067,9 @@ try{if(GLV.init())setGL(true);}catch(e){}
    case 'estop':if(b.classList.toggle('down'))click('bE');else say('Emergency stop pulled out. Press master reset.');break;
    case 'reset':if(q('estop').classList.contains('down')){say('Pull the emergency stop out first.');break;}click('bReset');break;
    case 'run':if(q('estop').classList.contains('down')){say('Emergency stop is pressed.');break;}click('bStart');break;
-   case 'stop':click(stop180?'bStop180':'bStop');break;
+   case 'stop':   /* instant stop: the machine stops where it is and the main motor shuts down (v355) */
+    if(mode!=='run'){say('Main motor is off.');break;}
+    mode='stop';jog=false;stopAt=null;stop180=false;stopReq=null;vAct=VMIN;feedStopAuto('instant stop');log('Instant stop: machine stopped where it was, main motor off','f');say('Instant stop: main motor off. Start again with the green button.');ui();break;
    case 'jog':break;   /* hold to jog, see pointer handlers */
    case 'fan':SUCTION=!SUCTION;b.classList.toggle('lit',SUCTION);if(!SUCTION&&!feederOff){setFeed(true);log('Infeed suction off: feeder stopped');}else log(SUCTION?'Infeed suction on':'Infeed suction off');say(SUCTION?'Infeed suction on.':'Infeed suction off: no sheets can be fed.');break;
    /* selectors stand in the middle; click the left or right half to turn them that way, they spring back (v353) */
