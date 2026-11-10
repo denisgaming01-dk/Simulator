@@ -337,7 +337,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v349 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v350 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1460,7 +1460,20 @@ function updBounds(){try{const bb=$('world').getBBox();if(!(bb.width>0&&bb.heigh
  BY0=Math.min(-140+Math.min(0,camDy),bb.y-m);BY1=Math.max(720+Math.max(0,camDy),bb.y+bb.height+m);}catch(e){}}
 function clampVB(v){const w=Math.max(40,Math.min(BX1-BX0,v[2])),h=w*AR;const x=Math.max(BX0,Math.min(BX1-w,v[0]));const y=h>=BY1-BY0?(BY0+BY1)/2-h/2:Math.max(BY0,Math.min(BY1-h,v[1]));return[x,y,w,h];}
 function zoomTo(t){const from=[...vb],to=clampVB(t),t0=performance.now(),dur=matchMedia('(prefers-reduced-motion: reduce)').matches?1:450;tw={from,to,t0,dur};}
-function pick(name){document.querySelectorAll('#zoomBtns button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.z===name?'true':'false'));if(name){const z=Z[name];let cx=z[0]+z[2]/2,cy=z[1]+z[3]/2+camDy;if(YAW){const X=680-cx,yy=(cy-B+32*s)/c,q=PJ(X,yy,32);cx=680-q[0];cy=q[1];}zoomTo([cx-z[2]/2,cy-z[3]/2,z[2],z[3]]);const[h,pp,tags]=INFO[name];$('infoH').textContent=h;$('infoP').textContent=pp;$('infoT').innerHTML='';tags.forEach(t=>{const s=document.createElement('span');s.className='tag';s.textContent=t;$('infoT').appendChild(s);});}}
+/* camera presets (v350): each preset is a box in the 3D world (the old classic screen rectangle turned back into world
+   coordinates); its corners are projected with the current tilt and turn and the view is fitted round them with a margin */
+function frameZ(name){const U1=PNL_U1,m=name==='overview'||name==='line'?.03:.06;
+ /* machine presets: [x0,x1] along the machine in world units, full height from the roof to the floor, both panel sides */
+ const M={overview:[XH-40,XE+120],infeed:[XH-40,XE-U1[5]+15],die:[XE-U1[5]-15,XE-U1[4]+15],layout:[XE-U1[5]-15,XE-U1[4]+15],strip:[XE-U1[4]-15,XE-U1[2]+15],delivery:[XE-U1[2]-15,XE+120],pref:[-1110,XH+20]};
+ /* line presets: [s0,s1] along the line in mm, and how far across it the frame reaches */
+ const xo=XT.R+XT.roll+XT.out,Lx={line:[-1200,LCOL+xo,-LHW-1800,XT_CL+XT.R],seps:[LC.belt1-1200,LC.tt1+1600,-LHW-1800,LHW+600],finish:[LC.tt1-1200,LC.press+1600,-LHW-1800,LHW+600],pal:[LC.press-1200,LCOL+xo,-LHW-1800,XT_CL+XT.R]};
+ const P=[],ox=XOF;XOF=0;
+ if(M[name]){const [a,b]=M[name];for(const X of [a,b])for(const Y of [GT-6,GF])for(const Zz of [ZOP-20,ZDS+20])P.push(PJ(X,Y,Zz));}
+ else if(Lx[name]){const [a,b,l0,l1]=Lx[name];for(const S of [a,b])for(const Y of [LGND,2700])for(const L of [l0,l1])P.push(lpt(S,Y,L));}
+ else{const z=Z[name],c0=Math.cos(35*D2R),s0=Math.sin(35*D2R);for(const X of [680-z[0]-z[2],680-z[0]])for(const sy of [z[1],z[1]+z[3]])for(const Zz of [ZOP,ZDS])P.push(PJ(X,(sy-B+32*s0)/c0,Zz));}
+ XOF=ox;let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;P.forEach(q=>{const sx=680-q[0];x0=Math.min(x0,sx);x1=Math.max(x1,sx);y0=Math.min(y0,q[1]);y1=Math.max(y1,q[1]);});
+ let w=(x1-x0)*(1+2*m),h=(y1-y0)*(1+2*m);if(h>w*AR)w=h/AR;h=w*AR;return [(x0+x1)/2-w/2,(y0+y1)/2-h/2,w,h];}
+function pick(name){document.querySelectorAll('#zoomBtns button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.z===name?'true':'false'));if(name){zoomTo(frameZ(name));const[h,pp,tags]=INFO[name];$('infoH').textContent=h;$('infoP').textContent=pp;$('infoT').innerHTML='';tags.forEach(t=>{const s=document.createElement('span');s.className='tag';s.textContent=t;$('infoT').appendChild(s);});}}
 document.querySelectorAll('#zoomBtns button').forEach(b=>b.onclick=()=>pick(b.dataset.z));
 let layAlways=false;document.querySelectorAll('#layBtns button').forEach(b=>b.onclick=()=>{layAlways=b.dataset.l==='always';document.querySelectorAll('#layBtns button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));render(performance.now());});
 function zoomBy(f,px=.5,py=.5){tw=null;const w=vb[2]*f,h=w*AR;vb=clampVB([vb[0]+(vb[2]-w)*px,vb[1]+(vb[3]-h)*py,w,h]);setVB();document.querySelectorAll('#zoomBtns button').forEach(b=>b.setAttribute('aria-pressed','false'));}
@@ -1543,13 +1556,14 @@ let lXT={ph:'idle',a:0,t:0,its:[],sh:[]};
    of the rotation press as round tubes, and the exit turntable's rollers, pedestal, round plate and exit belt */
 function xtStatic(){const cs=LCOL,cl=XT_CL,R=XT.R,yb=LPB;let o='';
  for(let k=0;k<4;k++){const ll=LHW+25+k*50;o+=lslab(cs-640,cs+640,ll-18,ll+18,yb-36,yb-2,1,'steel');}   /* transfer rollers from the stacking belt */
- o+=lslab(cs-300,cs+300,cl-300,cl+300,LGND,yb-60,1,'gph');   /* pedestal */
+ {const N=40,Rb=R-120,P=(i,y)=>lstr(lpt(cs+Rb*Math.cos(i/N*2*Math.PI),y,cl+Rb*Math.sin(i/N*2*Math.PI)));   /* round base from the floor up to the plate, like the frames under the palletizer belts (v350) */
+  for(let i=0;i<N;i++)o+=`<path d="M${P(i,LGND)} L${P(i+1,LGND)} L${P(i+1,yb-60)} L${P(i,yb-60)} Z" fill="var(--m-fill)" stroke="var(--m-stroke)" stroke-width=".3"/>`;}
  {const N=48,P=(i,y)=>lstr(lpt(cs+R*Math.cos(i/N*2*Math.PI),y,cl+R*Math.sin(i/N*2*Math.PI)));let d='';
   for(let i=0;i<N;i++)o+=`<path d="M${P(i,yb-60)} L${P(i+1,yb-60)} L${P(i+1,yb-14)} L${P(i,yb-14)} Z" fill="#B9BCC0" stroke="#9A9EA3" stroke-width=".3"/>`;
   for(let i=0;i<=N;i++)d+=(i?' L':'M')+P(i,yb-14);o+=`<path d="${d} Z" fill="#CDD0D3" stroke="var(--m-stroke)" stroke-width=".5"/>`;}   /* the round plate */
  const e0=cs+R+XT.roll,e1=e0+XT.out;
  for(let k=0;k<4;k++){const ss=cs+R+25+k*50;o+=lslab(ss-18,ss+18,cl-640,cl+640,yb-36,yb-2,1,'steel');}   /* rollers onto the exit belt */
- for(const ss of [e0+80,e1-80])for(const ll of [cl-560,cl+560])o+=lslab(ss-35,ss+35,ll-35,ll+35,LGND,yb-15,1,'gph');
+ o+=lslab(e0,e1,cl-670,cl+670,LGND,yb-15);   /* closed frame under the exit belt, like the palletizer belts (v350) */
  o+=lslab(e0,e1,cl-650,cl+650,yb-15,yb,1,'blue')+lslab(e0,e1,cl-650,cl-620,yb-14,yb+1,1,'yel')+lslab(e0,e1,cl+620,cl+650,yb-14,yb+1,1,'yel');   /* exit belt */
  return o;}
 function lStatGL(){if(!CAP||typeof LC==='undefined')return '';let o='';
