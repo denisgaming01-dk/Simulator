@@ -380,7 +380,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v356 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v357 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -2060,8 +2060,8 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
      front+=lbox(W({s:b0,l:0,y:y0+275,du:18,dv:LHW,h:36,top:'#4A4B4E',side:'#3A3B3E',stroke:'#2A2B2E',sw:.3}));}});
  /* align table: front plate, side guides, interleave robot */
  {const S=st.align,cc=LC.align,gd=S.gd||0,pl=S.pl||0,bi=S.its;const be=bi.length?lExt(bi):null,ac=be?be.wid/2:540,lc=be?(be.l0+be.l1)/2:0;
-   const ph=300*(1-pl);front+=lslab(cc+HS("align"),cc+HS("align")+40,-LHW+50,LHW-50,ph-300,ph,.95);
-   const gap=lerp(160,0,gd);front+=lslab(cc-HS("align")+100,cc+HS("align")-100,lc+ac+gap,lc+ac+gap+30,0,180,.4)+lslab(cc-HS("align")+100,cc+HS("align")-100,lc-ac-gap-30,lc-ac-gap,0,180,.4);
+   const ph=450*(1-pl);front+=lslab(cc+HS("align"),cc+HS("align")+40,-LHW+50,LHW-50,ph-450,ph,.95,'gph');   /* front plate 450 high (measured, v357) */
+   const gap=lerp(160,0,gd);front+=lslab(cc-850,cc+850,lc+ac+gap,lc+ac+gap+30,0,450,.95,'gph')+lslab(cc-850,cc+850,lc-ac-gap-30,lc-ac-gap,0,450,.95,'gph');   /* side align plates 1700 long and 450 high, black (measured, v357) */
    const tops=bi.length?Math.max(...bi.map(q=>q.y+q.h))+6:200;lGrp(()=>lRobot(cc,-LHW-1150,lc,S.rb,tops,0));}
  /* bottom-sheet robot over the ready spot */
  lGrp(()=>lRobotS(LREADY,LSTORE,LCOL,lBot.rb,LPB+6,LPB-20));

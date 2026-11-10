@@ -206,6 +206,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v354: Panel buttons wired as on the machine: white button switches the infeed suction on/off (lamp lit while on; with it off no sheets are fed). Infeed selector: left to 0 stops feeding and stays there, red lamp lit, the infeed cannot be started; flick right to 1 to start feeding (green lamp). Green button starts the machine and is lit while it runs. Black button: hold to jog at 250 sheets/h, let go and the machine stops where it is. Red STOP stops the main motor and the machine and glows while the motor runs.
   v355: Panel red STOP is an instant stop: the machine stops where it is (no slow-down), the main motor shuts down and the feeder stops; start again with the green button.
   v356: Main motor: after an instant stop or an emergency stop the motor is off. The first press of start (green, also the side Start button) or jog spins it up for 5 s with the red STOP lamp blinking; when the lamp is solid, the next press starts or jogs the machine. The red lamp is solid whenever the motor runs.
+  v357: Align table plates measured: the two side align plates are 1700 long and 450 high, the front plate is 450 high; all three drawn black.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
