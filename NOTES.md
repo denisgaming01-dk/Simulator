@@ -208,6 +208,7 @@ and the downstream separator / palletizer line (Corrpal-style). Built by the tra
   v356: Main motor: after an instant stop or an emergency stop the motor is off. The first press of start (green, also the side Start button) or jog spins it up for 5 s with the red STOP lamp blinking; when the lamp is solid, the next press starts or jogs the machine. The red lamp is solid whenever the motor runs.
   v357: Align table plates measured: the two side align plates are 1700 long and 450 high, the front plate is 450 high; all three drawn black.
   v358: Tray 3P 590 is the job that opens by default, with the trainer's own settings built in (G-Cut 6500 sheets/h, prefeeder on, line speed 66 %, turntable 2 at 90°, palletizer align 880 x 1180, extra alignment after layers 3/5/7, 500 x 500 boards after layers 3/5/6, 2.5 s press time). A job saved in a browser still takes priority; Reset in the job screen now goes back to these settings.
+  v359: After the exit turntable the pallet drives onto the middle of the exit belt and stays there 45 s, then drives off and disappears. The turntable turns back meanwhile, but only drives the next pallet out once the exit belt is clear.
 
 ## Line (order and sizes)
 Order: transfer belt 1 → transfer belt 2 → separator 1 → turntable 1 → separator 2 → shift belt → turntable 2 → align table → rotation drum → palletizer.
