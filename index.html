@@ -380,7 +380,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v353 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v354 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1172,6 +1172,7 @@ let STACK=JOB.batch,THK=2.7;const PXMM=VS,MAXH=398;
 let bedMan=0;   /* operator's manual correction of the lifting belt (px), kept until the stack change */
 let GAPN=1,gapDone=false,gapLeft=0,sCount=0,bCount=0,chg=null,bedCur=YEX-565*VS+3;const BED0=YEX-565*VS,FS=BED0-200*VS,FL=BED0,   /* small forks 200 mm above the big forks */   /* lifting belt top position 565 mm above the exit belts; at 0 it is level with them */SMAX=5,BSTEP=5;
 let count=0,outs=[],nout=0,total=0,removedN=0,faultN=0,cycles0=100;
+let FEEDLOCK=false,SUCTION=true;   /* panel: feeder selector held at 0, infeed suction on (v354) */
 let feederOff=false,belt=[],wbelt=[],segs=[],alarm=null,blockPile=false;const det={};
 const F={};
 const seg=(a,b)=>Math.min(1,Math.max(0,(p-a)/(b-a)));
@@ -1442,7 +1443,7 @@ $('bJog').onclick=()=>{if(mode==='fault'||mode==='estop'){hint('Reset the alarm 
 $('bE').onclick=()=>{if(mode==='estop')return;mode='estop';stopAt=null;stop180=false;stopReq=null;jog=false;feedStopAuto('emergency stop');alarm={sensors:[]};log('Emergency stop pressed','f');ui();};
 function setFeed(off){feederOff=off;const b=$('bFeed');b.setAttribute('aria-pressed',!off);b.textContent=off?'Feeder off · start feeding':'Feeder on · stop feeding';}
 function feedStopAuto(why){infStandby=false;if(feederOff)return;setFeed(true);log('Feeder stopped ('+why+'). Switch the feeder on again after start.');}
-$('bFeed').onclick=e=>{if(lineWait&&feederOff){hint('Infeed locked: the line is full. It unlocks when the stack can drive out.');return;}if(exitBlk&&feederOff){hint('Infeed locked: the exit belt is blocked. Clear it and reset the alarm first.');return;}if(infStandby&&!feederOff){hint(`Feeder in standby. It starts again once the stack is above ${INF_OK} mm.`);return;}setFeed(!feederOff);log(feederOff?'Feeder stopped, machine runs empty':'Feeder started',feederOff?'':'ok');hint(feederOff?'No new sheets. The sheets in the machine run out, then it runs empty.':'Feeding again from the next cycle.');};
+$('bFeed').onclick=e=>{if(feederOff&&FEEDLOCK){hint('Feeder selector is at 0: turn it to 1 (right) to start feeding.');return;}if(feederOff&&!SUCTION){hint('Infeed suction is off: switch it on with the white button first.');return;}if(lineWait&&feederOff){hint('Infeed locked: the line is full. It unlocks when the stack can drive out.');return;}if(exitBlk&&feederOff){hint('Infeed locked: the exit belt is blocked. Clear it and reset the alarm first.');return;}if(infStandby&&!feederOff){hint(`Feeder in standby. It starts again once the stack is above ${INF_OK} mm.`);return;}setFeed(!feederOff);log(feederOff?'Feeder stopped, machine runs empty':'Feeder started',feederOff?'':'ok');hint(feederOff?'No new sheets. The sheets in the machine run out, then it runs empty.':'Feeding again from the next cycle.');};
 function reset(){
  if(lineFault&&mode!=='fault'&&mode!=='estop'){lineReset();hint('Line fault cleared.');return;}
  if((infStandby||(noRefill&&infH<=INF_MIN))&&!exitBlk&&!loading&&mode!=='fault'&&mode!=='estop'){noRefill=false;
@@ -3024,15 +3025,15 @@ try{if(GLV.init())setGL(true);}catch(e){}
   <div class="gpCell" title="Control voltage: the lamp is on while the control voltage is on. Red switches it off, white switches it on.">${ic('mains')}<div class="gpRow" style="position:absolute;top:10%;justify-content:flex-end;padding-right:12%"><span class="gpLamp on" data-k="mainsL"></span></div><div class="gpRow">${btn('mainsOff','red','Control voltage off')}${btn('mainsOn','wht lit','Control voltage on')}</div></div>
   <div class="gpCell" title="Master reset: acknowledges the alarm after a fault or emergency stop."><span class="gpTag">master reset</span>${btn('reset','blu guard','Master reset')}</div>
   <div class="gpCell" aria-hidden="true"></div>
-  <div class="gpCell" title="Suction fan on / off.">${ic('fan')}${btn('fan','wht lit','Suction fan')}</div>
-  <div class="gpCell tall" title="Main drive. Turn the selector left to stop at 0°, right to stop at 180°. Green starts the machine, the black button inches it one cycle, red STOP stops it.">${ic('motor')}
+  <div class="gpCell" title="Infeed suction on / off. The lamp is lit while the suction is on. Without suction no sheets are fed.">${ic('fan')}${btn('fan','wht lit','Suction fan')}</div>
+  <div class="gpCell tall" title="Main drive. Green starts the machine and is lit while it runs. Hold the black button to jog the machine slowly (250 sheets/h); let go and it stops. Red STOP stops the main motor and the machine; it glows while the motor runs. Selector: left stops at 0°, right at 180°.">${ic('motor')}
     <div class="gpRow" style="display:grid;grid-template-columns:1fr 1fr;gap:6%"><div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span class="gpLbl">0°</span>${sel('stopPos',0,'Stop at 0° (turn left) or 180° (turn right)').replace('class="gpSel"','class="gpSel" style="width:84%;--a:0deg"')}</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span class="gpLbl">180°</span>${btn('run','grn','Start').replace('class="gpB grn"','class="gpB grn" style="width:84%"')}</div></div>
     <div class="gpRow" style="flex-direction:column;gap:2px"><span class="gpJog"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3.5 22A17 17 0 0 1 20 3"/><path d="M0.8 18.6l2.7 3.6 3.4-3"/><path d="M36.5 18A17 17 0 0 1 20 37"/><path d="M39.2 21.4l-2.7-3.6-3.4 3"/></svg>${btn('jog','blk','Jog one cycle')}</span><span class="gpLbl">STOP</span>${btn('stop','red lit','Stop')}</div></div>
   <div class="gpCell" title="Drive lock: key switch that locks the main drive for work inside the machine.">${ic('lock')}<button class="gpKey" data-k="lock" aria-label="Drive lock key"><i></i></button></div>
   <div class="gpCell" aria-hidden="true"></div>
   <div class="gpCell" aria-hidden="true"></div>
   <div class="gpCell" title="Centre the side lays (side guides) to the sheet size.">${ic('centre')}${btn('centre','blu','Centre side guides')}</div>
-  <div class="gpCell" title="Feeder: turn left (0) to stop feeding sheets, right (1) to feed again.">${ic('feed')}<div class="gpRow"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;width:12%"><span class="gpLbl">0</span><span class="gpLed r" data-k="feedR" style="width:70%"></span></span>${sel('feed',0,'Feeder off (turn left) or on (turn right)')}<span style="display:flex;flex-direction:column;align-items:center;gap:3px;width:12%"><span class="gpLbl">1</span><span class="gpLed g" data-k="feedG" style="width:70%"></span></span></div></div>`;
+  <div class="gpCell" title="Infeed: turn left to 0 to stop feeding; it stays at 0, the red lamp lights and the infeed cannot be started. Flick it right to 1 to start feeding (green lamp).">${ic('feed')}<div class="gpRow"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;width:12%"><span class="gpLbl">0</span><span class="gpLed r" data-k="feedR" style="width:70%"></span></span>${sel('feed',0,'Feeder off (turn left) or on (turn right)')}<span style="display:flex;flex-direction:column;align-items:center;gap:3px;width:12%"><span class="gpLbl">1</span><span class="gpLed g" data-k="feedG" style="width:70%"></span></span></div></div>`;
  const pre=`
   <div class="gpCell" title="Prefeeder automatic on / off.">${ic('pfAuto')}${btn('pfAuto','wht lit','Prefeeder automatic')}</div>
   <div class="gpCell" title="Prefeeder belt back / forward (hold).">${ic('pfBelt')}${sel('pfBelt',0,'Prefeeder belt back or forward')}</div>
@@ -3057,7 +3058,9 @@ try{if(GLV.init())setGL(true);}catch(e){}
   if(b.classList.contains('gpSel')){const r=b.getBoundingClientRect(),left=(e.clientX||r.left+r.width/2)<r.left+r.width/2;
    b.style.setProperty('--a',left?'-45deg':'45deg');clearTimeout(b._t);b._t=setTimeout(()=>b.style.setProperty('--a','0deg'),700);
    if(k==='stopPos')click(left?'bStop':'bStop180');
-   else if(k==='feed'){const fo=typeof feederOff!=='undefined'&&feederOff;if(left!==fo)click('bFeed');else say(left?'Feeder is already off.':'Feeder is already on.');}
+   else if(k==='feed'){clearTimeout(b._t);
+    if(left){b.style.setProperty('--a','-45deg');if(!FEEDLOCK){FEEDLOCK=true;if(!feederOff){setFeed(true);log('Infeed selector at 0: feeder stopped and locked');}else log('Infeed selector at 0: feeder locked');say('Infeed at 0: no feeding until it is switched to 1.');}}
+    else{b._t=setTimeout(()=>b.style.setProperty('--a','0deg'),500);FEEDLOCK=false;if(feederOff)click('bFeed');else say('Infeed already running.');}}
    else say((b.closest('.gpCell').title||'').split('.')[0]+' ('+(left?'left':'right')+') – not simulated yet.');
    return;}
   switch(k){
@@ -3065,7 +3068,8 @@ try{if(GLV.init())setGL(true);}catch(e){}
    case 'reset':if(q('estop').classList.contains('down')){say('Pull the emergency stop out first.');break;}click('bReset');break;
    case 'run':if(q('estop').classList.contains('down')){say('Emergency stop is pressed.');break;}click('bStart');break;
    case 'stop':click(stop180?'bStop180':'bStop');break;
-   case 'jog':click('bJog');break;
+   case 'jog':break;   /* hold to jog, see pointer handlers */
+   case 'fan':SUCTION=!SUCTION;b.classList.toggle('lit',SUCTION);if(!SUCTION&&!feederOff){setFeed(true);log('Infeed suction off: feeder stopped');}else log(SUCTION?'Infeed suction on':'Infeed suction off');say(SUCTION?'Infeed suction on.':'Infeed suction off: no sheets can be fed.');break;
    /* selectors stand in the middle; click the left or right half to turn them that way, they spring back (v353) */
    case 'stopPos':case 'feed':break;
    case 'lock':{const on=b.classList.toggle('on');b.querySelector('i').style.setProperty('--a',on?'90deg':'0deg');say(on?'Drive locked (key turned).':'Drive unlocked.');break;}
@@ -3073,10 +3077,17 @@ try{if(GLV.init())setGL(true);}catch(e){}
     if(b.classList.contains('gpSel'))break;
     else if(/wht|chr|ring|blu/.test(b.className)&&k!=='centre')b.classList.toggle('lit');
     say((b.closest('.gpCell').title||'').split('.')[0]+' – not simulated yet.');}});
+ /* jog: hold the black button and the machine turns slowly at 250 sheets/h, let go and it stops where it is (v354) */
+ {const jb=q('jog');let held=false;
+  const down=e=>{e.preventDefault();if(mode==='fault'||mode==='estop'){say('Reset the alarm first.');return;}if(mode==='run'&&!jog){say('Stop the machine first, then jog.');return;}
+   held=true;jb.classList.add('lit');stop180=false;stopReq=null;stopAt=null;mode='run';jog=true;vAct=VMIN;log('Jog: machine turning at 250 sheets/h while the button is held');ui();};
+  const up=()=>{if(!held)return;held=false;jb.classList.remove('lit');if(mode==='run'&&jog){mode='stop';jog=false;stopAt=null;log('Jog released: machine stopped');ui();}};
+  jb.addEventListener('pointerdown',down);['pointerup','pointerleave','pointercancel'].forEach(t=>jb.addEventListener(t,up));
+  jb.addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&!e.repeat)down(e);});jb.addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter')up();});}
  /* lamps follow the machine */
- setInterval(()=>{try{const m=typeof mode!=='undefined'?mode:'stop';q('run').classList.toggle('lit',m==='run');q('stop').classList.toggle('lit',m!=='run');
+ setInterval(()=>{try{const m=typeof mode!=='undefined'?mode:'stop';q('run').classList.toggle('lit',m==='run');q('stop').classList.toggle('lit',m==='run');   /* red STOP glows while the main motor runs */
   q('reset').classList.toggle('lit',m==='fault'||m==='estop');const fo=typeof feederOff!=='undefined'&&feederOff;
-  q('feedR').classList.toggle('on',fo);q('feedG').classList.toggle('on',!fo);
+  q('feedR').classList.toggle('on',FEEDLOCK);q('feedG').classList.toggle('on',!fo);q('fan').classList.toggle('lit',SUCTION);
   if(m!=='estop'&&q('estop').classList.contains('down')&&m==='run')q('estop').classList.remove('down');}catch(e){}},250);
 })();
 
