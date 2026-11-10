@@ -380,7 +380,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v352 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v353 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -3025,14 +3025,14 @@ try{if(GLV.init())setGL(true);}catch(e){}
   <div class="gpCell" title="Master reset: acknowledges the alarm after a fault or emergency stop."><span class="gpTag">master reset</span>${btn('reset','blu guard','Master reset')}</div>
   <div class="gpCell" aria-hidden="true"></div>
   <div class="gpCell" title="Suction fan on / off.">${ic('fan')}${btn('fan','wht lit','Suction fan')}</div>
-  <div class="gpCell tall" title="Main drive. The selector picks where the machine stops: 0° or 180°. Green starts it, the black button inches it one cycle, red STOP stops it.">${ic('motor')}
-    <div class="gpRow" style="display:grid;grid-template-columns:1fr 1fr;gap:6%"><div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span class="gpLbl">0°</span>${sel('stopPos',-20,'Stop position 0° or 180°').replace('class="gpSel"','class="gpSel" style="width:84%;--a:-20deg"')}</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span class="gpLbl">180°</span>${btn('run','grn','Start').replace('class="gpB grn"','class="gpB grn" style="width:84%"')}</div></div>
+  <div class="gpCell tall" title="Main drive. Turn the selector left to stop at 0°, right to stop at 180°. Green starts the machine, the black button inches it one cycle, red STOP stops it.">${ic('motor')}
+    <div class="gpRow" style="display:grid;grid-template-columns:1fr 1fr;gap:6%"><div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span class="gpLbl">0°</span>${sel('stopPos',0,'Stop at 0° (turn left) or 180° (turn right)').replace('class="gpSel"','class="gpSel" style="width:84%;--a:0deg"')}</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span class="gpLbl">180°</span>${btn('run','grn','Start').replace('class="gpB grn"','class="gpB grn" style="width:84%"')}</div></div>
     <div class="gpRow" style="flex-direction:column;gap:2px"><span class="gpJog"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3.5 22A17 17 0 0 1 20 3"/><path d="M0.8 18.6l2.7 3.6 3.4-3"/><path d="M36.5 18A17 17 0 0 1 20 37"/><path d="M39.2 21.4l-2.7-3.6-3.4 3"/></svg>${btn('jog','blk','Jog one cycle')}</span><span class="gpLbl">STOP</span>${btn('stop','red lit','Stop')}</div></div>
   <div class="gpCell" title="Drive lock: key switch that locks the main drive for work inside the machine.">${ic('lock')}<button class="gpKey" data-k="lock" aria-label="Drive lock key"><i></i></button></div>
   <div class="gpCell" aria-hidden="true"></div>
   <div class="gpCell" aria-hidden="true"></div>
   <div class="gpCell" title="Centre the side lays (side guides) to the sheet size.">${ic('centre')}${btn('centre','blu','Centre side guides')}</div>
-  <div class="gpCell" title="Feeder 0 / 1: feeding sheets into the machine off or on.">${ic('feed')}<div class="gpRow"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;width:12%"><span class="gpLbl">0</span><span class="gpLed r" data-k="feedR" style="width:70%"></span></span>${sel('feed',20,'Feeder off or on')}<span style="display:flex;flex-direction:column;align-items:center;gap:3px;width:12%"><span class="gpLbl">1</span><span class="gpLed g" data-k="feedG" style="width:70%"></span></span></div></div>`;
+  <div class="gpCell" title="Feeder: turn left (0) to stop feeding sheets, right (1) to feed again.">${ic('feed')}<div class="gpRow"><span style="display:flex;flex-direction:column;align-items:center;gap:3px;width:12%"><span class="gpLbl">0</span><span class="gpLed r" data-k="feedR" style="width:70%"></span></span>${sel('feed',0,'Feeder off (turn left) or on (turn right)')}<span style="display:flex;flex-direction:column;align-items:center;gap:3px;width:12%"><span class="gpLbl">1</span><span class="gpLed g" data-k="feedG" style="width:70%"></span></span></div></div>`;
  const pre=`
   <div class="gpCell" title="Prefeeder automatic on / off.">${ic('pfAuto')}${btn('pfAuto','wht lit','Prefeeder automatic')}</div>
   <div class="gpCell" title="Prefeeder belt back / forward (hold).">${ic('pfBelt')}${sel('pfBelt',0,'Prefeeder belt back or forward')}</div>
@@ -3054,23 +3054,29 @@ try{if(GLV.init())setGL(true);}catch(e){}
  const say=t=>{try{hint(t);}catch(e){}};
  let stop180=false;
  d.addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;const k=b.dataset.k;
+  if(b.classList.contains('gpSel')){const r=b.getBoundingClientRect(),left=(e.clientX||r.left+r.width/2)<r.left+r.width/2;
+   b.style.setProperty('--a',left?'-45deg':'45deg');clearTimeout(b._t);b._t=setTimeout(()=>b.style.setProperty('--a','0deg'),700);
+   if(k==='stopPos')click(left?'bStop':'bStop180');
+   else if(k==='feed'){const fo=typeof feederOff!=='undefined'&&feederOff;if(left!==fo)click('bFeed');else say(left?'Feeder is already off.':'Feeder is already on.');}
+   else say((b.closest('.gpCell').title||'').split('.')[0]+' ('+(left?'left':'right')+') – not simulated yet.');
+   return;}
   switch(k){
    case 'estop':if(b.classList.toggle('down'))click('bE');else say('Emergency stop pulled out. Press master reset.');break;
    case 'reset':if(q('estop').classList.contains('down')){say('Pull the emergency stop out first.');break;}click('bReset');break;
    case 'run':if(q('estop').classList.contains('down')){say('Emergency stop is pressed.');break;}click('bStart');break;
    case 'stop':click(stop180?'bStop180':'bStop');break;
    case 'jog':click('bJog');break;
-   case 'stopPos':stop180=!stop180;b.style.setProperty('--a',stop180?'20deg':'-20deg');say('Machine stops at '+(stop180?'180°':'0°')+'.');break;
-   case 'feed':click('bFeed');break;
+   /* selectors stand in the middle; click the left or right half to turn them that way, they spring back (v353) */
+   case 'stopPos':case 'feed':break;
    case 'lock':{const on=b.classList.toggle('on');b.querySelector('i').style.setProperty('--a',on?'90deg':'0deg');say(on?'Drive locked (key turned).':'Drive unlocked.');break;}
    default:
-    if(b.classList.contains('gpSel')){const a=parseFloat(getComputedStyle(b).getPropertyValue('--a'))||0;const n=a<0?0:a>0?-40:40;b.style.setProperty('--a',n+'deg');}
+    if(b.classList.contains('gpSel'))break;
     else if(/wht|chr|ring|blu/.test(b.className)&&k!=='centre')b.classList.toggle('lit');
     say((b.closest('.gpCell').title||'').split('.')[0]+' – not simulated yet.');}});
  /* lamps follow the machine */
  setInterval(()=>{try{const m=typeof mode!=='undefined'?mode:'stop';q('run').classList.toggle('lit',m==='run');q('stop').classList.toggle('lit',m!=='run');
   q('reset').classList.toggle('lit',m==='fault'||m==='estop');const fo=typeof feederOff!=='undefined'&&feederOff;
-  q('feedR').classList.toggle('on',fo);q('feedG').classList.toggle('on',!fo);q('feed').style.setProperty('--a',fo?'-20deg':'20deg');
+  q('feedR').classList.toggle('on',fo);q('feedG').classList.toggle('on',!fo);
   if(m!=='estop'&&q('estop').classList.contains('down')&&m==='run')q('estop').classList.remove('down');}catch(e){}},250);
 })();
 
