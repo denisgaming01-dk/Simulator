@@ -380,7 +380,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v357 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v358 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -629,7 +629,7 @@ const JOBS={'3P':{name:'Incom 3P',np:3,pl:950,pw:360,batch:50,sep2:[360,360,360]
     return [0,1,2].map(i=>one.map(([x,y])=>[x+590*i,y]));})(),
   creases:[0,1,2].flatMap(i=>{const o=590*i;return [[o+30,40,o+560,40],[o,146,o+590,146],[o,724,o+590,724],[o+30,840,o+560,840],[o+106,0,o+106,880],[o+484,0,o+484,880]];})},
  '6P':{name:'Incom 6P',np:6,pl:1150,pw:330,batch:100,sep2:[330,330,330,330,330,330],shiftW:3,palL:990,palW:1150,want:6,bar:4.5}};
-const JOBK=(()=>{let k='';try{k=(location.hash.match(/job=(\w+)/)||[])[1]||'';}catch(e){}if(!JOBS[k])try{k=localStorage.getItem('dcsJob')||'';}catch(e){}return JOBS[k]?k:'3P';})(),JOB=JOBS[JOBK];
+const JOBK=(()=>{let k='';try{k=(location.hash.match(/job=(\w+)/)||[])[1]||'';}catch(e){}if(!JOBS[k])try{k=localStorage.getItem('dcsJob')||'';}catch(e){}return JOBS[k]?k:'T3';})()   /* Tray 3P opens by default (v358) */,JOB=JOBS[JOBK];
 const FWL=15,TWL=10,SWL=10,SHL=JOB.pl+FWL+TWL,SHW=JOB.np*JOB.pw+2*SWL;   /* sheet: length along the feed, width across */
 JOBS['T3'].batchH=Math.round(50*6.5)+30;JOBS['3P'].batchH=Math.round(50*2.7)+30;JOBS['6P'].batchH=Math.round(100*2.7)+30;JOBS['BC'].batchH=Math.round(50*2.7)+30;   /* batch height: stack height (sheets x 2.7 mm B-flute) plus 30 mm clearance */
 const NPW=['','one','two','three','four','five','six'][JOB.np]||String(JOB.np);
@@ -1587,7 +1587,9 @@ function jobDefault(k){const J=JOBS[k],sq=(base)=>({...base,seqN:1,seq:Array.fro
   boardAt:J.boardAt?Array.from({length:31},(_,n)=>J.boardAt.includes(n)):[false,false,true,false,false,true],brd:J.brd?{...J.brd}:{L:400,W:400},brdSpd:100,rotAt:[],pal:{want:J.want,spd:90,L:J.palL,W:J.palW},palAlign:Array.from({length:31},()=>false),
   bot:{n:1,offs:[0,0,0,0,0,0,0,0,0,0],rot:[],L:800,W:800},bar:{sep1:J.bar,sep2:J.bar},palLimit:999,gcut:J.gcut?{...J.gcut}:undefined};}
 function jobsSaved(){try{return JSON.parse(localStorage.getItem('dcsJobs')||'{}')||{};}catch(e){return {};}}
-function jobGet(k){const s=jobsSaved()[k];return s?{...jobDefault(k),...jclone(s)}:jobDefault(k);}
+/* the trainer's own Tray 3P settings, built in as that job's starting point (v358); a job saved in this browser still wins */
+const JOBPRE={T3:{"batchH":355,"sep1":[880,0,0,0,0,0,0,0,0,0],"sep2":[590,590,590,0,0,0,0,0,0,0],"tt1":{"seqN":1,"seq":[{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0}],"spd":80},"tt2":{"seqN":1,"seq":[{"wait":1,"ang":90,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0}],"spd":80},"shift":{"seqN":1,"seq":[{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0}]},"align":{"seqN":1,"seq":[{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300}],"side":true},"boardAt":[false,false,true,false,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],"brd":{"L":500,"W":500},"brdSpd":100,"rotAt":[],"pal":{"want":6,"spd":90,"L":880,"W":1180},"palAlign":[false,false,true,false,true,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],"bot":{"rot":[],"n":1,"offs":[0,0,0,0,0,0,0,0,0,0],"L":800,"W":800},"bar":{"sep1":5,"sep2":5},"palLimit":999,"gcut":{"infFull":60,"spd":6500,"stack":50,"thk":6.5,"gap":2,"pfStore":300,"pfBun":150,"pfOn":true,"sens":[{"k":"OA","on":true,"v":1063.5,"mm":null},{"k":"OB","on":true,"v":723.5,"mm":null},{"k":"ZA","on":true,"v":1295,"mm":[100,805]},{"k":"ZB","on":true,"v":495,"mm":[100,805]},{"k":"IA","on":true,"v":1063.5,"mm":[100,805]},{"k":"IB","on":true,"v":723.5,"mm":null},{"k":"PA","on":true,"v":1063.5,"mm":[100,805]},{"k":"PB","on":true,"v":723.5,"mm":null},{"k":"LB","on":true,"v":895,"mm":null}]},"ptime":{"sep1":2.5,"sep2":2.5},"lineSpd":66}};
+function jobGet(k){const s=jobsSaved()[k]||JOBPRE[k];return s?{...jobDefault(k),...jclone(s)}:jobDefault(k);}
 function jobSave(k,o){const all=jobsSaved();all[k]=o;try{localStorage.setItem('dcsJobs',JSON.stringify(all));return true;}catch(e){return false;}}
 function jobApply(o){o=jclone(o);LSET.batchH=o.batchH;LSET.sep1=o.sep1;LSET.sep2=o.sep2;LSET.boardAt=o.boardAt;LSET.brd=o.brd;LSET.rotAt=o.rotAt;LSET.pal={...LSET.pal,...o.pal};LSET.bot={rot:[],...o.bot};LSET.bar={...o.bar};LSET.brdSpd=o.brdSpd;LSET.palAlign=o.palAlign;LSET.palLimit=o.palLimit;if(o.ptime)LSET.ptime={...o.ptime};if(o.lineSpd)LSET.lineSpd=o.lineSpd;
  LACC.forEach(kk=>{Object.assign(LSET[kk],o[kk]);LSET[kk].seqI=0;seqLoad(kk);});}
