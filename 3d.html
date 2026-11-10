@@ -380,7 +380,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v360 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v361 · 10 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1752,6 +1752,15 @@ const lBlankPolys=(n,m,c0,r0,inv)=>{m=m||LROWS;c0=c0||0;r0=r0||0;if(JOB.shapes){
    outer edges, so every bundle on the pallet lines up, whichever row it came from or whether the drum turned it over (v275) */
 function lOutC(ps){let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;ps.forEach(pl=>pl.forEach(([x,y])=>{x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}));
  if(!(x1>x0))return ps;const cx=(x0+x1)/2,cy=(y0+y1)/2;return ps.map(pl=>pl.map(([x,y])=>[x-cx,y-cy]));}
+/* 3D: the mesh of a stack is worked out once; while the stack only travels (same height, turn, look) the mesh is just shifted to the new
+   place, which is far less work than drawing and reading every sheet edge again each picture (v361) */
+const LSM=new WeakMap();let LSEP=0;
+function lStkMesh(it){if(NOBOARD||!(it.op>.01))return null;const tl=it.pitch||0;
+ const k=[it.h,it.rot,it.roll,tl,tl?[it.s,it.l,it.y,it.piv,it.pivY]:'',it.op,it.n,it.m,it.bc0,it.br0,it.inv,THK,JOB.print,LSEP].join('|');
+ let c=LSM.get(it);
+ if(!c||c.k!==k){const cp=CAP;CAP=1;let svg;try{svg=lStackSVG(it);}finally{CAP=cp;}if(!svg)return null;c={k,s:it.s,l:it.l,y:it.y,base:GLV.mesh(svg,false)};c.m=c.base;c.ms=it.s;c.ml=it.l;c.my=it.y;LSM.set(it,c);return c.m;}
+ if(c.ms===it.s&&c.ml===it.l&&c.my===it.y)return c.m;
+ c.m=GLV.shift(c.base,(it.s-c.s)*KU,-(it.y-c.y)*LVPX,(it.l-c.l)*KV);c.ms=it.s;c.ml=it.l;c.my=it.y;return c.m;}
 function lStackSVG(it){if(NOBOARD)return '';const hh=it.h,du=BLEN/2,dv=BLK/2*it.n;
  let o=lPrism({s:it.s,l:it.l,y:it.y,h:hh,rot:it.rot,roll:it.roll,pitch:it.pitch,piv:it.piv,pivY:it.pivY,op:it.op},lBlankPolys(it.n,it.m,it.bc0,it.br0,it.inv),it.inv?{top:'#D99A4A',side:'#9A5A12',stroke:'#6E3A06',bot:JOB.print||'#D99A4A',inv:true}:{top:OR,side:ORE,stroke:ORS,bot:JOB.print||OR,inv:false});   /* a stack the drum turned over is a darker brown */
  return o;}
@@ -2054,7 +2063,7 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
  const its=lItems.filter(q=>q.op>0.01&&!inM(q)).slice().sort((a,b)=>(lDep(b.s,b.l)-lDep(a.s,a.l))||(a.y-b.y));
  /* the interleave board lies over the whole block: draw it right after the last stack of its block, so the other stacks cannot cover it */
  const bLast=new Map();its.forEach((it,i)=>{if(it.board&&it.bo)bLast.set(it.bo,i);});
- its.forEach((it,i)=>{lAdd(lStackSVG(it),lStkBox(it));
+ its.forEach((it,i)=>{if(GLON){const m=lStkMesh(it);if(m)LCAP.p.push({svg:'',b:null,mesh:m});}else lAdd(lStackSVG(it),lStkBox(it));
    for(const [o,j] of bLast)if(j===i&&o.bd&&!it.roll&&Math.abs(it.pitch||0)<20){const mem=its.filter(q=>q.bo===o),top=Math.max(...mem.map(q=>q.y+q.h));
      const dr=((o.rot||0)-(o.bd.r0||0)),th=dr*D2R,bs=o.bd.ds*Math.cos(th)-o.bd.dl*Math.sin(th),bl=o.bd.ds*Math.sin(th)+o.bd.dl*Math.cos(th);   /* the board turns with its stacks (exit turntable, v348) */
      mid+=lbox({s:o.s+bs,l:o.l+bl,y:top,du:o.bd.L/2,dv:o.bd.W/2,h:6,rot:dr,pitch:o.pitch,piv:o.piv,pivY:o.pivY,top:'#E9E6DA',side:'#C8C4B4',stroke:'#8A8676',sw:.4,op:Math.min(...mem.map(q=>q.op))});}});
@@ -2094,7 +2103,8 @@ function lineSVG0(){let back='',mid='',front='',far='';const st=LS;
    const P3=(a0,a1,f)=>{let o='';const w=(a1-a0-40)/3;for(let k=0;k<3;k++){const b0=a0+k*(w+20);o+=f(b0,b0+w);}return o;};
    front+=P3(lc-wid/2-80,lc+wid/2+80,(b0,b1)=>lslab(sF+g,sF+g+30,b0,b1,y0,y1,.8,'white')+lslab(sB-g-30,sB-g,b0,b1,y0,y1,.8,'white'));
    front+=P3(sB,sF,(b0,b1)=>lslab(b0,b1,lc+wid/2+g,lc+wid/2+g+30,y0,y1,.7,'white')+lslab(b0,b1,lc-wid/2-g-30,lc-wid/2-g,y0,y1,.7,'white'));}}
- return (GLON?LCAP.p.map(q=>q.svg).join('<!--c-->')+'<!--c-->':lSortSVG(LCAP.p))+back+mid+front+far;}   /* the 3D view has a depth buffer: no sorting needed */   /* belts and bodies always under the stacks, overhead parts always over them; only the frames on the far (AS) side change place with the camera side (v292) */
+ if(GLON){const a=LCAP.p.map(q=>q.mesh||q.svg);a.push(back,mid,front,far);return GLV.pieces('line',a);}   /* 3D: the drawing is handed over as a list of pieces (v361) */
+ return lSortSVG(LCAP.p)+back+mid+front+far;}   /* the 3D view has a depth buffer: no sorting needed */   /* belts and bodies always under the stacks, overhead parts always over them; only the frames on the far (AS) side change place with the camera side (v292) */
 /* ---------- prefeeder (before the G-Cut infeed) ----------
    Board stack (up to 2000 mm, it has to pass under the pusher) rolls onto the lifting bed. The bed lifts the stack so the top bundle
    stands above the transfer belt, the pusher pushes it off onto the transfer belt, and the pneumatic pusher puts it on the stored board.
@@ -2139,7 +2149,7 @@ function pfStep(dt){const S=PF,B=S.bed;const mvB=(to,v)=>{const d=to-B.y,st=v*dt
  /* shingle belt: keeps the infeed stack full */
  if(!S.on||S.st<THK||infH>=INF_FULL)S.run=false;else if(infH<INF_FULL-4)S.run=true;
  if(S.run){S.acc+=S.spd/70*dt;while(S.acc>=1){S.acc--;if(S.st<THK)break;S.st-=THK;infH=Math.min(INF_FULL,infH+THK);}S.sh=(S.sh+S.spd*dt)%70;S.rot=((S.rot||0)+S.spd*dt/260)%(2*Math.PI);}}
-function pfSVG(){const cp=LCAP;LCAP={p:[],g:null};try{pfSVG0();return GLON?LCAP.p.map(q=>q.svg).join(''):lSortSVG(LCAP.p);}finally{LCAP=cp;}}   /* prefeeder: every box depth-sorted like the line (v295) */
+function pfSVG(){const cp=LCAP;LCAP={p:[],g:null};try{pfSVG0();return GLON?GLV.pieces('pref',LCAP.p.map(q=>q.svg)):lSortSVG(LCAP.p);}finally{LCAP=cp;}}   /* prefeeder: every box depth-sorted like the line (v295) */
 function pfSVG0(){const S=PF,B=S.bed,ORB={top:OR,side:ORE,stroke:ORS,sw:.4};let o='';
  /* parts are drawn far to near; anything standing on a belt or bed goes right after it */
  const Zs=[],put=k=>{if(o)Zs.push({k,o});o='';},K=(s,l)=>lDep(pfS(s),l),on=(sup,s,l)=>sup-1+(K(s,l)-sup)*1e-4;
@@ -2827,7 +2837,7 @@ const GLV=(function(){
   CC[v]=r;return r;}
  const CLS={};
  function clsCol(cls){if(cls in CLS)return CLS[cls];probe.setAttribute('class',cls);const cs=getComputedStyle(probe);const r={fill:parseCol(cs.fill),stroke:parseCol(cs.stroke)};probe.removeAttribute('class');CLS[cls]=r;return r;}
- function resetColours(){for(const k in CC)delete CC[k];for(const k in CLS)delete CLS[k];}
+ function resetColours(){for(const k in CC)delete CC[k];for(const k in CLS)delete CLS[k];ECACHE=new Map();EOLD=new Map();PCC=new Map();PCO=new Map();if(RCT)RCT.rc=null;}
  /* ---------- parsing ---------- */
  const dec=(a,b)=>{const zq=Math.floor(b/1e7);return [a,b-zq*1e7-5e6,zq/1000];};
  const NUM=/[A-Za-z]|[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/g;
@@ -2947,23 +2957,37 @@ const GLV=(function(){
   /* hole polygons: fans of every ring (stencil even-odd) */
   const h=r.H.map(({polys,col,a,od})=>{const v=[];polys.forEach(P=>{for(let i=1;i+1<P.length;i++)for(const q of [P[0],P[i],P[i+1]])v.push(q[0],q[1],q[2],0,1,0,col[0],col[1],col[2],a,od);});return new Float32Array(v);});
   return {op,tr,l:lv,nl:L.length,h};}
- /* a drawing made of pieces (the line: every stack, robot and frame is a piece, with SEP between them): the mesh of a piece that did not
-    change is kept, so only the pieces that move are worked out again; pieces no longer used are dropped at once (v360) */
- const SEP='<!--c-->';let PCC=new Map(),PCO=new Map(),cgen=0;
+ /* a drawing made of pieces (the line and the prefeeder: every stack, robot and frame is a piece): handed over as a list by pieces(), which
+    gives back a short mark for the drawing; the mark only changes when a piece changed, so a line that stands still is not rebuilt at all.
+    A piece is drawing text (its mesh is kept while the text stays the same) or a ready mesh (the stacks, see lStkMesh) (v360, v361) */
+ const PCS={},LAY={};let pcv=0,PCC=new Map(),PCO=new Map(),cgen=0;
+ function pieces(id,arr){const o=PCS[id];let same=!!o&&o.arr.length===arr.length;if(same)for(let i=0;i<arr.length;i++)if(arr[i]!==o.arr[i]){same=false;break;}
+  if(same)return o.tok;const tok='<!--P'+(++pcv)+'-->';PCS[id]={arr,tok};return tok;}
  function piece(s){let m=PCC.get(s);if(m)return m;m=PCO.get(s)||mesh(s,false);PCC.set(s,m);return m;}
  const mcat=(ms,k)=>{let n=0;for(const m of ms)n+=m[k].length;const o=new Float32Array(n);let i=0;for(const m of ms){o.set(m[k],i);i+=m[k].length;}return o;};
- function build(id){const s=STR[id]||'',dec=/^L[35]/.test(id);
-  if(dec||s.indexOf(SEP)<0){MESH[id]=mesh(s,dec);return;}
-  const ms=s.split(SEP).filter(x=>x).map(piece);if(++cgen>=3){cgen=0;PCO=PCC;PCC=new Map();}   /* short memory: a piece that stands still is used every time and stays, the others go quickly */
-  let nl=0,h=[];for(const m of ms){nl+=m.nl;if(m.h.length)h=h.concat(m.h);}
-  MESH[id]={op:mcat(ms,'op'),tr:mcat(ms,'tr'),l:mcat(ms,'l'),nl,h};}
+ /* the same mesh at another place */
+ function shift(m,dx,dy,dz){const f=(a,st,two)=>{const o=new Float32Array(a);for(let i=0;i<o.length;i+=st){o[i]+=dx;o[i+1]+=dy;o[i+2]+=dz;if(two){o[i+3]+=dx;o[i+4]+=dy;o[i+5]+=dz;}}return o;};
+  return {op:f(m.op,11),tr:f(m.tr,11),l:f(m.l,12,1),nl:m.nl,h:m.h.map(x=>f(x,11))};}
+ function build(id){const s=STR[id]||'',dec=/^L[35]/.test(id),pc=PCS[id];
+  if(dec||!pc||s.slice(0,5)!=='<!--P'){LAY[id]=null;MESH[id]=mesh(s,dec);return;}
+  const ms=[];for(const x of pc.arr){if(x)ms.push(typeof x==='string'?piece(x):x);}if(++cgen>=3){cgen=0;PCO=PCC;PCC=new Map();}   /* short memory: a piece that stands still is used every time and stays, the others go quickly */
+  /* same pieces of the same sizes as last time: only the pieces that changed are written into the big arrays and sent to the graphics card */
+  const pv=LAY[id],M0=MESH[id];
+  if(pv&&M0&&pv.ms.length===ms.length&&UP[id]){let ok=true;for(let i=0;i<ms.length&&ok;i++){const a=ms[i],b=pv.ms[i];if(a!==b&&(a.op.length!==b.op.length||a.tr.length!==b.tr.length||a.l.length!==b.l.length||a.h.length||b.h.length))ok=false;}
+   if(ok){const sub=M0.sub||(M0.sub=[]);for(let i=0;i<ms.length;i++){const a=ms[i];if(a===pv.ms[i])continue;const o=pv.off[i];M0.op.set(a.op,o[0]);M0.tr.set(a.tr,o[1]);M0.l.set(a.l,o[2]);sub.push([o[0],a.op.length,o[1],a.tr.length,o[2],a.l.length]);}
+    pv.ms=ms;return;}}
+  let nl=0,h=[];const off=[];let o0=0,o1=0,o2=0;for(const m of ms){nl+=m.nl;if(m.h.length)h=h.concat(m.h);off.push([o0,o1,o2]);o0+=m.op.length;o1+=m.tr.length;o2+=m.l.length;}
+  LAY[id]={ms,off};MESH[id]={op:mcat(ms,'op'),tr:mcat(ms,'tr'),l:mcat(ms,'l'),nl,h};}
  let lineIdx=null,lineIdxN=0;
  function idxFor(n){if(lineIdxN>=n)return;lineIdxN=Math.max(n,lineIdxN*2,1024);const a=new Uint32Array(lineIdxN*6);for(let i=0;i<lineIdxN;i++){const b=i*4;a.set([b,b+1,b+2,b,b+2,b+3],i*6);}
   if(!lineIdx)lineIdx=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,lineIdx);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,a,gl.STATIC_DRAW);}
  const BUF={};
  function vbo(key,data){let b=BUF[key];if(!b){b=BUF[key]=gl.createBuffer();}gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,data,gl.DYNAMIC_DRAW);return b;}
  const UP={};
- function upload(id){const mm=MESH[id];UP[id]={op:vbo(id+'op',mm.op),nop:mm.op.length/11,tr:vbo(id+'tr',mm.tr),ntr:mm.tr.length/11,l:vbo(id+'l',mm.l),nl:mm.nl,h:mm.h.map((d,i)=>({b:vbo(id+'h'+i,d),n:d.length/11}))};}
+ function upload(id){const mm=MESH[id];
+  if(mm.sub){const S=(key,d,o,n)=>{if(!n)return;gl.bindBuffer(gl.ARRAY_BUFFER,BUF[key]);gl.bufferSubData(gl.ARRAY_BUFFER,o*4,d,o,n);};
+   for(const q of mm.sub){S(id+'op',mm.op,q[0],q[1]);S(id+'tr',mm.tr,q[2],q[3]);S(id+'l',mm.l,q[4],q[5]);}mm.sub=null;return;}
+  UP[id]={op:vbo(id+'op',mm.op),nop:mm.op.length/11,tr:vbo(id+'tr',mm.tr),ntr:mm.tr.length/11,l:vbo(id+'l',mm.l),nl:mm.nl,h:mm.h.map((d,i)=>({b:vbo(id+'h'+i,d),n:d.length/11}))};}
  function attT(){const p=progT;const S=44;[['p',3,0],['n',3,12],['col',4,24],['od',1,40]].forEach(([nm,sz,off])=>{const loc=gl.getAttribLocation(p,nm);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,sz,gl.FLOAT,false,S,off);});}
  function attL(){const p=progL;const S=48;[['a',3,0],['b',3,12],['sd',1,24],['w',1,28],['col',4,32]].forEach(([nm,sz,off])=>{const loc=gl.getAttribLocation(p,nm);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,sz,gl.FLOAT,false,S,off);});}
  /* the projection: the very same affine map as PJ, with a depth row along the viewing direction */
@@ -2980,16 +3004,20 @@ const GLV=(function(){
   m[1]=ay*r2[0];m[5]=ay*r2[1];m[9]=ay*r2[2];m[13]=ay*o[1]+by;
   m[2]=k[0]/dr;m[6]=k[1]/dr;m[10]=k[2]/dr;m[14]=-dm/dr;
   m[15]=1;return m;}
- let BG=[.97,.97,.95];
+ let BG=[.97,.97,.95],RCT=null;
  /* groups the classic view moves with a transform (die platens, stripping tools): translate(0,ty) on screen = ty/c up or down in 3D */
  const MOVERS=['knife','lower','pins','L4u'];
  function offOf(id){if(!MOVERS.includes(id))return [0,0,0];const t=document.getElementById(id).getAttribute('transform')||'';const m=/translate\(\s*([-\d.e]+)[ ,]+([-\d.e]+)/.exec(t);return m?[0,(+m[2])/(c||1),0]:[0,0,0];}
  function draw(){if(!init())return;
-  const svg=document.getElementById('mach'),st=document.getElementById('stage');const rc=svg.getBoundingClientRect(),rs=st.getBoundingClientRect();
+  const svg=document.getElementById('mach'),st=document.getElementById('stage');
+  /* the place and size of the view are measured when they change (and now and then), not for every picture: measuring makes the browser lay the page out again (v361) */
+  if(!RCT){RCT={n:0};new ResizeObserver(()=>{RCT.rc=null;}).observe(svg);new ResizeObserver(()=>{RCT.rc=null;}).observe(st);addEventListener('resize',()=>{RCT.rc=null;});}
+  if(!RCT.rc||++RCT.n>=20){RCT.n=0;RCT.rc=svg.getBoundingClientRect();RCT.rs=st.getBoundingClientRect();RCT.bg=parseCol(getComputedStyle(st).backgroundColor)||BG;}
+  const rc=RCT.rc,rs=RCT.rs;
   const dpr=Math.min(window.CINE?1.25:2,window.devicePixelRatio||1),   /* a little less sharp while the camera circles, so it stays smooth (v346) */W=Math.max(2,Math.round(rc.width*dpr)),H=Math.max(2,Math.round(rc.height*dpr));
   if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}cv.style.left=(rc.left-rs.left)+'px';cv.style.top=(rc.top-rs.top)+'px';cv.style.width=rc.width+'px';cv.style.height=rc.height+'px';
   for(const id of DIRTY){build(id);upload(id);}DIRTY.clear();
-  gl.viewport(0,0,W,H);const bg=parseCol(getComputedStyle(st).backgroundColor)||BG;gl.clearColor(bg[0],bg[1],bg[2],1);gl.clearStencil(0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT|gl.STENCIL_BUFFER_BIT);
+  gl.viewport(0,0,W,H);const bg=RCT.bg;gl.clearColor(bg[0],bg[1],bg[2],1);gl.clearStencil(0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT|gl.STENCIL_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
   const M=matrix(W,H),ids=Object.keys(UP);
   gl.useProgram(progT);gl.uniformMatrix4fv(gl.getUniformLocation(progT,'M'),false,M);
@@ -3011,9 +3039,9 @@ const GLV=(function(){
   gl.depthMask(true);gl.disable(gl.POLYGON_OFFSET_FILL);}
  /* static scene for the 3D view: built twice, once seen from each side, so both side walls (and their windows) exist */
  function statics(bs){const sc=cyw,ss=syw;CAP=1;try{GLPASS='A';cyw=.6;syw=-.8;bs();if(SOLID){GLPASS='B';cyw=-.6;syw=-.8;bs();}}finally{GLPASS='';cyw=sc;syw=ss;CAP=0;}}
- return {draw,statics,init,STR,DIRTY,MESH,UP,parse,resetColours,get gl(){return gl;},get cv(){return cv;}};})();
+ return {draw,statics,init,STR,DIRTY,MESH,UP,parse,mesh,shift,pieces,resetColours,get gl(){return gl;},get cv(){return cv;}};})();
 {const _bs=buildStatic,_rd=render;window._RD=_rd;
- buildStatic=function(){if(GLON)GLV.statics(_bs);else _bs();};
+ buildStatic=function(){LSEP++;if(GLON)GLV.statics(_bs);else _bs();};
  render=function(ts){if(!GLON)return _rd(ts);
   /* cinematic: the camera is redrawn every frame, the moving parts are rebuilt about 30 times a second, which halves the work per frame (v346) */
   const now=performance.now();if(!window.CINE||now-(render.tRd||0)>=30){render.tRd=now;CAP=1;try{_rd(ts);}finally{CAP=0;}}GLV.draw();
