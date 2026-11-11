@@ -171,7 +171,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .gShare .gShP{color:#3A4550;font-size:11.5px;max-width:760px;margin:6px 0}.gShare .gShL{max-height:150px;overflow:auto;border:1px solid #C7CDD3;background:#fff;max-width:620px;padding:4px 8px}
 .gShare .gShL label{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;cursor:pointer}.gShare .gShL span{margin-left:auto;color:#56616C;font-size:11px}
 .gShare .gShB{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.gShare .gShB .gB{height:34px;padding:0 14px;font-size:13px;display:inline-flex;align-items:center}.gShare .gShI input{display:none}
-.gShare textarea{width:760px;max-width:100%;height:92px;font:11px ui-monospace,Menlo,Consolas,monospace;border:1px solid #C7CDD3;background:#fff;color:#333;resize:none;box-sizing:border-box}
+.gShare .gShU{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}.gShare .gShU .gB{height:34px;padding:0 14px;font-size:13px}.gShare .gShU input{height:30px;width:330px;border:1px solid #8E98A2;background:#fff;font:13px 'Segoe UI',Tahoma,sans-serif;padding:0 6px;color:#111}.gShare .gShU span{color:#56616C;font-size:11px;max-width:300px}
+.gShare textarea{width:760px;max-width:100%;height:64px;font:11px ui-monospace,Menlo,Consolas,monospace;border:1px solid #C7CDD3;background:#fff;color:#333;resize:none;box-sizing:border-box}
 .gNew .gNewG{display:flex;gap:16px;margin-top:8px}.gNew .gNewF{width:300px;flex:none}.gNew label{display:block;font-size:12px;color:#3A4550;margin:0 0 7px}
 .gNew input[type=text],.gNew input[type=number]{display:block;margin-top:2px;height:26px;border:1px solid #8E98A2;background:#fff;font:400 13px 'Segoe UI',Tahoma,sans-serif;padding:0 6px;width:100%;box-sizing:border-box;color:#111}
 .gNew label span{display:flex;align-items:center;gap:6px}.gNew label span input{width:110px;display:inline-block}.gNew input[type=file]{display:block;margin-top:3px;font-size:11px;max-width:100%}
@@ -390,7 +391,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v364 · 11 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v365 · 11 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1699,16 +1700,32 @@ function sharedFetch(){let urls=SHARE_URL;try{if(/\.github\.io$/.test(location.h
    .catch(()=>{clearTimeout(t);if(!done)get(i+1);});};
  try{get(0);}catch(e){}}
 /* G-Cut screen, Jobs: Share jobs. Tick the jobs for the shared file, save the file, put it beside the simulator. Import takes jobs from a file into this browser. */
+const GH_API='https://api.github.com/repos/denisgaming01-dk/Simulator/contents/jobs.json';
+function ghKey(){try{return localStorage.getItem('dcsGhKey')||'';}catch(e){return '';}}
+/* replace jobs.json in the repository with this text (GitHub contents API: read the file's id, then write the new content over it) */
+function ghUpload(txt){const h={'Authorization':'Bearer '+ghKey(),'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},
+  bad=r=>{throw {t:r.status===401?'GitHub did not accept the key: it is wrong or has run out. Forget the key and enter a new one.':r.status===403||r.status===404?'The key may not write to the Simulator repository (it needs Contents: read and write for that repository).':r.status===409||r.status===422?'The shared file changed at the same moment. Press Upload again.':'GitHub answered with an error ('+r.status+'). Try again later.'};};
+ return fetch(GH_API+'?ref=main&t='+Date.now(),{headers:h,cache:'no-store'}).then(r=>r.status===404?{sha:null}:r.ok?r.json():bad(r))
+  .then(f=>{const body={message:'Shared jobs updated from the simulator',branch:'main',content:btoa(unescape(encodeURIComponent(txt)))};if(f&&f.sha)body.sha=f.sha;
+   return fetch(GH_API,{method:'PUT',headers:{...h,'Content-Type':'application/json'},body:JSON.stringify(body)});}).then(r=>r.ok?true:bad(r));}
 let gShare=null,DLCAP=null;try{if(window.claude&&typeof window.claude.use==='function')window.claude.use('downloads').then(d=>{DLCAP=d;},()=>{});}catch(e){}
 function gShareBuild(B){const keys=Object.keys(JOBS).filter(k=>JOBS[k].custom),S=gShare;for(const k of keys)if(S.on[k]==null)S.on[k]=true;
  B.innerHTML=`<div class="gPage gShare"><b style="font-size:15px">Share jobs</b>
   <p class="gShP">Tick the jobs everyone should see. The file below then holds exactly those jobs with their separator settings. Put it beside the simulator as <b>jobs.json</b> (replacing the old one): from then on everyone who opens the simulator sees them. A job that is not in the file stays in this browser only.</p>
   <div class="gShL">${keys.length?keys.map(k=>`<label><input type="checkbox" data-sh="${k}"${S.on[k]?' checked':''}> <b>${hEsc(JOBS[k].name)}</b><span>${JOBS[k].shared?'shared now':'this browser only'}${jobsSaved()[k]||JOBPRE[k]?'':' · no separator job yet'}</span></label>`).join(''):'<p class="gShP">There are no jobs made with New job yet.</p>'}</div>
   <div class="gShB"><button class="gB" id="gsDl">Save jobs.json</button><button class="gB" id="gsCp">Copy as text</button><label class="gB gShI">Import jobs from a file<input id="gsIn" type="file" accept=".json,application/json"></label><button class="gB" id="gsNo">Back</button></div>
+  <div class="gShU">${ghKey()?`<button class="gB" id="gsUp">Upload for everyone</button><button class="gB" id="gsFk">Forget the key</button><span>Puts the ticked jobs straight into the shared file from this browser.</span>`
+    :`<input id="gsKey" type="password" autocomplete="off" placeholder="GitHub access key for the Simulator repository"><button class="gB" id="gsSk">Keep the key</button><span>With a key kept in this browser only, the ticked jobs upload with one press.</span>`}</div>
   <p id="gsMsg" class="gShP" style="min-height:16px;font-weight:600"></p><textarea id="gsTx" readonly spellcheck="false" aria-label="The shared jobs file as text"></textarea></div>`;
  const pick=()=>keys.filter(k=>S.on[k]),msg=(t,bad)=>{const e=$('gsMsg');e.textContent=t;e.style.color=bad?'#B3261E':'#1E5F2E';},show=()=>{$('gsTx').value=shareText(pick());};
  B.querySelectorAll('[data-sh]').forEach(x=>x.onchange=()=>{S.on[x.dataset.sh]=x.checked;show();});show();
  $('gsNo').onclick=()=>{gShare=null;gBodyBuild();};
+ /* upload from this browser: only where the owner typed in an access key; the key stays in this browser and is never part of a job file */
+ if($('gsSk'))$('gsSk').onclick=()=>{const v=$('gsKey').value.trim();if(!/^[A-Za-z0-9_]{20,255}$/.test(v))return msg('This does not look like a GitHub access key.',true);try{localStorage.setItem('dcsGhKey',v);}catch(e){return msg('This browser could not keep the key.',true);}gShareBuild(B);$('gsMsg').textContent='Key kept in this browser.';};
+ if($('gsFk'))$('gsFk').onclick=()=>{try{localStorage.removeItem('dcsGhKey');}catch(e){}gShareBuild(B);$('gsMsg').textContent='Key removed from this browser.';};
+ if($('gsUp'))$('gsUp').onclick=()=>{const txt=shareText(pick()),n=pick().length,bt=$('gsUp');bt.disabled=true;msg('Uploading…');
+  ghUpload(txt).then(()=>{bt.disabled=false;try{sharedApply(JSON.parse(txt),txt);}catch(e){}if($('gsUp')){gShareBuild(B);$('gsMsg').textContent=`Uploaded: ${n} job${n===1?'':'s'} in the shared file. Everyone sees them the next time the simulator opens (work PCs a few minutes later).`;}log(`Shared jobs uploaded: ${n} job${n===1?'':'s'}`,'ok');},
+   e=>{bt.disabled=false;msg(e&&e.t?e.t:'GitHub cannot be reached from here. It works when the simulator is opened from its GitHub page on a network that allows GitHub, not inside claude.ai.',true);});};
  $('gsDl').onclick=()=>{const txt=shareText(pick()),n=pick().length,okT=`jobs.json with ${n} job${n===1?'':'s'} saved. If nothing was saved, use Copy as text.`;
   /* inside claude.ai a page saves a file through the viewer (it asks first); anywhere else the browser saves it directly */
   if(DLCAP){DLCAP.save({filename:'jobs.json',data:txt}).then(()=>msg(okT),e=>msg(e&&e.code==='declined'?'Not saved.':'This view could not save the file: use Copy as text.',true));return;}
