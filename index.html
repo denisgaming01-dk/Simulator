@@ -168,6 +168,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 #gMonBox{zoom:.8}#gMonBox .montab{font-size:12px;min-width:0;border-spacing:4px 3px}#gMonBox .montab th{font-size:11.5px}#gMonBox .hint{font-size:11px;margin-top:8px;color:#56616C}.gSk svg g[data-g]:hover rect:first-child{stroke:#1E6FD9;stroke-width:2.5}
 .gPage{position:absolute;inset:0;padding:24px;font-size:13px}
 .gPage ul{list-style:none;margin:8px 0 0;padding:0;max-height:420px;overflow:auto}.gPage li{padding:4px 0;border-bottom:1px solid #DDE2E7;font-size:12px}
+.gNew .gNewG{display:flex;gap:16px;margin-top:8px}.gNew .gNewF{width:300px;flex:none}.gNew label{display:block;font-size:12px;color:#3A4550;margin:0 0 7px}
+.gNew input[type=text],.gNew input[type=number]{display:block;margin-top:2px;height:26px;border:1px solid #8E98A2;background:#fff;font:400 13px 'Segoe UI',Tahoma,sans-serif;padding:0 6px;width:100%;box-sizing:border-box;color:#111}
+.gNew label span{display:flex;align-items:center;gap:6px}.gNew label span input{width:110px;display:inline-block}.gNew input[type=file]{display:block;margin-top:3px;font-size:11px;max-width:100%}
+.gNew small{display:block;color:#56616C;font-size:10.5px;margin:-3px 0 8px}.gNew #gnMsg{min-height:30px;font-size:11.5px;margin:6px 0;font-weight:600}.gNew .gNewB{display:flex;gap:8px}.gNew .gNewB .gB{width:120px;height:34px;font-size:13px}
+.gNew canvas{width:470px;height:397px;border:1px solid #C7CDD3;background:#fff;flex:none}
+#hmi2 .jnew{display:flex;align-items:center;gap:12px;font:600 15px var(--f-ui,sans-serif)}#hmi2 .jnew input{height:34px;width:340px;font:500 16px var(--f-ui,sans-serif);padding:0 8px;border:2px solid #3B4252;background:#FFF200;color:#111}
 .gJob{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border:1px solid #C7CDD3;background:#fff;margin:0 0 6px;max-width:520px;cursor:pointer}.gJob.sel{border-color:#1E6FD9;background:#EAF2FD}
 #hmi2{position:relative;width:100%;min-width:0}
 #hmi2In{position:absolute;left:0;top:0;width:1000px;height:640px;transform-origin:0 0}
@@ -380,7 +386,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v361 · 10 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v362 · 11 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -630,6 +636,8 @@ const JOBS={'3P':{name:'Incom 3P',np:3,pl:950,pw:360,batch:50,sep2:[360,360,360]
     return [0,1,2].map(i=>one.map(([x,y])=>[x+590*i,y]));})(),
   creases:[0,1,2].flatMap(i=>{const o=590*i;return [[o+30,40,o+560,40],[o,146,o+590,146],[o,724,o+590,724],[o+30,840,o+560,840],[o+106,0,o+106,880],[o+484,0,o+484,880]];})},
  '6P':{name:'Incom 6P',np:6,pl:1150,pw:330,batch:100,sep2:[330,330,330,330,330,330],shiftW:3,palL:990,palW:1150,want:6,bar:4.5}};
+/* jobs made with New job on the G-Cut screen, kept in this browser (v362) */
+{const cj=customJobs();for(const k in cj){const j=cj[k];if(!JOBS[k]&&/^\w+$/.test(k)&&j&&j.name&&j.np>0&&j.pl>0&&j.pw>0&&Array.isArray(j.shapes)&&Array.isArray(j.sep2)){j.custom=true;JOBS[k]=j;}}}
 const JOBK=(()=>{let k='';try{k=(location.hash.match(/job=(\w+)/)||[])[1]||'';}catch(e){}if(!JOBS[k])try{k=localStorage.getItem('dcsJob')||'';}catch(e){}return JOBS[k]?k:'T3';})()   /* Tray 3P opens by default (v358) */,JOB=JOBS[JOBK];
 const FWL=15,TWL=10,SWL=10,SHL=JOB.pl+FWL+TWL,SHW=JOB.np*JOB.pw+2*SWL;   /* sheet: length along the feed, width across */
 JOBS['T3'].batchH=Math.round(50*6.5)+30;JOBS['3P'].batchH=Math.round(50*2.7)+30;JOBS['6P'].batchH=Math.round(100*2.7)+30;JOBS['BC'].batchH=Math.round(50*2.7)+30;   /* batch height: stack height (sheets x 2.7 mm B-flute) plus 30 mm clearance */
@@ -1582,6 +1590,74 @@ function seqNext(kk){const S=LSET[kk];if(S.seqN<=1)return;S.seqI=(S.seqI+1)%S.se
    Saved jobs are kept in this browser. */
 const JSKEYS=['batchH','sep1','sep2','tt1','shift','tt2','align','boardAt','brd','rotAt','pal','bot'];
 const jclone=o=>JSON.parse(JSON.stringify(o));
+/* ---------- New job from a CAD screenshot (v362) ----------
+   The die layout is read from a screenshot of the CAD drawing: black lines are cuts, red lines creases; dimension lines (blue) and text
+   are ignored by their colour. Every area closed in by cut lines is found; the big ones are the blanks. */
+function cadDetect(img){const W=img.width,H=img.height,D=img.data,N=W*H,wall=new Uint8Array(N),red=new Uint8Array(N);
+ for(let i=0,p=0;i<N;i++,p+=4){const r=D[p],g=D[p+1],b=D[p+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+  if(mx-mn<18&&mx<240)wall[i]=1;else if(r>200&&r-g>55&&Math.abs(g-b)<28)red[i]=1;}
+ /* a dimension line drawn over a cut line leaves a gap of a few pixels in it: close gaps of up to 4 px along a line */
+ {const g=4,add=[],w=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&wall[y*W+x];
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(wall[y*W+x])continue;let l=0,r=0,u=0,d=0;for(let k=1;k<=g;k++){l|=w(x-k,y);r|=w(x+k,y);u|=w(x,y-k);d|=w(x,y+k);}if((l&&r)||(u&&d))add.push(y*W+x);}
+  for(const i of add)wall[i]=1;}
+ /* outside: everything reached from the picture border without crossing a cut line */
+ const out=new Uint8Array(N),st=new Int32Array(N);let sp=0;const push=i=>{if(!out[i]&&!wall[i]){out[i]=1;st[sp++]=i;}};
+ for(let x=0;x<W;x++){push(x);push((H-1)*W+x);}for(let y=0;y<H;y++){push(y*W);push(y*W+W-1);}
+ while(sp){const i=st[--sp],x=i%W;if(x>0)push(i-1);if(x<W-1)push(i+1);if(i>=W)push(i-W);if(i<N-W)push(i+W);}
+ /* closed-in areas */
+ const reg=new Int32Array(N),comps=[];
+ for(let s=0;s<N;s++){if(out[s]||wall[s]||reg[s])continue;const id=comps.length+1;let n=0,x0=W,x1=0,y0=H,y1=0;sp=0;st[sp++]=s;reg[s]=id;
+  while(sp){const i=st[--sp],x=i%W,y=(i/W)|0;n++;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
+   const t=j=>{if(!out[j]&&!wall[j]&&!reg[j]){reg[j]=id;st[sp++]=j;}};if(x>0)t(i-1);if(x<W-1)t(i+1);if(i>=W)t(i-W);if(i<N-W)t(i+W);}
+  comps.push({id,n,x0,x1,y0,y1});}
+ comps.sort((a,b)=>b.n-a.n);
+ return {W,H,red,reg,comps};}
+/* outline of one area, grown by a pixel so it reaches the middle of its cut line (Moore boundary tracing) */
+function cadOutline(R,c){const {W,H,reg}=R,id=c.id,x0=Math.max(0,c.x0-1),y0=Math.max(0,c.y0-1),x1=Math.min(W-1,c.x1+1),y1=Math.min(H-1,c.y1+1),w=x1-x0+1,h=y1-y0+1,m=new Uint8Array(w*h);
+ for(let y=c.y0;y<=c.y1;y++)for(let x=c.x0;x<=c.x1;x++){if(reg[y*W+x]!==id)continue;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const xx=x+dx-x0,yy=y+dy-y0;if(xx>=0&&yy>=0&&xx<w&&yy<h)m[yy*w+xx]=1;}}
+ const on=(x,y)=>x>=0&&y>=0&&x<w&&y<h&&m[y*w+x];let sx=-1,sy=-1;for(let y=0;y<h&&sx<0;y++)for(let x=0;x<w;x++)if(on(x,y)){sx=x;sy=y;break;}
+ const dx=[1,1,0,-1,-1,-1,0,1],dy=[0,1,1,1,0,-1,-1,-1],P=[];let x=sx,y=sy,d=6,guard=0;
+ do{P.push([x+x0+.5,y+y0+.5]);let k=0;const nd=(d+6)%8;for(;k<8;k++){const q=(nd+k)%8;if(on(x+dx[q],y+dy[q])){x+=dx[q];y+=dy[q];d=q;break;}}if(k===8)break;}while((x!==sx||y!==sy)&&++guard<4e6);
+ return {P,x0,y0,x1:x1+1,y1:y1+1};}
+/* fewer corner points: Douglas-Peucker on a closed outline */
+function cadSimplify(P,tol){if(P.length<5)return P;let b=0,md=0;for(let i=0;i<P.length;i++){const d=(P[i][0]-P[0][0])**2+(P[i][1]-P[0][1])**2;if(d>md){md=d;b=i;}}
+ const dp=pts=>{const keep=new Uint8Array(pts.length);keep[0]=keep[pts.length-1]=1;const stk=[[0,pts.length-1]];
+  while(stk.length){const [s,e]=stk.pop();let mx=0,mi=-1;const A=pts[s],B=pts[e],ex=B[0]-A[0],ey=B[1]-A[1],L=Math.hypot(ex,ey)||1;
+   for(let i=s+1;i<e;i++){const d=Math.abs((pts[i][0]-A[0])*ey-(pts[i][1]-A[1])*ex)/L;if(d>mx){mx=d;mi=i;}}if(mx>tol){keep[mi]=1;stk.push([s,mi],[mi,e]);}}
+  return pts.filter((_,i)=>keep[i]);};
+ const h1=dp(P.slice(0,b+1)),h2=dp(P.slice(b).concat([P[0]]));return h1.slice(0,-1).concat(h2.slice(0,-1));}
+/* red crease lines inside a box: straight runs across and along, the dashes joined */
+function cadCreases(R,box){const {W,red}=R,{x0,x1,y0,y1}=box,segs=[];
+ const scan=horiz=>{const n=horiz?y1-y0:x1-x0,m=horiz?x1-x0:y1-y0,cnt=new Int32Array(n);
+  for(let a=0;a<n;a++)for(let b=0;b<m;b++){if(red[horiz?(y0+a)*W+x0+b:(y0+b)*W+x0+a])cnt[a]++;}
+  let a=0;while(a<n){if(cnt[a]<12){a++;continue;}let e=a;while(e+1<n&&cnt[e+1]>=12)e++;
+   const on=new Uint8Array(m);for(let c=a;c<=e;c++)for(let b=0;b<m;b++){if(red[horiz?(y0+c)*W+x0+b:(y0+b)*W+x0+c])on[b]=1;}
+   let b=0;while(b<m){if(!on[b]){b++;continue;}const s=b;let last=b,n1=0;while(b<m&&b-last<=14){if(on[b]){last=b;n1++;}b++;}
+    if(last-s>=10&&n1>=(last-s)*.3){const mid=(a+e)/2+.5;segs.push(horiz?[x0+s,y0+mid,x0+last+1,y0+mid]:[x0+mid,y0+s,x0+mid,y0+last+1]);}}
+   a=e+1;}};
+ scan(true);scan(false);return segs;}
+/* picture -> the layout: blanks with their column and row on the sheet, creases, all still in pixels */
+function cadLayout(img){const R=cadDetect(img),big=R.comps.filter(c=>c.n>=R.comps[0].n*.2&&c.x1-c.x0>12&&c.y1-c.y0>12);
+ if(!R.comps.length||!big.length)return {err:'No blank found. Use a screenshot of the CAD drawing with black cut lines on a white background.'};
+ if(big.length>60)return {err:'Too many closed areas found ('+big.length+'). Use a screenshot that shows only the die layout.'};
+ const bl=big.map(c=>cadOutline(R,c)),box={x0:Math.min(...bl.map(b=>b.x0)),y0:Math.min(...bl.map(b=>b.y0)),x1:Math.max(...bl.map(b=>b.x1)),y1:Math.max(...bl.map(b=>b.y1))};
+ const med=a=>a.slice().sort((p,q)=>p-q)[a.length>>1],wM=med(bl.map(b=>b.x1-b.x0)),hM=med(bl.map(b=>b.y1-b.y0));
+ const clus=(vals,gap)=>{const o=vals.map((v,i)=>[v,i]).sort((p,q)=>p[0]-q[0]),idx=new Array(vals.length);let k=-1,last=-1e9;for(const [v,i] of o){if(v-last>gap)k++;idx[i]=k;last=v;}return {idx,n:k+1};};
+ const cx=clus(bl.map(b=>(b.x0+b.x1)/2),wM*.4),cy=clus(bl.map(b=>(b.y0+b.y1)/2),hM*.4);
+ bl.forEach((b,i)=>{b.col=cx.idx[i];b.row=cy.idx[i];});bl.sort((p,q)=>p.col-q.col||p.row-q.row);
+ const grid=cx.n*cy.n===bl.length&&bl.every((b,i)=>b.col*cy.n+b.row===i);
+ return {bl,box,np:cx.n,rows:cy.n,grid,cr:cadCreases(R,box),W:R.W,H:R.H};}
+/* the layout in mm (x across, y along the feed), from the two overall dimensions of the drawing */
+function cadJobShapes(L,Wmm,Hmm){const sx=Wmm/(L.box.x1-L.box.x0),sy=Hmm/(L.box.y1-L.box.y0),mm=([x,y])=>[(x-L.box.x0)*sx,(y-L.box.y0)*sy];
+ const raw=L.bl.map(b=>b.P.map(mm));let tol=Math.max(1,1.1*Math.max(sx,sy)),shapes;
+ for(let k=0;k<12;k++){shapes=raw.map(P=>cadSimplify(P,tol));if(Math.max(...shapes.map(s=>s.length))<=36)break;tol*=1.3;}   /* at most 36 corners a blank: every edge is drawn on every stack */
+ const r1=v=>Math.round(v*10)/10,cl=(v,m)=>Math.max(0,Math.min(m,v));
+ shapes=shapes.map(s=>s.map(([x,y])=>[r1(cl(x,Wmm)),r1(cl(y,Hmm))]));
+ const creases=L.cr.map(([a,b,c,d])=>{const p=mm([a,b]),q=mm([c,d]);return [r1(p[0]),r1(p[1]),r1(q[0]),r1(q[1])];}).filter(q=>Math.hypot(q[2]-q[0],q[3]-q[1])>=8).slice(0,240);
+ return {shapes,creases};}
+function customJobs(){try{return JSON.parse(localStorage.getItem('dcsCustom')||'{}')||{};}catch(e){return {};}}
+function customSave(all){try{localStorage.setItem('dcsCustom',JSON.stringify(all));return true;}catch(e){return false;}}
+const hEsc=s=>String(s).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
 function jobDefault(k){const J=JOBS[k],sq=(base)=>({...base,seqN:1,seq:Array.from({length:10},()=>({...base}))});
  return {batchH:J.batchH,sep1:[...(J.sep1||[J.pl]),0,0,0,0,0,0,0,0,0,0].slice(0,10),sep2:[...J.sep2,0,0,0,0,0,0,0,0,0,0].slice(0,10),
   tt1:{spd:80,...sq({wait:1,ang:90,off:0})},tt2:{spd:80,...sq({wait:1,ang:0,off:0})},shift:sq({wait:J.shiftW,mm:0}),align:{side:true,...sq({wait:1,run:300})},
@@ -2432,7 +2508,7 @@ function jPhotoSlide(D,kk,J){const i=JE.i;let b=`<img class="jphoto" src="${JPH[
  return b;}
 const JSLIDES=[['Batch height and piece sizes',null,'1310 · 1320'],['Turntable 1','tt1',1710],['Shift belt','shift',1410],['Turntable 2','tt2',1720],['Align table','align',1510],['Interleave boards (robot 3)',null,2210],['Rotation drum',null,2030],['Palletizer',null,2400],['Bottom sheets (robot 5)',null,6610]];
 const JE={k:JOBK,d:null,i:-1};
-function jobOpen(){JE.live=false;JE.sep=null;JE.i=-1;JE.k=JOBK;JE.d=null;$('jobPop').hidden=false;jobDraw();}
+function jobOpen(){JE.live=false;JE.sep=null;JE.nw=false;JE.i=-1;JE.k=JOBK;JE.d=null;$('jobPop').hidden=false;jobDraw();}
 /* station menus from the line screen: the same screens as the job setup, but they change the running machine directly */
 function stationOpen(k3){$('hmiPop').hidden=true;JE.live=true;JE.d=LSET;JE.k=JOBK;JE.sep=(k3==='sep1'||k3==='sep2')?k3:null;
  JE.i=JE.sep?0:{tt1:1,shift:2,tt2:3,align:4,robot3:5,press:6,pal:7,robot5:8}[k3];$('jobPop').hidden=false;jobDraw();}
@@ -2461,13 +2537,30 @@ function jSeq(kk){const o=JE.d[kk],tt=kk==='tt1'||kk==='tt2',mm=tt?'off':kk==='s
 function jGrid(key){const a=JE.d[key];return '<div class="grid24" style="max-width:520px">'+Array.from({length:24},(_,i)=>`<button data-jg="${key}" data-n="${i+1}" class="${a[i+1]?'sel':''}">${i+1}</button>`).join('')+'</div>';}
 function jobDraw(){const B=$('jobPopB'),F=$('jobPopF'),saved=jobsSaved();$('jobPop').classList.toggle('jfull',JE.i>=0);
  if(JE.i<0){$('jobPopT').textContent='Jobs';
-   B.innerHTML=`<p class="jh">Select a job</p><div class="jlist">${Object.keys(JOBS).map(k=>{const J=JOBS[k];return `<button class="jrow${k===JE.k?' sel':''}" data-jk="${k}"><span>${J.name}</span><small>${J.np} × ${J.pl} × ${J.pw} mm · ${(saved[k]&&saved[k].gcut&&saved[k].gcut.stack)||J.batch} sheets${k===JOBK?' · loaded':''}${saved[k]?' · edited':''}</small></button>`;}).join('')}</div>
+   const here=Object.keys(JOBS).filter(k=>!JOBS[k].custom||saved[k]),miss=Object.keys(JOBS).filter(k=>JOBS[k].custom&&!saved[k]);if(here.indexOf(JE.k)<0)JE.k=here.indexOf(JOBK)>=0?JOBK:here[0];
+   if(JE.nw){$('jobPopT').textContent='Jobs · New job';
+    B.innerHTML=`<p class="jh">New job at the separator</p><label class="jnew">Job name <input id="jnName" type="text" maxlength="40" value="${hEsc(JE.nw===true?(miss.indexOf(JOBK)>=0?JOBS[JOBK].name:''):JE.nw)}"></label>
+     <p class="jnote" style="margin:14px 0 6px">${miss.length?'Jobs on the G-Cut that have no separator job yet (tap one to take its name):':'Every job on the G-Cut already has its separator job. Create the job at the machine first.'}</p>
+     <div class="jlist">${miss.map(k=>`<button class="jrow" data-jn="${k}"><span>${hEsc(JOBS[k].name)}</span><small>${JOBS[k].np} across × ${JOBS[k].rows||1} along · ${Math.round(JOBS[k].pw)} × ${Math.round(JOBS[k].pl/(JOBS[k].rows||1))} mm</small></button>`).join('')}</div>
+     <p class="jnote" id="jnMsg">The name is the link: when the job with this name is selected at the machine, this separator job loads with it. After Create the settings open screen by screen; Save keeps them.</p>`;
+    F.innerHTML=`<button class="jbtn" id="jnNo">Cancel</button><button class="jbtn go" id="jnOk">Create</button>`;F.hidden=false;
+    B.querySelectorAll('[data-jn]').forEach(x=>x.onclick=()=>{$('jnName').value=JOBS[x.dataset.jn].name;});
+    $('jnNo').onclick=()=>{JE.nw=false;jobDraw();};
+    $('jnOk').onclick=()=>{const nm=$('jnName').value.trim(),m=$('jnMsg'),bad=t=>{m.textContent=t;m.style.color='#8A1010';m.style.fontWeight='600';};
+     if(!nm)return bad('Enter the job name.');const k=Object.keys(JOBS).find(q=>JOBS[q].name.trim().toLowerCase()===nm.toLowerCase());
+     if(!k)return bad('There is no job with this name on the G-Cut. Create it at the machine first (G-Cut screen, Jobs, New job).');
+     if(here.indexOf(k)>=0)return bad('This job already exists at the separator: select it in the list and press Edit.');
+     if(!jobSave(k,jobDefault(k)))return bad('This browser could not save the job.');
+     log(`Separator: job ${JOBS[k].name} created. Set it up and save it`,'ok');JE.nw=false;JE.k=k;JE.d=jobGet(k);JE.i=0;jobDraw();if(typeof gBodyBuild==='function'&&$('gBody'))gBodyBuild();};
+    return;}
+   B.innerHTML=`<p class="jh">Select a job</p><div class="jlist">${here.map(k=>{const J=JOBS[k];return `<button class="jrow${k===JE.k?' sel':''}" data-jk="${k}"><span>${hEsc(J.name)}</span><small>${J.np} × ${J.pl} × ${J.pw} mm · ${(saved[k]&&saved[k].gcut&&saved[k].gcut.stack)||J.batch} sheets${k===JOBK?' · loaded':''}${saved[k]?' · edited':''}</small></button>`;}).join('')}</div>
      <p class="jnote">Edit opens the job settings screen by screen: the left arrow goes forward, the right arrow back. Save keeps them with the job. Load puts the job on the G-Cut and the line: the simulator restarts with it.</p>`;
-   F.innerHTML=`<button class="jbtn" id="jReset"${saved[JE.k]?'':' disabled'}>Back to default</button><button class="jbtn" id="jEdit">Edit</button><button class="jbtn go" id="jLoad">Load</button>`;F.hidden=false;
+   F.innerHTML=`<button class="jbtn" id="jNew" style="margin-right:auto">New job</button><button class="jbtn" id="jReset"${saved[JE.k]?'':' disabled'}>Back to default</button><button class="jbtn" id="jEdit">Edit</button><button class="jbtn go" id="jLoad">Load</button>`;F.hidden=false;
    B.querySelectorAll('[data-jk]').forEach(x=>x.onclick=()=>{JE.k=x.dataset.jk;jobDraw();});
+   $('jNew').onclick=()=>{JE.nw=true;jobDraw();};
    $('jEdit').onclick=()=>{JE.d=jobGet(JE.k);JE.i=0;jobDraw();};
    $('jLoad').onclick=()=>jobLoad(JE.k);
-   $('jReset').onclick=()=>{const all=jobsSaved();delete all[JE.k];try{localStorage.setItem('dcsJobs',JSON.stringify(all));}catch(e){}log(`Job ${JOBS[JE.k].name}: back to the default settings${JE.k===JOBK?' (load it to use them)':''}`);jobDraw();};
+   $('jReset').onclick=()=>{const all=jobsSaved();if(JOBS[JE.k].custom)all[JE.k]=jobDefault(JE.k);else delete all[JE.k];try{localStorage.setItem('dcsJobs',JSON.stringify(all));}catch(e){}log(`Job ${JOBS[JE.k].name}: back to the default settings${JE.k===JOBK?' (load it to use them)':''}`);jobDraw();};
    return;}
  F.hidden=true;B.onchange=B.onclick=null;
  if(JE.sep){const s=JE.sep,code=s==='sep1'?1310:1320,D=LSET;$('jobPopT').textContent=`${LNAME[s]} · ${code}`;
@@ -2555,6 +2648,62 @@ function gBuild(){const nav=Object.keys(gNames).map(k=>`<button data-gp="${k}" c
  $('g1In').innerHTML=top+`<div class="gNav">${nav}</div><div class="gBody" id="gBody"></div>`;
  document.querySelectorAll('#g1In [data-gp]').forEach(b=>b.onclick=()=>{gPage=b.dataset.gp;gBuild();});
  gBodyBuild();gTick();}
+/* G-Cut screen, Jobs: New job (v362). The name, the CAD screenshot of the die layout and its two overall dimensions make the job. */
+let gNewJ=null;
+function gNewDraw(){const S=gNewJ,cv=$('gnCv');if(!S||!cv)return;const g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);
+ if(!S.img){g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.fillStyle='#8E98A2';g.font='13px Segoe UI,Tahoma,sans-serif';g.textAlign='center';g.fillText('The screenshot and the blanks found in it show here',cv.width/2,cv.height/2);return;}
+ const k=Math.min(cv.width/S.img.width,cv.height/S.img.height),ox=(cv.width-S.img.width*k)/2,oy=(cv.height-S.img.height*k)/2;
+ g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.globalAlpha=.5;g.drawImage(S.img,ox,oy,S.img.width*k,S.img.height*k);g.globalAlpha=1;
+ const L=S.lay;if(!L||L.err)return;const q=S.sc,P=([x,y])=>[ox+x/q*k,oy+y/q*k],cols=['#0A8F6A','#C2600A','#1E6FD9','#A21FA2'];
+ L.bl.forEach((b,i)=>{g.beginPath();b.P.forEach((p,j)=>{const [x,y]=P(p);j?g.lineTo(x,y):g.moveTo(x,y);});g.closePath();g.fillStyle='rgba(255,170,60,.28)';g.fill();g.strokeStyle=cols[(b.col+b.row)%4];g.lineWidth=1.6;g.stroke();
+  const c=P([(b.x0+b.x1)/2,(b.y0+b.y1)/2]);g.fillStyle='#111';g.font='600 12px Segoe UI,Tahoma,sans-serif';g.textAlign='center';g.fillText(String(i+1),c[0],c[1]+4);});
+ g.strokeStyle='#1E6FD9';g.lineWidth=1;L.cr.forEach(s=>{const a=P([s[0],s[1]]),b=P([s[2],s[3]]);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(b[0],b[1]);g.stroke();});}
+function gNewMsg(t,bad){const e=$('gnMsg');if(e){e.textContent=t;e.style.color=bad?'#B3261E':'#1E5F2E';}}
+function gNewImage(file){if(!gNewJ||!file)return;const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{if(!gNewJ)return;const S=gNewJ;
+   /* work on the picture at up to 2400 px: enough for the lines, quick to read */
+   const sc=Math.min(1,2400/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*sc));c.height=Math.max(1,Math.round(im.height*sc));
+   const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
+   S.img=im;S.sc=sc;try{S.lay=cadLayout(g.getImageData(0,0,c.width,c.height));}catch(e){S.lay={err:'This picture could not be read.'};}
+   const L=S.lay;if(L.err)gNewMsg(L.err,true);else if(!L.grid)gNewMsg(`${L.bl.length} blanks found, but they do not sit in straight columns and rows, so the simulator cannot use this layout.`,true);
+   else gNewMsg(`${L.bl.length} blank${L.bl.length>1?'s':''} found: ${L.np} across × ${L.rows} along. Check the outlines in the picture, then enter the layout size.`);
+   gNewDraw();};im.onerror=()=>gNewMsg('This file is not a picture the browser can open.',true);im.src=rd.result;};rd.readAsDataURL(file);}
+function gNewBuild(B){const S=gNewJ;
+ B.innerHTML=`<div class="gPage gNew"><b style="font-size:15px">New job</b><div class="gNewG"><div class="gNewF">
+   <label>Job name<input id="gnName" type="text" maxlength="40" value="${hEsc(S.name||'')}"></label>
+   <label>CAD screenshot of the die layout<input id="gnFile" type="file" accept="image/*"></label><small>or paste it with Ctrl+V. Black lines are read as cuts, red lines as creases.</small>
+   <label>Layout size, across × along the feed (mm)<span><input id="gnW" type="number" min="100" max="2080" value="${S.W||''}"> × <input id="gnH" type="number" min="100" max="1275" value="${S.H||''}"></span></label>
+   <label>Board thickness (mm)<input id="gnT" type="number" min="1" max="12" step="0.1" value="${S.thk}"></label>
+   <label>Sheets per stack<input id="gnN" type="number" min="10" max="400" step="5" value="${S.n}"></label>
+   <label>Speed (sheets/h)<input id="gnS" type="number" min="1000" max="6500" step="100" value="${S.spd}"></label>
+   <p id="gnMsg"></p><div class="gNewB"><button class="gB" id="gnOk">Create job</button><button class="gB" id="gnNo">Cancel</button></div>
+  </div><canvas id="gnCv" width="900" height="760"></canvas></div></div>`;
+ const keep=()=>{S.name=$('gnName').value;S.W=$('gnW').value;S.H=$('gnH').value;S.thk=$('gnT').value;S.n=$('gnN').value;S.spd=$('gnS').value;};
+ B.querySelectorAll('input:not([type=file])').forEach(x=>x.oninput=keep);
+ $('gnFile').onchange=e=>gNewImage(e.target.files[0]);$('gnNo').onclick=()=>{gNewJ=null;gBodyBuild();};
+ $('gnOk').onclick=()=>{keep();const name=S.name.trim(),W=+S.W,H=+S.H,thk=+S.thk,n=Math.round(+S.n),spd=Math.round(+S.spd),L=S.lay;
+  if(!name)return gNewMsg('Enter a name for the job.',true);
+  if(Object.keys(JOBS).some(k=>JOBS[k].name.trim().toLowerCase()===name.toLowerCase()))return gNewMsg('There is already a job with this name.',true);
+  if(!L||L.err||!L.grid)return gNewMsg(L&&L.err?L.err:L?'This layout cannot be used: the blanks must sit in straight columns and rows.':'Add the CAD screenshot of the die layout.',true);
+  if(!(W>=100&&H>=100))return gNewMsg('Enter the layout size from the drawing: the overall width across and the overall length along the feed, in mm.',true);
+  if(W>2080||H>1275)return gNewMsg('Too big for the G-Cut 13/21: the layout can be 2080 mm across and 1275 mm along at most (sheet 2100 × 1300).',true);
+  if(L.np>10||L.rows>10)return gNewMsg('The separators take 10 pieces across and 10 along at most.',true);
+  if(!(thk>=1&&thk<=12)||!(n>=10&&n<=400)||!(spd>=1000&&spd<=6500))return gNewMsg('Check board thickness (1 to 12 mm), sheets per stack (10 to 400) and speed (1000 to 6500).',true);
+  const sh=cadJobShapes(L,W,H),pw=Math.round(W/L.np*10)/10,rl=Math.round(H/L.rows*10)/10,kp=Math.max(1,Math.min(L.np,Math.floor(1200/pw)));
+  const job={name,custom:true,np:L.np,pl:H,pw,rows:L.rows,batch:n,sep2:Array(L.np).fill(pw),shiftW:Math.ceil(L.np/2),palL:Math.round(kp*pw),palW:Math.round(rl),want:6,bar:4.5,
+   shapes:sh.shapes,creases:sh.creases,gcut:{spd,thk,stack:n},batchH:Math.round(n*thk)+30};if(L.rows>1)job.sep1=Array(L.rows).fill(rl);
+  const all=customJobs();let k;do{k='J'+Math.floor(Math.random()*1e9).toString(36);}while(JOBS[k]||all[k]);all[k]=job;
+  if(!customSave(all))return gNewMsg('This browser could not save the job.',true);
+  JOBS[k]=job;jobSelFill();gSel=k;gNewJ=null;gBodyBuild();
+  log(`Job ${name} created on the G-Cut: ${L.bl.length} blanks, ${L.np} across × ${L.rows} along, layout ${W} × ${H} mm. Now create the job with the same name at the separator and set it up there.`,'ok');};
+ gNewDraw();}
+/* the job picker in the header also lists the jobs made here */
+function jobSelFill(){const s=$('jobSel');if(!s)return;for(const k in JOBS)if(![...s.options].some(o=>o.value===k)){const o=document.createElement('option');o.value=k;o.textContent=JOBS[k].name;s.appendChild(o);}
+ [...s.options].forEach(o=>{if(!JOBS[o.value])o.remove();});}
+function jobDelete(k){const J=JOBS[k];if(!J||!J.custom)return;const all=customJobs();delete all[k];customSave(all);const sv=jobsSaved();delete sv[k];try{localStorage.setItem('dcsJobs',JSON.stringify(sv));}catch(e){}
+ log(`Job ${J.name} deleted from the G-Cut and the separator`);
+ if(k===JOBK){try{localStorage.setItem('dcsJob','T3');}catch(e){}try{history.replaceState(null,'','#job=T3');}catch(e){}setTimeout(()=>location.reload(),200);return;}
+ delete JOBS[k];jobSelFill();}
+document.addEventListener('paste',e=>{if(!gNewJ||!$('gnCv'))return;const it=[...(e.clipboardData&&e.clipboardData.items||[])].find(x=>x.type&&x.type.indexOf('image/')===0);if(it){e.preventDefault();gNewImage(it.getAsFile());}});
 function gBodyBuild(){const B=$('gBody');{const mb=$('gMonBox');if(mb&&mb.parentNode!==$('gMonHold'))$('gMonHold').appendChild(mb);}   /* keep the photocell table alive between pages */
  if(gPage==='prod'){
   B.innerHTML=`<div class="gPan" style="left:8px;top:8px;width:270px;height:326px"><h4>Job data</h4>
@@ -2646,9 +2795,14 @@ function gBodyBuild(){const B=$('gBody');{const mb=$('gMonBox');if(mb&&mb.parent
    <button class="gB" id="gSafCam" style="position:absolute;left:0;top:442px;width:132px;height:34px;font-size:11px" aria-label="Turn view">📷 <span id="gSafLab">${gSafSide?'Machine side':'Operator side'}</span></button>`;
   $('gSafCam').onclick=()=>{gSafSide=1-gSafSide;$('gSafImg').style.backgroundImage=`url(${G_SAF[gSafSide]})`;$('gSafLab').textContent=gSafSide?'Machine side':'Operator side';};gTick();}
  else if(gPage==='alr'){B.innerHTML=`<div class="gPage"><b style="font-size:15px">Alerts</b><ul id="gAl"></ul></div>`;}
- else if(gPage==='jobs'){B.innerHTML=`<div class="gPage"><b style="font-size:15px">Jobs</b><div style="margin-top:10px">${Object.keys(JOBS).map(k=>`<div class="gJob${k===gSel?' sel':''}" data-gj="${k}"><b>${JOBS[k].name}</b><span>${JOBS[k].np} × ${JOBS[k].pl} × ${JOBS[k].pw} mm${k===JOBK?' · loaded':''}</span></div>`).join('')}</div>
-   <button class="gB" id="gLoad" style="width:140px;height:36px;margin-top:6px;font-size:13px">Load job</button><p style="color:#56616C;font-size:11px;max-width:520px">Loading a job puts it on the G-Cut and the line; the simulator restarts with it.</p></div>`;
-  B.querySelectorAll('[data-gj]').forEach(x=>x.onclick=()=>{gSel=x.dataset.gj;gBodyBuild();});$('gLoad').onclick=()=>{if(gSel!==JOBK)jobLoad(gSel);};}
+ else if(gPage==='jobs'&&gNewJ)gNewBuild(B);
+ else if(gPage==='jobs'){const sv=jobsSaved();if(!JOBS[gSel])gSel=JOBK;
+  B.innerHTML=`<div class="gPage"><b style="font-size:15px">Jobs</b><div style="margin-top:10px;max-height:300px;overflow:auto">${Object.keys(JOBS).map(k=>`<div class="gJob${k===gSel?' sel':''}" data-gj="${k}"><b>${hEsc(JOBS[k].name)}</b><span>${JOBS[k].np} × ${JOBS[k].pl} × ${JOBS[k].pw} mm${k===JOBK?' · loaded':''}${JOBS[k].custom&&!sv[k]?' · no separator job yet':''}</span></div>`).join('')}</div>
+   <div style="display:flex;gap:8px;margin-top:6px"><button class="gB" id="gLoad" style="width:140px;height:36px;font-size:13px">Load job</button><button class="gB" id="gNewB" style="width:140px;height:36px;font-size:13px">New job</button><button class="gB" id="gDelB" style="width:140px;height:36px;font-size:13px"${JOBS[gSel].custom?'':' disabled'}>Delete job</button></div>
+   <p style="color:#56616C;font-size:11px;max-width:520px">Loading a job puts it on the G-Cut and the line; the simulator restarts with it. New job makes a job from a CAD screenshot of the die layout; after that the job is created at the separator under the same name and set up there.</p></div>`;
+  B.querySelectorAll('[data-gj]').forEach(x=>x.onclick=()=>{gSel=x.dataset.gj;gBodyBuild();});$('gLoad').onclick=()=>{if(gSel!==JOBK)jobLoad(gSel);};
+  $('gNewB').onclick=()=>{gNewJ={name:'',W:'',H:'',thk:2.7,n:50,spd:5000,img:null,lay:null};gBodyBuild();};
+  $('gDelB').onclick=e=>{const b=e.target;if(!JOBS[gSel]||!JOBS[gSel].custom)return;if(b.dataset.sure!==gSel){b.dataset.sure=gSel;b.textContent='Delete: press again';return;}jobDelete(gSel);gSel=JOBK;gBodyBuild();};}
  else B.innerHTML=`<div class="gPage"><b style="font-size:15px">${gNames[gPage]}</b><p style="color:#56616C;max-width:560px">${{set:'Settings for each section of the machine, scrolled left and right.',mach:'Machine data and service menu.',}[gPage]} This screen is built next, from the photo of it.</p></div>`;}
 function gSketch(){/* side view as on the real screen, left to right: photocells, exit belt, delivery, operator screen, stripping, die-cutting, feeder.
    Tap a section to open its settings page (the photocells open the photocell page). x = 40 + 1.44 × (x on the photo). */
@@ -2790,9 +2944,10 @@ function lineUI(){
 
 
 $('hdrSub').textContent=`Sheet-fed flatbed die-cutter with gripper-bar chain · ${JOB.name}: ${JOB.np} box blanks ${JOB.pl} × ${JOB.pw} mm per sheet, joined by nicks · ${SHL} × ${SHW} mm board`;
-$('jobSel').value=JOBK;$('jobSaveTop').onclick=e=>{if(saveMachine()){e.target.classList.add('done');e.target.textContent='Saved';setTimeout(()=>{e.target.classList.remove('done');e.target.textContent='Save job';},1200);}};$('insTitle').textContent=`Die layout: ${BL.length} box blanks`;
+jobSelFill();$('jobSel').value=JOBK;$('jobSaveTop').onclick=e=>{if(saveMachine()){e.target.classList.add('done');e.target.textContent='Saved';setTimeout(()=>{e.target.classList.remove('done');e.target.textContent='Save job';},1200);}};$('insTitle').textContent=`Die layout: ${BL.length} box blanks`;
 $('jobSel').onchange=e=>{const k=e.target.value;if(k===JOBK)return;log(`Changing job to ${JOBS[k].name}: the simulator restarts`,'f');try{localStorage.setItem('dcsJob',k);}catch(_){}try{history.replaceState(null,'','#job='+k);}catch(_){try{location.hash='job='+k;}catch(__){}}setTimeout(()=>location.reload(),150);};
 log(`Job ${JOB.name}: ${JOB.np} pieces ${JOB.pl} × ${JOB.pw} mm, board ${SHL} × ${SHW} mm, ${JOB.batch} sheets per stack`,'ok');
+if(JOB.custom&&!jobsSaved()[JOBK])log(`Separator: there is no job ${JOB.name} yet, the line runs on standard settings. Create it at the separator (Jobs, New job) and set it up`,'f');
 window.__sim={advance:x=>advance(x),get mode(){return mode},inject,reset,render,pick,setVB,zoom:z=>{tw=null;vb=z;setVB();}};
 /* G-Cut settings saved with the job (stack size, board, speed, empty cycles, prefeeder, photocells) */
 function gcutGet(){return {infFull:INF_FULL,spd:+$('spd').value,stack:STACK,thk:THK,gap:GAPN,pfStore:PF.store,pfBun:PF.bun,pfOn:PF.on,
