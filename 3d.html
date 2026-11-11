@@ -168,6 +168,10 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 #gMonBox{zoom:.8}#gMonBox .montab{font-size:12px;min-width:0;border-spacing:4px 3px}#gMonBox .montab th{font-size:11.5px}#gMonBox .hint{font-size:11px;margin-top:8px;color:#56616C}.gSk svg g[data-g]:hover rect:first-child{stroke:#1E6FD9;stroke-width:2.5}
 .gPage{position:absolute;inset:0;padding:24px;font-size:13px}
 .gPage ul{list-style:none;margin:8px 0 0;padding:0;max-height:420px;overflow:auto}.gPage li{padding:4px 0;border-bottom:1px solid #DDE2E7;font-size:12px}
+.gShare .gShP{color:#3A4550;font-size:11.5px;max-width:760px;margin:6px 0}.gShare .gShL{max-height:150px;overflow:auto;border:1px solid #C7CDD3;background:#fff;max-width:620px;padding:4px 8px}
+.gShare .gShL label{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;cursor:pointer}.gShare .gShL span{margin-left:auto;color:#56616C;font-size:11px}
+.gShare .gShB{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.gShare .gShB .gB{height:34px;padding:0 14px;font-size:13px;display:inline-flex;align-items:center}.gShare .gShI input{display:none}
+.gShare textarea{width:760px;max-width:100%;height:92px;font:11px ui-monospace,Menlo,Consolas,monospace;border:1px solid #C7CDD3;background:#fff;color:#333;resize:none;box-sizing:border-box}
 .gNew .gNewG{display:flex;gap:16px;margin-top:8px}.gNew .gNewF{width:300px;flex:none}.gNew label{display:block;font-size:12px;color:#3A4550;margin:0 0 7px}
 .gNew input[type=text],.gNew input[type=number]{display:block;margin-top:2px;height:26px;border:1px solid #8E98A2;background:#fff;font:400 13px 'Segoe UI',Tahoma,sans-serif;padding:0 6px;width:100%;box-sizing:border-box;color:#111}
 .gNew label span{display:flex;align-items:center;gap:6px}.gNew label span input{width:110px;display:inline-block}.gNew input[type=file]{display:block;margin-top:3px;font-size:11px;max-width:100%}
@@ -386,7 +390,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v362 · 11 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v363 · 11 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -636,8 +640,12 @@ const JOBS={'3P':{name:'Incom 3P',np:3,pl:950,pw:360,batch:50,sep2:[360,360,360]
     return [0,1,2].map(i=>one.map(([x,y])=>[x+590*i,y]));})(),
   creases:[0,1,2].flatMap(i=>{const o=590*i;return [[o+30,40,o+560,40],[o,146,o+590,146],[o,724,o+590,724],[o+30,840,o+560,840],[o+106,0,o+106,880],[o+484,0,o+484,880]];})},
  '6P':{name:'Incom 6P',np:6,pl:1150,pw:330,batch:100,sep2:[330,330,330,330,330,330],shiftW:3,palL:990,palW:1150,want:6,bar:4.5}};
-/* jobs made with New job on the G-Cut screen, kept in this browser (v362) */
-{const cj=customJobs();for(const k in cj){const j=cj[k];if(!JOBS[k]&&/^\w+$/.test(k)&&j&&j.name&&j.np>0&&j.pl>0&&j.pw>0&&Array.isArray(j.shapes)&&Array.isArray(j.sep2)){j.custom=true;JOBS[k]=j;}}}
+/* jobs made with New job on the G-Cut screen: the shared ones everyone sees (jobs.json, here its last copy; SHARED0 is the copy built in
+   when this file was published) and the ones kept in this browser only (v362, v363) */
+const SHARED0=/*SHARED0*/{"v":1,"jobs":{}}/*SHARED0END*/,SHSEP={};
+{const sh=sharedCache().jobs||{},cj=customJobs();
+ for(const k in sh){if(JOBS[k]||!/^\w+$/.test(k))continue;const j=jobClean(sh[k]&&sh[k].job);if(!j)continue;j.custom=true;j.shared=true;JOBS[k]=j;const sp=sh[k].sep?sepClean(sh[k].sep):null;if(sp)SHSEP[k]=sp;}
+ for(const k in cj){if(!/^\w+$/.test(k)||(JOBS[k]&&!JOBS[k].shared))continue;const j=jobClean(cj[k]);if(!j)continue;j.custom=true;j.local=true;if(JOBS[k])j.shared=true;JOBS[k]=j;}}
 const JOBK=(()=>{let k='';try{k=(location.hash.match(/job=(\w+)/)||[])[1]||'';}catch(e){}if(!JOBS[k])try{k=localStorage.getItem('dcsJob')||'';}catch(e){}return JOBS[k]?k:'T3';})()   /* Tray 3P opens by default (v358) */,JOB=JOBS[JOBK];
 const FWL=15,TWL=10,SWL=10,SHL=JOB.pl+FWL+TWL,SHW=JOB.np*JOB.pw+2*SWL;   /* sheet: length along the feed, width across */
 JOBS['T3'].batchH=Math.round(50*6.5)+30;JOBS['3P'].batchH=Math.round(50*2.7)+30;JOBS['6P'].batchH=Math.round(100*2.7)+30;JOBS['BC'].batchH=Math.round(50*2.7)+30;   /* batch height: stack height (sheets x 2.7 mm B-flute) plus 30 mm clearance */
@@ -1655,6 +1663,65 @@ function cadJobShapes(L,Wmm,Hmm){const sx=Wmm/(L.box.x1-L.box.x0),sy=Hmm/(L.box.
  shapes=shapes.map(s=>s.map(([x,y])=>[r1(cl(x,Wmm)),r1(cl(y,Hmm))]));
  const creases=L.cr.map(([a,b,c,d])=>{const p=mm([a,b]),q=mm([c,d]);return [r1(p[0]),r1(p[1]),r1(q[0]),r1(q[1])];}).filter(q=>Math.hypot(q[2]-q[0],q[3]-q[1])>=8).slice(0,240);
  return {shapes,creases};}
+/* ---------- shared jobs (v363) ----------
+   jobs.json beside the simulator holds the jobs everyone sees. It is read when the simulator opens (the copy from last time is used
+   straight away, the fresh one a moment later). A job made with New job stays in this browser until it is put into that file. */
+const SHARE_URL=['https://cdn.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/jobs.json','https://denisgaming01-dk.github.io/Simulator/jobs.json'];
+/* only what a job needs is taken over, with the values checked, whatever a file holds */
+function jobClean(j){if(!j||typeof j!=='object')return null;const num=(v,a,b,d)=>{v=+v;return isFinite(v)&&v>=a&&v<=b?v:d;},o={};
+ o.name=String(j.name==null?'':j.name).replace(/[<>&"'`\\]/g,'').trim().slice(0,40);o.np=num(j.np,1,10,0)|0;o.rows=num(j.rows,1,10,1)|0;o.pl=num(j.pl,100,1275,0);o.pw=num(j.pw,10,2080,0);
+ if(!o.name||!o.np||!o.pl||!o.pw||o.np*o.pw>2081||!Array.isArray(j.shapes)||j.shapes.length!==o.np*o.rows)return null;
+ o.shapes=[];for(const s of j.shapes){if(!Array.isArray(s)||s.length<3||s.length>80)return null;const q=[];for(const p of s){if(!Array.isArray(p)||!isFinite(+p[0])||!isFinite(+p[1]))return null;q.push([+p[0],+p[1]]);}o.shapes.push(q);}
+ o.creases=(Array.isArray(j.creases)?j.creases:[]).filter(c=>Array.isArray(c)&&c.length>=4&&c.slice(0,4).every(v=>isFinite(+v))).slice(0,400).map(c=>c.slice(0,4).map(Number));
+ o.batch=num(j.batch,10,400,50)|0;o.sep2=Array.from({length:o.np},(_,i)=>num(j.sep2&&j.sep2[i],1,2080,o.pw));if(o.rows>1)o.sep1=Array.from({length:o.rows},(_,i)=>num(j.sep1&&j.sep1[i],1,1275,o.pl/o.rows));
+ o.shiftW=num(j.shiftW,0,10,Math.ceil(o.np/2));o.palL=num(j.palL,50,2500,Math.round(o.pw));o.palW=num(j.palW,50,2500,Math.round(o.pl/o.rows));o.want=num(j.want,1,30,6)|0;o.bar=num(j.bar,2,7.5,4.5);
+ const g=j.gcut||{};o.gcut={spd:num(g.spd,1000,6500,5000),thk:num(g.thk,1,12,2.7),stack:num(g.stack,10,400,o.batch)|0};o.batchH=num(j.batchH,30,5000,Math.round(o.batch*o.gcut.thk)+30);
+ if(typeof j.print==='string'&&/^#[0-9a-fA-F]{6}$/.test(j.print))o.print=j.print;return o;}
+/* separator settings from a file: numbers, yes/no and lists only */
+function sepClean(v,d){d=d||0;if(d>6)return null;if(typeof v==='number')return isFinite(v)?v:0;if(typeof v==='boolean'||v===null)return v;
+ if(Array.isArray(v))return v.slice(0,64).map(x=>{const y=sepClean(x,d+1);return y===undefined?null:y;});
+ if(v&&typeof v==='object'){const o={};let n=0;for(const k in v){if(++n>64||!/^\w+$/.test(k))continue;const y=sepClean(v[k],d+1);if(y!==undefined)o[k]=y;}return d===0&&!n?null:o;}return undefined;}
+function sharedCache(){try{const s=localStorage.getItem('dcsShared');if(s){const o=JSON.parse(s);if(o&&o.jobs&&typeof o.jobs==='object')return o;}}catch(e){}return SHARED0;}
+/* what would go into the shared file for one job: the job and its separator job */
+function shareEntry(k){const j=jobClean(JOBS[k]);if(!j)return null;const s=jobsSaved()[k]||JOBPRE[k]||null;return {job:j,sep:s?sepClean(s):null};}
+function shareText(keys){const o={v:1,jobs:{}};for(const k of keys){const e=shareEntry(k);if(e)o.jobs[k]=e;}return JSON.stringify(o);}
+/* the fresh shared file: new jobs appear in the lists at once; a change to the loaded job counts from the next start */
+function sharedApply(o,txt){let old='';try{old=localStorage.getItem('dcsShared')||'';}catch(e){}if(old===txt)return;try{localStorage.setItem('dcsShared',txt);}catch(e){}
+ const add=[],gone=[];
+ for(const k in o.jobs){if(!/^\w+$/.test(k))continue;const e=o.jobs[k],j=jobClean(e&&e.job);if(!j)continue;const sp=e.sep?sepClean(e.sep):null;
+  if(!JOBS[k]){j.custom=true;j.shared=true;JOBS[k]=j;if(sp)JOBPRE[k]=sp;add.push(j.name);}else if(JOBS[k].custom){JOBS[k].shared=true;if(sp&&!JOBPRE[k])JOBPRE[k]=sp;}}
+ for(const k of Object.keys(JOBS)){const J=JOBS[k];if(!J.shared||o.jobs[k])continue;if(J.local||k===JOBK)J.shared=false;else{gone.push(J.name);delete JOBS[k];}}
+ jobSelFill();if($('gBody')&&gPage==='jobs'&&!gNewJ)gBodyBuild();
+ if(add.length)log(`Shared jobs: ${add.join(', ')} added to the job list`,'ok');if(gone.length)log(`Shared jobs: ${gone.join(', ')} no longer shared, removed from the job list`);}
+function sharedFetch(){let urls=SHARE_URL;try{if(/\.github\.io$/.test(location.hostname))urls=['jobs.json',SHARE_URL[0]];}catch(e){}
+ const get=i=>{if(i>=urls.length)return;let done=false;const ac=typeof AbortController==='function'?new AbortController():null,t=setTimeout(()=>{if(ac)ac.abort();},8000);
+  fetch(urls[i]+'?t='+Date.now(),{cache:'no-store',signal:ac?ac.signal:undefined}).then(r=>{if(!r.ok)throw 0;return r.text();}).then(txt=>{clearTimeout(t);const o=JSON.parse(txt);if(!o||typeof o.jobs!=='object'||!o.jobs)throw 0;done=true;sharedApply(o,txt);})
+   .catch(()=>{clearTimeout(t);if(!done)get(i+1);});};
+ try{get(0);}catch(e){}}
+/* G-Cut screen, Jobs: Share jobs. Tick the jobs for the shared file, save the file, put it beside the simulator. Import takes jobs from a file into this browser. */
+let gShare=null;
+function gShareBuild(B){const keys=Object.keys(JOBS).filter(k=>JOBS[k].custom),S=gShare;for(const k of keys)if(S.on[k]==null)S.on[k]=true;
+ B.innerHTML=`<div class="gPage gShare"><b style="font-size:15px">Share jobs</b>
+  <p class="gShP">Tick the jobs everyone should see. The file below then holds exactly those jobs with their separator settings. Put it beside the simulator as <b>jobs.json</b> (replacing the old one): from then on everyone who opens the simulator sees them. A job that is not in the file stays in this browser only.</p>
+  <div class="gShL">${keys.length?keys.map(k=>`<label><input type="checkbox" data-sh="${k}"${S.on[k]?' checked':''}> <b>${hEsc(JOBS[k].name)}</b><span>${JOBS[k].shared?'shared now':'this browser only'}${jobsSaved()[k]||JOBPRE[k]?'':' · no separator job yet'}</span></label>`).join(''):'<p class="gShP">There are no jobs made with New job yet.</p>'}</div>
+  <div class="gShB"><button class="gB" id="gsDl">Save jobs.json</button><button class="gB" id="gsCp">Copy as text</button><label class="gB gShI">Import jobs from a file<input id="gsIn" type="file" accept=".json,application/json"></label><button class="gB" id="gsNo">Back</button></div>
+  <p id="gsMsg" class="gShP" style="min-height:16px;font-weight:600"></p><textarea id="gsTx" readonly spellcheck="false" aria-label="The shared jobs file as text"></textarea></div>`;
+ const pick=()=>keys.filter(k=>S.on[k]),msg=(t,bad)=>{const e=$('gsMsg');e.textContent=t;e.style.color=bad?'#B3261E':'#1E5F2E';},show=()=>{$('gsTx').value=shareText(pick());};
+ B.querySelectorAll('[data-sh]').forEach(x=>x.onchange=()=>{S.on[x.dataset.sh]=x.checked;show();});show();
+ $('gsNo').onclick=()=>{gShare=null;gBodyBuild();};
+ $('gsDl').onclick=()=>{try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([shareText(pick())],{type:'application/json'}));a.download='jobs.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
+   msg(`jobs.json with ${pick().length} job${pick().length===1?'':'s'} saved to the downloads folder. If nothing was saved, use Copy as text.`);}catch(e){msg('This browser did not save the file: use Copy as text.',true);}};
+ $('gsCp').onclick=()=>{const tx=$('gsTx');tx.focus();tx.select();const ok=()=>msg('Copied. Paste it into a file named jobs.json.'),no=()=>{let d=false;try{d=document.execCommand('copy');}catch(e){}d?ok():msg('Copy it by hand: the text is selected, press Ctrl+C.',true);};
+  try{navigator.clipboard.writeText(tx.value).then(ok,no);}catch(e){no();}};
+ $('gsIn').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{let o=null;try{o=JSON.parse(rd.result);}catch(_){}
+   if(!o||!o.jobs||typeof o.jobs!=='object')return msg('This is not a jobs file from the simulator.',true);
+   const all=customJobs(),sv=jobsSaved();let n=0,skip=0;
+   for(const k in o.jobs){const en=o.jobs[k],j=jobClean(en&&en.job);if(!j||!/^\w+$/.test(k)){skip++;continue;}
+    if(JOBS[k]||Object.keys(JOBS).some(q=>JOBS[q].name.trim().toLowerCase()===j.name.toLowerCase())){skip++;continue;}
+    all[k]=j;const sp=en.sep?sepClean(en.sep):null;if(sp&&!sv[k])sv[k]=sp;j.custom=true;j.local=true;JOBS[k]=j;n++;}
+   let ok=customSave(all);try{localStorage.setItem('dcsJobs',JSON.stringify(sv));}catch(_){ok=false;}
+   jobSelFill();gShareBuild(B);const m=$('gsMsg');m.textContent=ok?`${n} job${n===1?'':'s'} imported into this browser${skip?`, ${skip} skipped (already here or not readable)`:''}.`:'This browser could not save the imported jobs.';m.style.color=ok?'#1E5F2E':'#B3261E';
+   if(n)log(`${n} job${n===1?'':'s'} imported from a file`,'ok');};rd.readAsText(f);};}
 function customJobs(){try{return JSON.parse(localStorage.getItem('dcsCustom')||'{}')||{};}catch(e){return {};}}
 function customSave(all){try{localStorage.setItem('dcsCustom',JSON.stringify(all));return true;}catch(e){return false;}}
 const hEsc=s=>String(s).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
@@ -1666,6 +1733,7 @@ function jobDefault(k){const J=JOBS[k],sq=(base)=>({...base,seqN:1,seq:Array.fro
 function jobsSaved(){try{return JSON.parse(localStorage.getItem('dcsJobs')||'{}')||{};}catch(e){return {};}}
 /* the trainer's own Tray 3P settings, built in as that job's starting point (v358); a job saved in this browser still wins */
 const JOBPRE={T3:{"batchH":355,"sep1":[880,0,0,0,0,0,0,0,0,0],"sep2":[590,590,590,0,0,0,0,0,0,0],"tt1":{"seqN":1,"seq":[{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0},{"wait":1,"ang":90,"off":0}],"spd":80},"tt2":{"seqN":1,"seq":[{"wait":1,"ang":90,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0},{"wait":1,"ang":0,"off":0}],"spd":80},"shift":{"seqN":1,"seq":[{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0},{"wait":2,"mm":0}]},"align":{"seqN":1,"seq":[{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300},{"wait":1,"run":300}],"side":true},"boardAt":[false,false,true,false,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],"brd":{"L":500,"W":500},"brdSpd":100,"rotAt":[],"pal":{"want":6,"spd":90,"L":880,"W":1180},"palAlign":[false,false,true,false,true,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],"bot":{"rot":[],"n":1,"offs":[0,0,0,0,0,0,0,0,0,0],"L":800,"W":800},"bar":{"sep1":5,"sep2":5},"palLimit":999,"gcut":{"infFull":60,"spd":6500,"stack":50,"thk":6.5,"gap":2,"pfStore":300,"pfBun":150,"pfOn":true,"sens":[{"k":"OA","on":true,"v":1063.5,"mm":null},{"k":"OB","on":true,"v":723.5,"mm":null},{"k":"ZA","on":true,"v":1295,"mm":[100,805]},{"k":"ZB","on":true,"v":495,"mm":[100,805]},{"k":"IA","on":true,"v":1063.5,"mm":[100,805]},{"k":"IB","on":true,"v":723.5,"mm":null},{"k":"PA","on":true,"v":1063.5,"mm":[100,805]},{"k":"PB","on":true,"v":723.5,"mm":null},{"k":"LB","on":true,"v":895,"mm":null}]},"ptime":{"sep1":2.5,"sep2":2.5},"lineSpd":66}};
+for(const k in SHSEP)JOBPRE[k]=SHSEP[k];   /* a shared job brings its separator job along; a job saved in this browser still wins */
 function jobGet(k){const s=jobsSaved()[k]||JOBPRE[k];return s?{...jobDefault(k),...jclone(s)}:jobDefault(k);}
 function jobSave(k,o){const all=jobsSaved();all[k]=o;try{localStorage.setItem('dcsJobs',JSON.stringify(all));return true;}catch(e){return false;}}
 function jobApply(o){o=jclone(o);LSET.batchH=o.batchH;LSET.sep1=o.sep1;LSET.sep2=o.sep2;LSET.boardAt=o.boardAt;LSET.brd=o.brd;LSET.rotAt=o.rotAt;LSET.pal={...LSET.pal,...o.pal};LSET.bot={rot:[],...o.bot};LSET.bar={...o.bar};LSET.brdSpd=o.brdSpd;LSET.palAlign=o.palAlign;LSET.palLimit=o.palLimit;if(o.ptime)LSET.ptime={...o.ptime};if(o.lineSpd)LSET.lineSpd=o.lineSpd;
@@ -2537,7 +2605,7 @@ function jSeq(kk){const o=JE.d[kk],tt=kk==='tt1'||kk==='tt2',mm=tt?'off':kk==='s
 function jGrid(key){const a=JE.d[key];return '<div class="grid24" style="max-width:520px">'+Array.from({length:24},(_,i)=>`<button data-jg="${key}" data-n="${i+1}" class="${a[i+1]?'sel':''}">${i+1}</button>`).join('')+'</div>';}
 function jobDraw(){const B=$('jobPopB'),F=$('jobPopF'),saved=jobsSaved();$('jobPop').classList.toggle('jfull',JE.i>=0);
  if(JE.i<0){$('jobPopT').textContent='Jobs';
-   const here=Object.keys(JOBS).filter(k=>!JOBS[k].custom||saved[k]),miss=Object.keys(JOBS).filter(k=>JOBS[k].custom&&!saved[k]);if(here.indexOf(JE.k)<0)JE.k=here.indexOf(JOBK)>=0?JOBK:here[0];
+   const here=Object.keys(JOBS).filter(k=>!JOBS[k].custom||saved[k]||JOBPRE[k]),miss=Object.keys(JOBS).filter(k=>JOBS[k].custom&&!saved[k]&&!JOBPRE[k]);if(here.indexOf(JE.k)<0)JE.k=here.indexOf(JOBK)>=0?JOBK:here[0];
    if(JE.nw){$('jobPopT').textContent='Jobs · New job';
     B.innerHTML=`<p class="jh">New job at the separator</p><label class="jnew">Job name <input id="jnName" type="text" maxlength="40" value="${hEsc(JE.nw===true?(miss.indexOf(JOBK)>=0?JOBS[JOBK].name:''):JE.nw)}"></label>
      <p class="jnote" style="margin:14px 0 6px">${miss.length?'Jobs on the G-Cut that have no separator job yet (tap one to take its name):':'Every job on the G-Cut already has its separator job. Create the job at the machine first.'}</p>
@@ -2560,7 +2628,7 @@ function jobDraw(){const B=$('jobPopB'),F=$('jobPopF'),saved=jobsSaved();$('jobP
    $('jNew').onclick=()=>{JE.nw=true;jobDraw();};
    $('jEdit').onclick=()=>{JE.d=jobGet(JE.k);JE.i=0;jobDraw();};
    $('jLoad').onclick=()=>jobLoad(JE.k);
-   $('jReset').onclick=()=>{const all=jobsSaved();if(JOBS[JE.k].custom)all[JE.k]=jobDefault(JE.k);else delete all[JE.k];try{localStorage.setItem('dcsJobs',JSON.stringify(all));}catch(e){}log(`Job ${JOBS[JE.k].name}: back to the default settings${JE.k===JOBK?' (load it to use them)':''}`);jobDraw();};
+   $('jReset').onclick=()=>{const all=jobsSaved();if(JOBS[JE.k].custom&&!JOBPRE[JE.k])all[JE.k]=jobDefault(JE.k);else delete all[JE.k];try{localStorage.setItem('dcsJobs',JSON.stringify(all));}catch(e){}log(`Job ${JOBS[JE.k].name}: back to the default settings${JE.k===JOBK?' (load it to use them)':''}`);jobDraw();};
    return;}
  F.hidden=true;B.onchange=B.onclick=null;
  if(JE.sep){const s=JE.sep,code=s==='sep1'?1310:1320,D=LSET;$('jobPopT').textContent=`${LNAME[s]} · ${code}`;
@@ -2680,7 +2748,7 @@ function gNewBuild(B){const S=gNewJ;
  const keep=()=>{S.name=$('gnName').value;S.W=$('gnW').value;S.H=$('gnH').value;S.thk=$('gnT').value;S.n=$('gnN').value;S.spd=$('gnS').value;};
  B.querySelectorAll('input:not([type=file])').forEach(x=>x.oninput=keep);
  $('gnFile').onchange=e=>gNewImage(e.target.files[0]);$('gnNo').onclick=()=>{gNewJ=null;gBodyBuild();};
- $('gnOk').onclick=()=>{keep();const name=S.name.trim(),W=+S.W,H=+S.H,thk=+S.thk,n=Math.round(+S.n),spd=Math.round(+S.spd),L=S.lay;
+ $('gnOk').onclick=()=>{keep();const name=S.name.replace(/[<>&"'`\\]/g,'').trim(),W=+S.W,H=+S.H,thk=+S.thk,n=Math.round(+S.n),spd=Math.round(+S.spd),L=S.lay;
   if(!name)return gNewMsg('Enter a name for the job.',true);
   if(Object.keys(JOBS).some(k=>JOBS[k].name.trim().toLowerCase()===name.toLowerCase()))return gNewMsg('There is already a job with this name.',true);
   if(!L||L.err||!L.grid)return gNewMsg(L&&L.err?L.err:L?'This layout cannot be used: the blanks must sit in straight columns and rows.':'Add the CAD screenshot of the die layout.',true);
@@ -2689,7 +2757,7 @@ function gNewBuild(B){const S=gNewJ;
   if(L.np>10||L.rows>10)return gNewMsg('The separators take 10 pieces across and 10 along at most.',true);
   if(!(thk>=1&&thk<=12)||!(n>=10&&n<=400)||!(spd>=1000&&spd<=6500))return gNewMsg('Check board thickness (1 to 12 mm), sheets per stack (10 to 400) and speed (1000 to 6500).',true);
   const sh=cadJobShapes(L,W,H),pw=Math.round(W/L.np*10)/10,rl=Math.round(H/L.rows*10)/10,kp=Math.max(1,Math.min(L.np,Math.floor(1200/pw)));
-  const job={name,custom:true,np:L.np,pl:H,pw,rows:L.rows,batch:n,sep2:Array(L.np).fill(pw),shiftW:Math.ceil(L.np/2),palL:Math.round(kp*pw),palW:Math.round(rl),want:6,bar:4.5,
+  const job={name,custom:true,local:true,np:L.np,pl:H,pw,rows:L.rows,batch:n,sep2:Array(L.np).fill(pw),shiftW:Math.ceil(L.np/2),palL:Math.round(kp*pw),palW:Math.round(rl),want:6,bar:4.5,
    shapes:sh.shapes,creases:sh.creases,gcut:{spd,thk,stack:n},batchH:Math.round(n*thk)+30};if(L.rows>1)job.sep1=Array(L.rows).fill(rl);
   const all=customJobs();let k;do{k='J'+Math.floor(Math.random()*1e9).toString(36);}while(JOBS[k]||all[k]);all[k]=job;
   if(!customSave(all))return gNewMsg('This browser could not save the job.',true);
@@ -2699,8 +2767,9 @@ function gNewBuild(B){const S=gNewJ;
 /* the job picker in the header also lists the jobs made here */
 function jobSelFill(){const s=$('jobSel');if(!s)return;for(const k in JOBS)if(![...s.options].some(o=>o.value===k)){const o=document.createElement('option');o.value=k;o.textContent=JOBS[k].name;s.appendChild(o);}
  [...s.options].forEach(o=>{if(!JOBS[o.value])o.remove();});}
-function jobDelete(k){const J=JOBS[k];if(!J||!J.custom)return;const all=customJobs();delete all[k];customSave(all);const sv=jobsSaved();delete sv[k];try{localStorage.setItem('dcsJobs',JSON.stringify(sv));}catch(e){}
- log(`Job ${J.name} deleted from the G-Cut and the separator`);
+function jobDelete(k){const J=JOBS[k];if(!J||!J.local)return;const all=customJobs();delete all[k];customSave(all);const sv=jobsSaved();delete sv[k];try{localStorage.setItem('dcsJobs',JSON.stringify(sv));}catch(e){}
+ log(J.shared?`Job ${J.name}: this browser's own copy deleted, the shared job stays`:`Job ${J.name} deleted from the G-Cut and the separator`);
+ if(J.shared){setTimeout(()=>location.reload(),200);return;}
  if(k===JOBK){try{localStorage.setItem('dcsJob','T3');}catch(e){}try{history.replaceState(null,'','#job=T3');}catch(e){}setTimeout(()=>location.reload(),200);return;}
  delete JOBS[k];jobSelFill();}
 document.addEventListener('paste',e=>{if(!gNewJ||!$('gnCv'))return;const it=[...(e.clipboardData&&e.clipboardData.items||[])].find(x=>x.type&&x.type.indexOf('image/')===0);if(it){e.preventDefault();gNewImage(it.getAsFile());}});
@@ -2796,13 +2865,15 @@ function gBodyBuild(){const B=$('gBody');{const mb=$('gMonBox');if(mb&&mb.parent
   $('gSafCam').onclick=()=>{gSafSide=1-gSafSide;$('gSafImg').style.backgroundImage=`url(${G_SAF[gSafSide]})`;$('gSafLab').textContent=gSafSide?'Machine side':'Operator side';};gTick();}
  else if(gPage==='alr'){B.innerHTML=`<div class="gPage"><b style="font-size:15px">Alerts</b><ul id="gAl"></ul></div>`;}
  else if(gPage==='jobs'&&gNewJ)gNewBuild(B);
+ else if(gPage==='jobs'&&gShare)gShareBuild(B);
  else if(gPage==='jobs'){const sv=jobsSaved();if(!JOBS[gSel])gSel=JOBK;
-  B.innerHTML=`<div class="gPage"><b style="font-size:15px">Jobs</b><div style="margin-top:10px;max-height:300px;overflow:auto">${Object.keys(JOBS).map(k=>`<div class="gJob${k===gSel?' sel':''}" data-gj="${k}"><b>${hEsc(JOBS[k].name)}</b><span>${JOBS[k].np} × ${JOBS[k].pl} × ${JOBS[k].pw} mm${k===JOBK?' · loaded':''}${JOBS[k].custom&&!sv[k]?' · no separator job yet':''}</span></div>`).join('')}</div>
-   <div style="display:flex;gap:8px;margin-top:6px"><button class="gB" id="gLoad" style="width:140px;height:36px;font-size:13px">Load job</button><button class="gB" id="gNewB" style="width:140px;height:36px;font-size:13px">New job</button><button class="gB" id="gDelB" style="width:140px;height:36px;font-size:13px"${JOBS[gSel].custom?'':' disabled'}>Delete job</button></div>
-   <p style="color:#56616C;font-size:11px;max-width:520px">Loading a job puts it on the G-Cut and the line; the simulator restarts with it. New job makes a job from a CAD screenshot of the die layout; after that the job is created at the separator under the same name and set up there.</p></div>`;
+  B.innerHTML=`<div class="gPage"><b style="font-size:15px">Jobs</b><div style="margin-top:10px;max-height:300px;overflow:auto">${Object.keys(JOBS).map(k=>`<div class="gJob${k===gSel?' sel':''}" data-gj="${k}"><b>${hEsc(JOBS[k].name)}</b><span>${JOBS[k].np} × ${JOBS[k].pl} × ${JOBS[k].pw} mm${k===JOBK?' · loaded':''}${JOBS[k].shared?' · shared':''}${JOBS[k].custom&&!sv[k]&&!JOBPRE[k]?' · no separator job yet':''}</span></div>`).join('')}</div>
+   <div style="display:flex;gap:8px;margin-top:6px"><button class="gB" id="gLoad" style="width:140px;height:36px;font-size:13px">Load job</button><button class="gB" id="gNewB" style="width:140px;height:36px;font-size:13px">New job</button><button class="gB" id="gDelB" style="width:140px;height:36px;font-size:13px"${JOBS[gSel].local?'':' disabled'}>Delete job</button><button class="gB" id="gShB" style="width:140px;height:36px;font-size:13px">Share jobs</button></div>
+   <p style="color:#56616C;font-size:11px;max-width:520px">Loading a job puts it on the G-Cut and the line; the simulator restarts with it. New job makes a job from a CAD screenshot of the die layout; after that the job is created at the separator under the same name and set up there. Share jobs puts jobs into the file everyone gets.</p></div>`;
   B.querySelectorAll('[data-gj]').forEach(x=>x.onclick=()=>{gSel=x.dataset.gj;gBodyBuild();});$('gLoad').onclick=()=>{if(gSel!==JOBK)jobLoad(gSel);};
+  $('gShB').onclick=()=>{gShare={on:{}};gBodyBuild();};
   $('gNewB').onclick=()=>{gNewJ={name:'',W:'',H:'',thk:2.7,n:50,spd:5000,img:null,lay:null};gBodyBuild();};
-  $('gDelB').onclick=e=>{const b=e.target;if(!JOBS[gSel]||!JOBS[gSel].custom)return;if(b.dataset.sure!==gSel){b.dataset.sure=gSel;b.textContent='Delete: press again';return;}jobDelete(gSel);gSel=JOBK;gBodyBuild();};}
+  $('gDelB').onclick=e=>{const b=e.target;if(!JOBS[gSel]||!JOBS[gSel].local)return;if(b.dataset.sure!==gSel){b.dataset.sure=gSel;b.textContent='Delete: press again';return;}jobDelete(gSel);gSel=JOBK;gBodyBuild();};}
  else B.innerHTML=`<div class="gPage"><b style="font-size:15px">${gNames[gPage]}</b><p style="color:#56616C;max-width:560px">${{set:'Settings for each section of the machine, scrolled left and right.',mach:'Machine data and service menu.',}[gPage]} This screen is built next, from the photo of it.</p></div>`;}
 function gSketch(){/* side view as on the real screen, left to right: photocells, exit belt, delivery, operator screen, stripping, die-cutting, feeder.
    Tap a section to open its settings page (the photocells open the photocell page). x = 40 + 1.44 × (x on the photo). */
@@ -2944,10 +3015,10 @@ function lineUI(){
 
 
 $('hdrSub').textContent=`Sheet-fed flatbed die-cutter with gripper-bar chain · ${JOB.name}: ${JOB.np} box blanks ${JOB.pl} × ${JOB.pw} mm per sheet, joined by nicks · ${SHL} × ${SHW} mm board`;
-jobSelFill();$('jobSel').value=JOBK;$('jobSaveTop').onclick=e=>{if(saveMachine()){e.target.classList.add('done');e.target.textContent='Saved';setTimeout(()=>{e.target.classList.remove('done');e.target.textContent='Save job';},1200);}};$('insTitle').textContent=`Die layout: ${BL.length} box blanks`;
+jobSelFill();$('jobSel').value=JOBK;setTimeout(sharedFetch,1500);$('jobSaveTop').onclick=e=>{if(saveMachine()){e.target.classList.add('done');e.target.textContent='Saved';setTimeout(()=>{e.target.classList.remove('done');e.target.textContent='Save job';},1200);}};$('insTitle').textContent=`Die layout: ${BL.length} box blanks`;
 $('jobSel').onchange=e=>{const k=e.target.value;if(k===JOBK)return;log(`Changing job to ${JOBS[k].name}: the simulator restarts`,'f');try{localStorage.setItem('dcsJob',k);}catch(_){}try{history.replaceState(null,'','#job='+k);}catch(_){try{location.hash='job='+k;}catch(__){}}setTimeout(()=>location.reload(),150);};
 log(`Job ${JOB.name}: ${JOB.np} pieces ${JOB.pl} × ${JOB.pw} mm, board ${SHL} × ${SHW} mm, ${JOB.batch} sheets per stack`,'ok');
-if(JOB.custom&&!jobsSaved()[JOBK])log(`Separator: there is no job ${JOB.name} yet, the line runs on standard settings. Create it at the separator (Jobs, New job) and set it up`,'f');
+if(JOB.custom&&!jobsSaved()[JOBK]&&!JOBPRE[JOBK])log(`Separator: there is no job ${JOB.name} yet, the line runs on standard settings. Create it at the separator (Jobs, New job) and set it up`,'f');
 window.__sim={advance:x=>advance(x),get mode(){return mode},inject,reset,render,pick,setVB,zoom:z=>{tw=null;vb=z;setVB();}};
 /* G-Cut settings saved with the job (stack size, board, speed, empty cycles, prefeeder, photocells) */
 function gcutGet(){return {infFull:INF_FULL,spd:+$('spd').value,stack:STACK,thk:THK,gap:GAPN,pfStore:PF.store,pfBun:PF.bun,pfOn:PF.on,

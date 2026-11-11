@@ -23,7 +23,7 @@ jobs:
       - name: Purge jsDelivr cache
         run: |
           sleep 20
-          for f in index.html Simulator-Launcher.html loader.js; do
+          for f in index.html Simulator-Launcher.html loader.js jobs.json; do
             curl -fsS "https://purge.jsdelivr.net/gh/denisgaming01-dk/Simulator@main/$f" || true
             echo
           done
