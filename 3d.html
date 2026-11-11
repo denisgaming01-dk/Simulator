@@ -390,7 +390,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v363 · 11 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v364 · 11 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1699,7 +1699,7 @@ function sharedFetch(){let urls=SHARE_URL;try{if(/\.github\.io$/.test(location.h
    .catch(()=>{clearTimeout(t);if(!done)get(i+1);});};
  try{get(0);}catch(e){}}
 /* G-Cut screen, Jobs: Share jobs. Tick the jobs for the shared file, save the file, put it beside the simulator. Import takes jobs from a file into this browser. */
-let gShare=null;
+let gShare=null,DLCAP=null;try{if(window.claude&&typeof window.claude.use==='function')window.claude.use('downloads').then(d=>{DLCAP=d;},()=>{});}catch(e){}
 function gShareBuild(B){const keys=Object.keys(JOBS).filter(k=>JOBS[k].custom),S=gShare;for(const k of keys)if(S.on[k]==null)S.on[k]=true;
  B.innerHTML=`<div class="gPage gShare"><b style="font-size:15px">Share jobs</b>
   <p class="gShP">Tick the jobs everyone should see. The file below then holds exactly those jobs with their separator settings. Put it beside the simulator as <b>jobs.json</b> (replacing the old one): from then on everyone who opens the simulator sees them. A job that is not in the file stays in this browser only.</p>
@@ -1709,8 +1709,10 @@ function gShareBuild(B){const keys=Object.keys(JOBS).filter(k=>JOBS[k].custom),S
  const pick=()=>keys.filter(k=>S.on[k]),msg=(t,bad)=>{const e=$('gsMsg');e.textContent=t;e.style.color=bad?'#B3261E':'#1E5F2E';},show=()=>{$('gsTx').value=shareText(pick());};
  B.querySelectorAll('[data-sh]').forEach(x=>x.onchange=()=>{S.on[x.dataset.sh]=x.checked;show();});show();
  $('gsNo').onclick=()=>{gShare=null;gBodyBuild();};
- $('gsDl').onclick=()=>{try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([shareText(pick())],{type:'application/json'}));a.download='jobs.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);
-   msg(`jobs.json with ${pick().length} job${pick().length===1?'':'s'} saved to the downloads folder. If nothing was saved, use Copy as text.`);}catch(e){msg('This browser did not save the file: use Copy as text.',true);}};
+ $('gsDl').onclick=()=>{const txt=shareText(pick()),n=pick().length,okT=`jobs.json with ${n} job${n===1?'':'s'} saved. If nothing was saved, use Copy as text.`;
+  /* inside claude.ai a page saves a file through the viewer (it asks first); anywhere else the browser saves it directly */
+  if(DLCAP){DLCAP.save({filename:'jobs.json',data:txt}).then(()=>msg(okT),e=>msg(e&&e.code==='declined'?'Not saved.':'This view could not save the file: use Copy as text.',true));return;}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'application/json'}));a.download='jobs.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);msg(okT);}catch(e){msg('This browser did not save the file: use Copy as text.',true);}};
  $('gsCp').onclick=()=>{const tx=$('gsTx');tx.focus();tx.select();const ok=()=>msg('Copied. Paste it into a file named jobs.json.'),no=()=>{let d=false;try{d=document.execCommand('copy');}catch(e){}d?ok():msg('Copy it by hand: the text is selected, press Ctrl+C.',true);};
   try{navigator.clipboard.writeText(tx.value).then(ok,no);}catch(e){no();}};
  $('gsIn').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{let o=null;try{o=JSON.parse(rd.result);}catch(_){}
