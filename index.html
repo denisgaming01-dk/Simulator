@@ -391,7 +391,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v365 · 11 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v366 · 12 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1602,12 +1602,17 @@ const jclone=o=>JSON.parse(JSON.stringify(o));
 /* ---------- New job from a CAD screenshot (v362) ----------
    The die layout is read from a screenshot of the CAD drawing: black lines are cuts, red lines creases; dimension lines (blue) and text
    are ignored by their colour. Every area closed in by cut lines is found; the big ones are the blanks. */
-function cadDetect(img){const W=img.width,H=img.height,D=img.data,N=W*H,wall=new Uint8Array(N),red=new Uint8Array(N);
+function cadDetect(img){const W=img.width,H=img.height,D=img.data,N=W*H,wall=new Uint8Array(N),red=new Uint8Array(N),colw=new Uint8Array(N);
  for(let i=0,p=0;i<N;i++,p+=4){const r=D[p],g=D[p+1],b=D[p+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b);
   if(mx-mn<18&&mx<240)wall[i]=1;else if(r>200&&r-g>55&&Math.abs(g-b)<28)red[i]=1;}
- /* a dimension line drawn over a cut line leaves a gap of a few pixels in it: close gaps of up to 4 px along a line */
- {const g=4,add=[],w=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&wall[y*W+x];
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(wall[y*W+x])continue;let l=0,r=0,u=0,d=0;for(let k=1;k<=g;k++){l|=w(x-k,y);r|=w(x+k,y);u|=w(x,y-k);d|=w(x,y+k);}if((l&&r)||(u&&d))add.push(y*W+x);}
+ /* a line drawn over a cut line leaves a gap in it. Where a coloured line (crease, perforation, dimension line) covers the cut line, the gap
+    is as wide as that line: a coloured pixel counts as cut line when cut line lies within 8 px on two sides of it that face each other or
+    nearly so (135 degrees apart or more), so also at a corner of the outline. A white gap of up to 4 px along a straight line is closed too. */
+ {const add=[],w=(x,y)=>x>=0&&y>=0&&x<W&&y<H&&wall[y*W+x],DX=[1,1,0,-1,-1,-1,0,1],DY=[0,1,1,1,0,-1,-1,-1];
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(wall[i])continue;const p=i*4,mx=Math.max(D[p],D[p+1],D[p+2]),mn=Math.min(D[p],D[p+1],D[p+2]);
+   if(mx-mn>=10){let m=0;for(let d=0;d<8;d++)for(let k=1;k<=8;k++){if(w(x+DX[d]*k,y+DY[d]*k)){m|=1<<d;break;}}
+    if(m){let hit=0;for(let d=0;d<8&&!hit;d++){if(!(m>>d&1))continue;for(const e of [3,4,5])if(m>>((d+e)&7)&1){hit=1;break;}}if(hit){add.push(i);colw[i]=1;}}}
+   else{let l=0,r=0,u=0,dn=0;for(let k=1;k<=4;k++){l|=w(x-k,y);r|=w(x+k,y);u|=w(x,y-k);dn|=w(x,y+k);}if((l&&r)||(u&&dn))add.push(i);}}
   for(const i of add)wall[i]=1;}
  /* outside: everything reached from the picture border without crossing a cut line */
  const out=new Uint8Array(N),st=new Int32Array(N);let sp=0;const push=i=>{if(!out[i]&&!wall[i]){out[i]=1;st[sp++]=i;}};
@@ -1615,19 +1620,40 @@ function cadDetect(img){const W=img.width,H=img.height,D=img.data,N=W*H,wall=new
  while(sp){const i=st[--sp],x=i%W;if(x>0)push(i-1);if(x<W-1)push(i+1);if(i>=W)push(i-W);if(i<N-W)push(i+W);}
  /* closed-in areas */
  const reg=new Int32Array(N),comps=[];
- for(let s=0;s<N;s++){if(out[s]||wall[s]||reg[s])continue;const id=comps.length+1;let n=0,x0=W,x1=0,y0=H,y1=0;sp=0;st[sp++]=s;reg[s]=id;
-  while(sp){const i=st[--sp],x=i%W,y=(i/W)|0;n++;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
+ for(let s=0;s<N;s++){if(out[s]||wall[s]||reg[s])continue;const id=comps.length+1;let n=0,rn=0,fn=0,x0=W,x1=0,y0=H,y1=0;sp=0;st[sp++]=s;reg[s]=id;
+  while(sp){const i=st[--sp],x=i%W,y=(i/W)|0;n++;if(red[i])rn++;else{const p=i*4;if(Math.max(D[p],D[p+1],D[p+2])-Math.min(D[p],D[p+1],D[p+2])>=25)fn++;}if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
    const t=j=>{if(!out[j]&&!wall[j]&&!reg[j]){reg[j]=id;st[sp++]=j;}};if(x>0)t(i-1);if(x<W-1)t(i+1);if(i>=W)t(i-W);if(i<N-W)t(i+W);}
-  comps.push({id,n,x0,x1,y0,y1});}
+  comps.push({id,n,rn,waste:fn>n*.5,x0,x1,y0,y1});}   /* an area filled with a colour is waste marked in the drawing */
  comps.sort((a,b)=>b.n-a.n);
- return {W,H,red,reg,comps};}
-/* outline of one area, grown by a pixel so it reaches the middle of its cut line (Moore boundary tracing) */
-function cadOutline(R,c){const {W,H,reg}=R,id=c.id,x0=Math.max(0,c.x0-1),y0=Math.max(0,c.y0-1),x1=Math.min(W-1,c.x1+1),y1=Math.min(H-1,c.y1+1),w=x1-x0+1,h=y1-y0+1,m=new Uint8Array(w*h);
- for(let y=c.y0;y<=c.y1;y++)for(let x=c.x0;x<=c.x1;x++){if(reg[y*W+x]!==id)continue;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const xx=x+dx-x0,yy=y+dy-y0;if(xx>=0&&yy>=0&&xx<w&&yy<h)m[yy*w+xx]=1;}}
+ /* the blanks: the big areas; when the drawing has creases, only areas with creases in them (the waste between blanks has none) */
+ const top=comps.find(c=>!c.waste)||comps[0];let big=comps.filter(c=>!c.waste&&c.n>=top.n*.12&&c.x1-c.x0>12&&c.y1-c.y0>12);if(big.some(c=>c.rn>=20))big=big.filter(c=>c.rn>=5);
+ /* a small area held to a blank by a line that is partly coloured (a perforated or creased tab) belongs to that blank; an area closed in
+    by cut lines only is waste. Looked at across the line: from the edge of the small area through up to 9 px of line to the area behind. */
+ const isBig=new Uint8Array(comps.length+2);for(const c of big)isBig[c.id]=1;const byId=[];for(const c of comps)byId[c.id]=c;
+ const DX=[1,-1,0,0],DY=[0,0,1,-1];
+ for(const c of comps){if(isBig[c.id]||c.n<6||c.waste)continue;const tot={},col={},cross={};
+  for(let y=c.y0;y<=c.y1;y++)for(let x=c.x0;x<=c.x1;x++){if(reg[y*W+x]!==c.id)continue;
+   for(let d=0;d<4;d++){let xx=x+DX[d],yy=y+DY[d];if(xx<0||yy<0||xx>=W||yy>=H||!wall[yy*W+xx])continue;const path=[];let cw=0,q=0;
+    for(let k=0;k<9;k++){if(xx<0||yy<0||xx>=W||yy>=H)break;const j=yy*W+xx;if(wall[j]){path.push(j);if(colw[j])cw=1;xx+=DX[d];yy+=DY[d];continue;}q=reg[j];break;}
+    if(q&&q!==c.id&&isBig[q]){tot[q]=(tot[q]||0)+1;if(cw)col[q]=(col[q]||0)+1;(cross[q]=cross[q]||[]).push(path);}}}
+  let best=0;for(const q in tot)if((col[q]||0)>=3&&col[q]>=tot[q]*.25&&(!best||col[q]>col[best]))best=+q;
+  if(best){const B=byId[best];for(let y=c.y0;y<=c.y1;y++)for(let x=c.x0;x<=c.x1;x++)if(reg[y*W+x]===c.id)reg[y*W+x]=best;for(const p of cross[best])for(const j of p)reg[j]=best;
+   B.n+=c.n;B.x0=Math.min(B.x0,c.x0);B.y0=Math.min(B.y0,c.y0);B.x1=Math.max(B.x1,c.x1);B.y1=Math.max(B.y1,c.y1);c.n=0;}}
+ return {W,H,red,reg,comps,big};}
+/* outline of one area: grown by a pixel so it reaches the middle of its cut line, then narrow nicks (where a crease or a dimension line
+   meets the edge, slits under 6 px) are closed, then the edge is followed round (Moore boundary tracing) */
+function cadOutline(R,c){const {W,H,reg}=R,id=c.id,r=3,p=r+2,x0=c.x0-p,y0=c.y0-p,w=c.x1-c.x0+1+2*p,h=c.y1-c.y0+1+2*p;let m=new Uint8Array(w*h);
+ for(let y=c.y0;y<=c.y1;y++)for(let x=c.x0;x<=c.x1;x++)if(reg[y*W+x]===id)m[(y-y0)*w+x-x0]=1;
+ /* grow / shrink by k px with a square: two passes, across then along */
+ const morph=(src,k,grow)=>{const t=new Uint8Array(w*h),o=new Uint8Array(w*h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){let v=grow?0:1;for(let d=-k;d<=k;d++){const xx=x+d,on=xx>=0&&xx<w&&src[y*w+xx];if(grow?on:!on){v=grow?1:0;break;}}t[y*w+x]=v;}
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){let v=grow?0:1;for(let d=-k;d<=k;d++){const yy=y+d,on=yy>=0&&yy<h&&t[yy*w+x];if(grow?on:!on){v=grow?1:0;break;}}o[y*w+x]=v;}return o;};
+ m=morph(morph(m,r+1,true),r,false);
  const on=(x,y)=>x>=0&&y>=0&&x<w&&y<h&&m[y*w+x];let sx=-1,sy=-1;for(let y=0;y<h&&sx<0;y++)for(let x=0;x<w;x++)if(on(x,y)){sx=x;sy=y;break;}
- const dx=[1,1,0,-1,-1,-1,0,1],dy=[0,1,1,1,0,-1,-1,-1],P=[];let x=sx,y=sy,d=6,guard=0;
- do{P.push([x+x0+.5,y+y0+.5]);let k=0;const nd=(d+6)%8;for(;k<8;k++){const q=(nd+k)%8;if(on(x+dx[q],y+dy[q])){x+=dx[q];y+=dy[q];d=q;break;}}if(k===8)break;}while((x!==sx||y!==sy)&&++guard<4e6);
- return {P,x0,y0,x1:x1+1,y1:y1+1};}
+ const dx=[1,1,0,-1,-1,-1,0,1],dy=[0,1,1,1,0,-1,-1,-1],P=[];let x=sx,y=sy,d=6,guard=0,bx0=1e9,by0=1e9,bx1=-1e9,by1=-1e9;
+ do{const px=x+x0+.5,py=y+y0+.5;P.push([px,py]);if(px<bx0)bx0=px;if(px>bx1)bx1=px;if(py<by0)by0=py;if(py>by1)by1=py;
+  let k=0;const nd=(d+6)%8;for(;k<8;k++){const q=(nd+k)%8;if(on(x+dx[q],y+dy[q])){x+=dx[q];y+=dy[q];d=q;break;}}if(k===8)break;}while((x!==sx||y!==sy)&&++guard<4e6);
+ return {P,x0:Math.floor(bx0),y0:Math.floor(by0),x1:Math.ceil(bx1),y1:Math.ceil(by1)};}
 /* fewer corner points: Douglas-Peucker on a closed outline */
 function cadSimplify(P,tol){if(P.length<5)return P;let b=0,md=0;for(let i=0;i<P.length;i++){const d=(P[i][0]-P[0][0])**2+(P[i][1]-P[0][1])**2;if(d>md){md=d;b=i;}}
  const dp=pts=>{const keep=new Uint8Array(pts.length);keep[0]=keep[pts.length-1]=1;const stk=[[0,pts.length-1]];
@@ -1635,18 +1661,21 @@ function cadSimplify(P,tol){if(P.length<5)return P;let b=0,md=0;for(let i=0;i<P.
    for(let i=s+1;i<e;i++){const d=Math.abs((pts[i][0]-A[0])*ey-(pts[i][1]-A[1])*ex)/L;if(d>mx){mx=d;mi=i;}}if(mx>tol){keep[mi]=1;stk.push([s,mi],[mi,e]);}}
   return pts.filter((_,i)=>keep[i]);};
  const h1=dp(P.slice(0,b+1)),h2=dp(P.slice(b).concat([P[0]]));return h1.slice(0,-1).concat(h2.slice(0,-1));}
-/* red crease lines inside a box: straight runs across and along, the dashes joined */
-function cadCreases(R,box){const {W,red}=R,{x0,x1,y0,y1}=box,segs=[];
- const scan=horiz=>{const n=horiz?y1-y0:x1-x0,m=horiz?x1-x0:y1-y0,cnt=new Int32Array(n);
-  for(let a=0;a<n;a++)for(let b=0;b<m;b++){if(red[horiz?(y0+a)*W+x0+b:(y0+b)*W+x0+a])cnt[a]++;}
-  let a=0;while(a<n){if(cnt[a]<12){a++;continue;}let e=a;while(e+1<n&&cnt[e+1]>=12)e++;
-   const on=new Uint8Array(m);for(let c=a;c<=e;c++)for(let b=0;b<m;b++){if(red[horiz?(y0+c)*W+x0+b:(y0+b)*W+x0+c])on[b]=1;}
-   let b=0;while(b<m){if(!on[b]){b++;continue;}const s=b;let last=b,n1=0;while(b<m&&b-last<=14){if(on[b]){last=b;n1++;}b++;}
-    if(last-s>=10&&n1>=(last-s)*.3){const mid=(a+e)/2+.5;segs.push(horiz?[x0+s,y0+mid,x0+last+1,y0+mid]:[x0+mid,y0+s,x0+mid,y0+last+1]);}}
+/* red crease lines inside a box: straight runs across and along, the dashes joined. A red pixel belongs to a line across when the red
+   run through it is longer across than along (and the other way round), so a thick crease along does not count as a line across. */
+function cadCreases(R,box){const {W,red}=R,{x0,x1,y0,y1}=box,w=x1-x0,h=y1-y0,segs=[],hr=new Uint16Array(w*h),vr=new Uint16Array(w*h);
+ for(let y=0;y<h;y++){let x=0;while(x<w){if(!red[(y0+y)*W+x0+x]){x++;continue;}let e=x;while(e+1<w&&red[(y0+y)*W+x0+e+1])e++;for(let k=x;k<=e;k++)hr[y*w+k]=e-x+1;x=e+1;}}
+ for(let x=0;x<w;x++){let y=0;while(y<h){if(!red[(y0+y)*W+x0+x]){y++;continue;}let e=y;while(e+1<h&&red[(y0+e+1)*W+x0+x])e++;for(let k=y;k<=e;k++)vr[k*w+x]=e-y+1;y=e+1;}}
+ const scan=horiz=>{const n=horiz?h:w,m=horiz?w:h,cnt=new Int32Array(n),is=(a,b)=>{const i=horiz?a*w+b:b*w+a,p=horiz?hr[i]:vr[i],q=horiz?vr[i]:hr[i];return p>=5&&p>=q*1.5;};
+  for(let a=0;a<n;a++)for(let b=0;b<m;b++)if(is(a,b))cnt[a]++;
+  let a=0;while(a<n){if(cnt[a]<10){a++;continue;}let e=a;while(e+1<n&&cnt[e+1]>=10&&e-a<8)e++;
+   const on=new Uint8Array(m);for(let c=a;c<=e;c++)for(let b=0;b<m;b++)if(is(c,b))on[b]=1;
+   let b=0;while(b<m){if(!on[b]){b++;continue;}const s0=b;let last=b,n1=0;while(b<m&&b-last<=16){if(on[b]){last=b;n1++;}b++;}
+    if(last-s0>=10&&n1>=(last-s0)*.3){const mid=(a+e)/2+.5;segs.push(horiz?[x0+s0,y0+mid,x0+last+1,y0+mid]:[x0+mid,y0+s0,x0+mid,y0+last+1]);}}
    a=e+1;}};
  scan(true);scan(false);return segs;}
 /* picture -> the layout: blanks with their column and row on the sheet, creases, all still in pixels */
-function cadLayout(img){const R=cadDetect(img),big=R.comps.filter(c=>c.n>=R.comps[0].n*.2&&c.x1-c.x0>12&&c.y1-c.y0>12);
+function cadLayout(img){const R=cadDetect(img),big=R.big;
  if(!R.comps.length||!big.length)return {err:'No blank found. Use a screenshot of the CAD drawing with black cut lines on a white background.'};
  if(big.length>60)return {err:'Too many closed areas found ('+big.length+'). Use a screenshot that shows only the die layout.'};
  const bl=big.map(c=>cadOutline(R,c)),box={x0:Math.min(...bl.map(b=>b.x0)),y0:Math.min(...bl.map(b=>b.y0)),x1:Math.max(...bl.map(b=>b.x1)),y1:Math.max(...bl.map(b=>b.y1))};
@@ -2738,6 +2767,10 @@ function gBuild(){const nav=Object.keys(gNames).map(k=>`<button data-gp="${k}" c
 /* G-Cut screen, Jobs: New job (v362). The name, the CAD screenshot of the die layout and its two overall dimensions make the job. */
 let gNewJ=null;
 function gNewDraw(){const S=gNewJ,cv=$('gnCv');if(!S||!cv)return;const g=cv.getContext('2d');g.clearRect(0,0,cv.width,cv.height);
+ if(!S.img&&S.edit&&JOBS[S.edit]){const J=JOBS[S.edit],w=J.np*J.pw,h=J.pl,k=Math.min((cv.width-40)/w,(cv.height-70)/h),ox=(cv.width-w*k)/2,oy=(cv.height-h*k)/2+10;
+  g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.fillStyle='#56616C';g.font='22px Segoe UI,Tahoma,sans-serif';g.textAlign='center';g.fillText('The blanks this job has now',cv.width/2,30);
+  J.shapes.forEach((q,i)=>{g.beginPath();q.forEach(([x,y],j)=>j?g.lineTo(ox+x*k,oy+y*k):g.moveTo(ox+x*k,oy+y*k));g.closePath();g.fillStyle='rgba(255,170,60,.28)';g.fill();g.strokeStyle='#222';g.lineWidth=2;g.stroke();});
+  g.strokeStyle='#D02020';g.lineWidth=1.5;(J.creases||[]).forEach(c=>{g.beginPath();g.moveTo(ox+c[0]*k,oy+c[1]*k);g.lineTo(ox+c[2]*k,oy+c[3]*k);g.stroke();});return;}
  if(!S.img){g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.fillStyle='#8E98A2';g.font='13px Segoe UI,Tahoma,sans-serif';g.textAlign='center';g.fillText('The screenshot and the blanks found in it show here',cv.width/2,cv.height/2);return;}
  const k=Math.min(cv.width/S.img.width,cv.height/S.img.height),ox=(cv.width-S.img.width*k)/2,oy=(cv.height-S.img.height*k)/2;
  g.fillStyle='#fff';g.fillRect(0,0,cv.width,cv.height);g.globalAlpha=.5;g.drawImage(S.img,ox,oy,S.img.width*k,S.img.height*k);g.globalAlpha=1;
@@ -2755,33 +2788,44 @@ function gNewImage(file){if(!gNewJ||!file)return;const rd=new FileReader();rd.on
    else gNewMsg(`${L.bl.length} blank${L.bl.length>1?'s':''} found: ${L.np} across × ${L.rows} along. Check the outlines in the picture, then enter the layout size.`);
    gNewDraw();};im.onerror=()=>gNewMsg('This file is not a picture the browser can open.',true);im.src=rd.result;};rd.readAsDataURL(file);}
 function gNewBuild(B){const S=gNewJ;
- B.innerHTML=`<div class="gPage gNew"><b style="font-size:15px">New job</b><div class="gNewG"><div class="gNewF">
+ B.innerHTML=`<div class="gPage gNew"><b style="font-size:15px">${S.edit?'Edit job':'New job'}</b><div class="gNewG"><div class="gNewF">
    <label>Job name<input id="gnName" type="text" maxlength="40" value="${hEsc(S.name||'')}"></label>
-   <label>CAD screenshot of the die layout<input id="gnFile" type="file" accept="image/*"></label><small>or paste it with Ctrl+V. Black lines are read as cuts, red lines as creases.</small>
+   <label>CAD screenshot of the die layout<input id="gnFile" type="file" accept="image/*"></label><small>or paste it with Ctrl+V. Black lines are read as cuts, red lines as creases; waste filled with a colour is left out.${S.edit?' Leave empty to keep the blanks the job has now.':''}</small>
    <label>Layout size, across × along the feed (mm)<span><input id="gnW" type="number" min="100" max="2080" value="${S.W||''}"> × <input id="gnH" type="number" min="100" max="1275" value="${S.H||''}"></span></label>
    <label>Board thickness (mm)<input id="gnT" type="number" min="1" max="12" step="0.1" value="${S.thk}"></label>
    <label>Sheets per stack<input id="gnN" type="number" min="10" max="400" step="5" value="${S.n}"></label>
    <label>Speed (sheets/h)<input id="gnS" type="number" min="1000" max="6500" step="100" value="${S.spd}"></label>
-   <p id="gnMsg"></p><div class="gNewB"><button class="gB" id="gnOk">Create job</button><button class="gB" id="gnNo">Cancel</button></div>
+   <p id="gnMsg"></p><div class="gNewB"><button class="gB" id="gnOk">${S.edit?'Save job':'Create job'}</button><button class="gB" id="gnNo">Cancel</button></div>
   </div><canvas id="gnCv" width="900" height="760"></canvas></div></div>`;
  const keep=()=>{S.name=$('gnName').value;S.W=$('gnW').value;S.H=$('gnH').value;S.thk=$('gnT').value;S.n=$('gnN').value;S.spd=$('gnS').value;};
  B.querySelectorAll('input:not([type=file])').forEach(x=>x.oninput=keep);
  $('gnFile').onchange=e=>gNewImage(e.target.files[0]);$('gnNo').onclick=()=>{gNewJ=null;gBodyBuild();};
- $('gnOk').onclick=()=>{keep();const name=S.name.replace(/[<>&"'`\\]/g,'').trim(),W=+S.W,H=+S.H,thk=+S.thk,n=Math.round(+S.n),spd=Math.round(+S.spd),L=S.lay;
-  if(!name)return gNewMsg('Enter a name for the job.',true);
-  if(Object.keys(JOBS).some(k=>JOBS[k].name.trim().toLowerCase()===name.toLowerCase()))return gNewMsg('There is already a job with this name.',true);
-  if(!L||L.err||!L.grid)return gNewMsg(L&&L.err?L.err:L?'This layout cannot be used: the blanks must sit in straight columns and rows.':'Add the CAD screenshot of the die layout.',true);
-  if(!(W>=100&&H>=100))return gNewMsg('Enter the layout size from the drawing: the overall width across and the overall length along the feed, in mm.',true);
-  if(W>2080||H>1275)return gNewMsg('Too big for the G-Cut 13/21: the layout can be 2080 mm across and 1275 mm along at most (sheet 2100 × 1300).',true);
-  if(L.np>10||L.rows>10)return gNewMsg('The separators take 10 pieces across and 10 along at most.',true);
-  if(!(thk>=1&&thk<=12)||!(n>=10&&n<=400)||!(spd>=1000&&spd<=6500))return gNewMsg('Check board thickness (1 to 12 mm), sheets per stack (10 to 400) and speed (1000 to 6500).',true);
-  const sh=cadJobShapes(L,W,H),pw=Math.round(W/L.np*10)/10,rl=Math.round(H/L.rows*10)/10,kp=Math.max(1,Math.min(L.np,Math.floor(1200/pw)));
-  const job={name,custom:true,local:true,np:L.np,pl:H,pw,rows:L.rows,batch:n,sep2:Array(L.np).fill(pw),shiftW:Math.ceil(L.np/2),palL:Math.round(kp*pw),palW:Math.round(rl),want:6,bar:4.5,
-   shapes:sh.shapes,creases:sh.creases,gcut:{spd,thk,stack:n},batchH:Math.round(n*thk)+30};if(L.rows>1)job.sep1=Array(L.rows).fill(rl);
-  const all=customJobs();let k;do{k='J'+Math.floor(Math.random()*1e9).toString(36);}while(JOBS[k]||all[k]);all[k]=job;
-  if(!customSave(all))return gNewMsg('This browser could not save the job.',true);
-  JOBS[k]=job;jobSelFill();gSel=k;gNewJ=null;gBodyBuild();
-  log(`Job ${name} created on the G-Cut: ${L.bl.length} blanks, ${L.np} across × ${L.rows} along, layout ${W} × ${H} mm. Now create the job with the same name at the separator and set it up there.`,'ok');};
+  $('gnOk').onclick=()=>{keep();const name=S.name.replace(/[<>&"'`\\]/g,'').trim(),W=+S.W,H=+S.H,thk=+S.thk,n=Math.round(+S.n),spd=Math.round(+S.spd),L=S.lay,ed=S.edit||'',old=ed?JOBS[ed]:null;
+   if(!name)return gNewMsg('Enter a name for the job.',true);
+   if(Object.keys(JOBS).some(k=>k!==ed&&JOBS[k].name.trim().toLowerCase()===name.toLowerCase()))return gNewMsg('There is already a job with this name.',true);
+   if(L||!old){if(!L||L.err||!L.grid)return gNewMsg(L&&L.err?L.err:L?'This layout cannot be used: the blanks must sit in straight columns and rows.':'Add the CAD screenshot of the die layout.',true);}
+   if(!(W>=100&&H>=100))return gNewMsg('Enter the layout size from the drawing: the overall width across and the overall length along the feed, in mm.',true);
+   if(W>2080||H>1275)return gNewMsg('Too big for the G-Cut 13/21: the layout can be 2080 mm across and 1275 mm along at most (sheet 2100 × 1300).',true);
+   const np=L?L.np:old.np,rows=L?L.rows:(old.rows||1);
+   if(np>10||rows>10)return gNewMsg('The separators take 10 pieces across and 10 along at most.',true);
+   if(!(thk>=1&&thk<=12)||!(n>=10&&n<=400)||!(spd>=1000&&spd<=6500))return gNewMsg('Check board thickness (1 to 12 mm), sheets per stack (10 to 400) and speed (1000 to 6500).',true);
+   const pw=Math.round(W/np*10)/10,rl=Math.round(H/rows*10)/10,kp=Math.max(1,Math.min(np,Math.floor(1200/pw)));
+   /* the blanks: read from the new screenshot, or the ones the job has (stretched when the layout size was changed) */
+   let sh;if(L)sh=cadJobShapes(L,W,H);else{const fx=W/(old.np*old.pw),fy=H/old.pl,r1=v=>Math.round(v*10)/10;sh={shapes:old.shapes.map(q=>q.map(([x,y])=>[r1(x*fx),r1(y*fy)])),creases:(old.creases||[]).map(c=>[r1(c[0]*fx),r1(c[1]*fy),r1(c[2]*fx),r1(c[3]*fy)])};}
+   const same=old&&!L&&Math.abs(W-old.np*old.pw)<.6&&Math.abs(H-old.pl)<.6;   /* layout untouched: the separator and pallet values stay as they are */
+   const job=same?{...jobClean(old),name,batch:n,gcut:{spd,thk,stack:n},batchH:Math.round(n*thk)+30}
+    :{name,np,pl:H,pw,rows,batch:n,sep2:Array(np).fill(pw),shiftW:Math.ceil(np/2),palL:Math.round(kp*pw),palW:Math.round(rl),want:6,bar:4.5,shapes:sh.shapes,creases:sh.creases,gcut:{spd,thk,stack:n},batchH:Math.round(n*thk)+30};
+   if(!same&&rows>1)job.sep1=Array(rows).fill(rl);job.custom=true;job.local=true;if(old&&old.shared)job.shared=true;
+   const all=customJobs();let k=ed;if(!k){do{k='J'+Math.floor(Math.random()*1e9).toString(36);}while(JOBS[k]||all[k]);}all[k]=job;
+   if(!customSave(all))return gNewMsg('This browser could not save the job.',true);
+   JOBS[k]=job;
+   /* the separator job of an edited job: a changed layout puts it back to the standard values for the new layout; otherwise only what was edited here goes in */
+   if(old){const sv=jobsSaved();if(sv[k]||JOBPRE[k]){if(!same)sv[k]=jobDefault(k);else{sv[k]=sv[k]||jclone(JOBPRE[k]);sv[k].batchH=job.batchH;if(sv[k].gcut){sv[k].gcut.spd=spd;sv[k].gcut.thk=thk;sv[k].gcut.stack=n;}}
+     try{localStorage.setItem('dcsJobs',JSON.stringify(sv));}catch(e){}}}
+   jobSelFill();gSel=k;gNewJ=null;gBodyBuild();
+   if(old){log(`Job ${name} changed on the G-Cut${same?'':`: ${np} across × ${rows} along, layout ${W} × ${H} mm. Its separator job is back on standard values: check it at the separator`}${old.shared?'. It is shared: upload it again (Share jobs) so everyone gets the change':''}`,'ok');
+    if(k===JOBK)setTimeout(()=>location.reload(),400);}
+   else log(`Job ${name} created on the G-Cut: ${L.bl.length} blanks, ${L.np} across × ${L.rows} along, layout ${W} × ${H} mm. Now create the job with the same name at the separator and set it up there.`,'ok');};
  gNewDraw();}
 /* the job picker in the header also lists the jobs made here */
 function jobSelFill(){const s=$('jobSel');if(!s)return;for(const k in JOBS)if(![...s.options].some(o=>o.value===k)){const o=document.createElement('option');o.value=k;o.textContent=JOBS[k].name;s.appendChild(o);}
@@ -2887,10 +2931,12 @@ function gBodyBuild(){const B=$('gBody');{const mb=$('gMonBox');if(mb&&mb.parent
  else if(gPage==='jobs'&&gShare)gShareBuild(B);
  else if(gPage==='jobs'){const sv=jobsSaved();if(!JOBS[gSel])gSel=JOBK;
   B.innerHTML=`<div class="gPage"><b style="font-size:15px">Jobs</b><div style="margin-top:10px;max-height:300px;overflow:auto">${Object.keys(JOBS).map(k=>`<div class="gJob${k===gSel?' sel':''}" data-gj="${k}"><b>${hEsc(JOBS[k].name)}</b><span>${JOBS[k].np} × ${JOBS[k].pl} × ${JOBS[k].pw} mm${k===JOBK?' · loaded':''}${JOBS[k].shared?' · shared':''}${JOBS[k].custom&&!sv[k]&&!JOBPRE[k]?' · no separator job yet':''}</span></div>`).join('')}</div>
-   <div style="display:flex;gap:8px;margin-top:6px"><button class="gB" id="gLoad" style="width:140px;height:36px;font-size:13px">Load job</button><button class="gB" id="gNewB" style="width:140px;height:36px;font-size:13px">New job</button><button class="gB" id="gDelB" style="width:140px;height:36px;font-size:13px"${JOBS[gSel].local?'':' disabled'}>Delete job</button><button class="gB" id="gShB" style="width:140px;height:36px;font-size:13px">Share jobs</button></div>
-   <p style="color:#56616C;font-size:11px;max-width:520px">Loading a job puts it on the G-Cut and the line; the simulator restarts with it. New job makes a job from a CAD screenshot of the die layout; after that the job is created at the separator under the same name and set up there. Share jobs puts jobs into the file everyone gets.</p></div>`;
+   <div style="display:flex;gap:8px;margin-top:6px"><button class="gB" id="gLoad" style="width:128px;height:36px;font-size:13px">Load job</button><button class="gB" id="gNewB" style="width:128px;height:36px;font-size:13px">New job</button><button class="gB" id="gEdB" style="width:128px;height:36px;font-size:13px"${JOBS[gSel].custom?'':' disabled title="Only jobs made with New job can be edited here"'}>Edit job</button><button class="gB" id="gDelB" style="width:128px;height:36px;font-size:13px"${JOBS[gSel].local?'':' disabled'}>Delete job</button><button class="gB" id="gShB" style="width:128px;height:36px;font-size:13px">Share jobs</button></div>
+   <p style="color:#56616C;font-size:11px;max-width:520px">Loading a job puts it on the G-Cut and the line; the simulator restarts with it. New job makes a job from a CAD screenshot of the die layout; after that the job is created at the separator under the same name and set up there. Edit job changes a job made that way. Share jobs puts jobs into the file everyone gets.</p></div>`;
   B.querySelectorAll('[data-gj]').forEach(x=>x.onclick=()=>{gSel=x.dataset.gj;gBodyBuild();});$('gLoad').onclick=()=>{if(gSel!==JOBK)jobLoad(gSel);};
   $('gShB').onclick=()=>{gShare={on:{}};gBodyBuild();};
+  $('gEdB').onclick=()=>{const J=JOBS[gSel];if(!J||!J.custom)return;const g=(jobsSaved()[gSel]||JOBPRE[gSel]||{}).gcut||J.gcut||{};
+   gNewJ={edit:gSel,name:J.name,W:Math.round(J.np*J.pw*10)/10,H:J.pl,thk:g.thk||J.gcut.thk,n:J.batch,spd:g.spd||J.gcut.spd,img:null,lay:null};gBodyBuild();};
   $('gNewB').onclick=()=>{gNewJ={name:'',W:'',H:'',thk:2.7,n:50,spd:5000,img:null,lay:null};gBodyBuild();};
   $('gDelB').onclick=e=>{const b=e.target;if(!JOBS[gSel]||!JOBS[gSel].local)return;if(b.dataset.sure!==gSel){b.dataset.sure=gSel;b.textContent='Delete: press again';return;}jobDelete(gSel);gSel=JOBK;gBodyBuild();};}
  else B.innerHTML=`<div class="gPage"><b style="font-size:15px">${gNames[gPage]}</b><p style="color:#56616C;max-width:560px">${{set:'Settings for each section of the machine, scrolled left and right.',mach:'Machine data and service menu.',}[gPage]} This screen is built next, from the photo of it.</p></div>`;}
@@ -3047,6 +3093,18 @@ function gcutApply(g){if(!g)return;if(g.infFull)setInfFull(g.infFull);const set=
  if(g.pfOn===false&&PF.on)$('pfOn').click();
  (g.sens||[]).forEach(s=>{const o=SK[s.k];if(!o)return;o.on=s.on;o.v=s.v;o.z=o.v*KV+SZ0;if(s.mm&&o.mm)o.mm=[...s.mm];});drawSens();}
 gcutApply(jobGet(JOBK).gcut);
+/* a job made with New job that has no photocell settings of its own yet: the two Stripping exit photocells (the ones that can be moved
+   across) start over solid board, as an operator would set them, so the job does not stop on its first sheet. They are tried from their
+   usual place (400 mm either side of the centre) outwards, with the check points pulled in if the blanks are short; each check point must
+   have board 12 mm around it (v366). */
+if(JOB.custom&&!(jobGet(JOBK).gcut||{}).sens){let moved=false;
+ const ok=(d,v)=>{const u=(SHO+SLX)/KU-d;   /* the same point mmCheck looks at: d is counted from the gripper bar */
+  return u>0&&u<SHL-FWL&&[[0,0],[12,0],[-12,0],[0,12],[0,-12]].every(([a,b])=>inBlank(u+a,v+b));};
+ for(const o of [SK.ZA,SK.ZB]){if(!o||!o.mm)continue;const sg=o.side==='AS'?1:-1,d1s=[],d2s=[];for(let d=o.mm[0];d<=Math.min(300,SHL-120);d+=10)d1s.push(d);for(let d=o.mm[1];d>=Math.max(320,o.mm[0]+100);d-=10)d2s.push(d);
+  let found=null;for(let st=0;st<=90&&!found;st++)for(const e of st?[st*10,-st*10]:[0]){const v=MID+sg*(400+e);if(v<20||v>SHW-20||sg*(v-MID)<60)continue;
+   const a=d1s.find(d=>ok(d,v)),b=d2s.find(d=>ok(d,v));if(a!=null&&b!=null){found=[v,a,b];break;}}
+  if(found&&(found[0]!==o.v||found[1]!==o.mm[0]||found[2]!==o.mm[1])){o.v=found[0];o.z=o.v*KV+SZ0;o.mm=[found[1],found[2]];moved=true;}}
+ if(moved){drawSens();buildEvents();}}
 document.querySelectorAll('.shl').forEach(e=>e.textContent=SHL);gBuild();new ResizeObserver(()=>g1Fit()).observe($('g1'));g1Fit();
 setSpd();drawPile();buildMon();buildEvents();pick('overview');log('Machine running','ok');requestAnimationFrame(frame);
 /* background: drawing stops when the tab is hidden, so a worker clock keeps the machine logic running (timer fallback if workers are blocked) */
