@@ -391,7 +391,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v366 · 12 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v367 · 12 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -1977,7 +1977,7 @@ const lBlockLen=its=>its.reduce((a,q)=>a+lDims(q).al,0);
 /* a belt counts as empty only when no other stack is still on it (the one that just left must be fully off) */
 /* a block waiting at the end of the station before can hang over onto this belt (belts are only 50 mm apart): that does not block it */
 function lBusy(kk){const st=LS[kk],a=st.c-HS(kk),b=st.c+HS(kk),pv=LS[LORDER[LORDER.indexOf(kk)-1]];
- return lItems.some(q=>!st.its.includes(q)&&!(pv&&(pv.its.includes(q)||pv.front===q))&&q!==st.front&&q.op>.5&&q.y>-200&&Math.abs(q.l)<LHW&&(()=>{const d=lDims(q);return q.s-d.al/2<b-5&&q.s+d.al/2>a+5;})());}
+ return lItems.some(q=>!st.its.includes(q)&&!(pv&&(pv.its.includes(q)||(pv.fronts||[]).includes(q)))&&!(st.fronts||[]).includes(q)&&q.op>.5&&q.y>-200&&Math.abs(q.l)<LHW&&(()=>{const d=lDims(q);return q.s-d.al/2<b-5&&q.s+d.al/2>a+5;})());}
 function lAccepts(kk){const st=LS[kk];if(!st||!lOn(kk)||lineFault)return false;if(lBusy(kk))return false;
  if(LACC.includes(kk))return st.ph==='idle'||(st.ph==='collect'&&lBundles(st.its)<LSET[kk].wait);
  return st.ph==='idle'&&!st.its.length;}
@@ -1994,15 +1994,16 @@ function lFront(its,x){const e=lExt(its);lShiftBlock(its,x-e.s1);}
 function lHand(from,to,its){const st=LS[to];if(from){const f=LS[from];f.its=f.its.filter(q=>!its.includes(q));const g=lCount(f,1);   /* one bundle moved on = one operation */its.forEach(q=>q.gc=g);}
  st.its.push(...its);
  if(LACC.includes(to)){st.ph='collect';lQueue(to,its);}
- else{st.ph='in';st.t=0;if(to==='belt1'||to==='belt2')lFront(its,st.c+HS(st.k)-10);else if(lIsSep(to))lSepEntry(to,its[0]);else lCentre(to,0,its);}}
+ else{st.ph='in';st.t=0;if(to==='belt1'||to==='belt2')lFront(its,st.c+HS(st.k)-10);else if(lIsSep(to))its.forEach(q=>lSepEntry(to,q));else lCentre(to,0,its);}}
 /* the separator knows the piece size from its table, so the stack runs straight to the first break position (front piece past the break line) and never overshoots and comes back */
 function lSepEntry(kk,it){const c=LC[kk],al=lDims(it).al,pcs=LSET[kk].filter(v=>v>0);
  if(pcs.length>1&&lAlongN(it)>1&&pcs[0]<al-5)it.tgt=c+pcs[0]-al/2;else if(pcs.length<=1||pcs[0]>=al-5)it.tgt=c+HS(kk)-10-al/2;else lCentre(kk,0,[it]);}  /* plain belts: the stack waits at the end of the belt */
-/* send the block on: whole block, or one stack at a time into a separator */
+/* send the block on: the whole block. Into a separator: the stacks that lie side by side across the line (collected and turned on the
+   turntable) go in together and are broken in the same stroke; stacks standing one behind the other go in one at a time (v367) */
 /* stacks that were collected and moved on together count as one bundle from then on */
 const lBundles=its=>new Set(its.map(q=>q.grp)).size;
 function lSendOn(kk){const st=LS[kk],nx=lNextOf(kk);if(!st.its.length)return true;if(!lAccepts(nx))return false;
- if(lIsSep(nx)){const fr=st.its.reduce((a,q)=>q.s>a.s?q:a);lHand(kk,nx,[fr]);}else{const g=lNext++;st.its.forEach(q=>q.grp=g);lHand(kk,nx,[...st.its]);}
+ if(lIsSep(nx)){const fr=st.its.reduce((a,q)=>q.s>a.s?q:a),fa=lDims(fr).al;lHand(kk,nx,st.its.filter(q=>Math.abs(q.s-fr.s)<8&&Math.abs(lDims(q).al-fa)<8&&lAlongN(q)===lAlongN(fr)));}else{const g=lNext++;st.its.forEach(q=>q.grp=g);lHand(kk,nx,[...st.its]);}
  return !st.its.length;}
 function lineTake(it){if(!lAccepts('belt1'))return false;lItems.push(it);lHand(null,'belt1',[it]);return true;}
 const lFree=kk=>lAccepts(kk);
@@ -2014,36 +2015,39 @@ function lPlain(kk){const st=LS[kk];if(st.ph==='in'&&lAllAt(st.its))st.ph='out';
 /* separator: the table holds the piece sizes in mm; each piece must be a whole number of blanks */
 const TT_LIFT=40;   /* turntable grid lifts the stack just clear of the belts */
 const SEP_UP=1.26;   /* each press takes 1.26 s to lift back to the batch height */
-function lSep(kk,dt){const st=LS[kk],it=st.its[0];if(!it&&st.ph!=='wait')return;
+function lSep(kk,dt){const st=LS[kk],FR=st.fronts||[],B=st.its.filter(q=>!FR.includes(q)),it=B[0];if(!it&&st.ph!=='wait')return;   /* B: the stacks being broken (side by side they are broken together), it: the first of them */
+ const hMax=B.reduce((a,q)=>Math.max(a,q.h),0);
  switch(st.ph){
-  case 'in':if(!lAt(it))break;
-   if(it.h>LSET.batchH-5){lFault('E480',`${LNAME[kk]}: stack higher than the batch height`,`The stack is ${Math.round(it.h)} mm high but the batch height is set to ${LSET.batchH} mm, so the press cannot open far enough. Set the batch height to the stack height plus 20–30 mm, remove the stack, then reset.`,kk);break;}
-   {const pcs=LSET[kk].filter(v=>v>0);if(pcs.length<=1){it.tgt=st.c+HS(st.k)-10-lDims(it).al/2;st.ph='last';break;}
+  case 'in':if(!lAllAt(B))break;
+   if(hMax>LSET.batchH-5){lFault('E480',`${LNAME[kk]}: stack higher than the batch height`,`The stack is ${Math.round(hMax)} mm high but the batch height is set to ${LSET.batchH} mm, so the press cannot open far enough. Set the batch height to the stack height plus 20–30 mm, remove the stack, then reset.`,kk);break;}
+   {const pcs=LSET[kk].filter(v=>v>0);if(pcs.length<=1){B.forEach(q=>q.tgt=st.c+HS(st.k)-10-lDims(q).al/2);st.ph='last';break;}
     if(lAlongN(it)<=1){lFault('E482',`${LNAME[kk]}: no joint to break`,`The table has ${pcs.length} pieces but the joints of this stack run along the line. Turn the stack 90° on the turntable before this separator, or set one piece only. Remove the stack, then reset.`,kk);break;}
     const U=lAlongU(it),ks=[];for(const v of pcs.slice(0,-1))ks.push(Math.max(1,Math.round(v/U)));st.U=U;st.cf=lAcross(it)?'n':'m';
     st.ks=ks.filter((k,i)=>ks.slice(0,i+1).reduce((a,b)=>a+b,0)<lAlongN(it));st.vs=pcs.slice(0,st.ks.length);
-    if(!st.ks.length){it.tgt=st.c+HS(st.k)-10-lDims(it).al/2;st.ph='last';break;}st.ph='pos';it.tgt=st.c+st.vs[0]-lDims(it).al/2;}break;
-  case 'pos':if(lAt(it)){const v=st.vs[0],dv=v-st.ks[0]*st.U;
+    if(!st.ks.length){B.forEach(q=>q.tgt=st.c+HS(st.k)-10-lDims(q).al/2);st.ph='last';break;}st.ph='pos';B.forEach(q=>q.tgt=st.c+st.vs[0]-lDims(q).al/2);}break;
+  case 'pos':if(lAllAt(B)){const v=st.vs[0],dv=v-st.ks[0]*st.U;
      /* the stack stops where the table says; if that is not on a joint the presses would break the blanks */
      if(Math.abs(dv)>10){lFault('E481',`${LNAME[kk]}: piece size does not match the joints`,`The table says ${v} mm, so the stack stopped ${Math.abs(Math.round(dv))} mm ${dv>0?'past':'short of'} the joint (the blanks are ${Math.round(st.U*10)/10} mm along the line, so the pieces must be ${Math.round(st.U*10)/10}, ${Math.round(st.U*20)/10} mm…). Pressing here would break the blanks, not the nicks. Correct the table, remove the stack, then reset.`,kk);break;}
      st.ph='down';st.t=0;}break;
   case 'down':st.t+=dt;if(st.t>=LSET.ptime[kk]){/* press time (menu) includes lowering the presses: about 40 mm/s over the batch-height gap, then about 0.8 s to build the pressure */
-     const gap=Math.max(0,LSET.batchH-it.h),tc=gap/40,tNeed=tc+.8;
-     if(LSET.ptime[kk]+1e-9<tNeed){lFault('E484',`${LNAME[kk]}: bundle not pressed enough`,`With ${LSET.ptime[kk].toFixed(1)} s press time the presses only just reached the bundle (batch height ${LSET.batchH} mm, bundle ${Math.round(it.h)} mm, so a ${Math.round(gap)} mm gap that takes about ${tc.toFixed(1)} s), so the pressure did not build and the nicks did not break. Set a longer press time (about ${tNeed.toFixed(1)} s or more), remove the stack, then reset.`,kk);break;}
-     const need=2+it.h/120;   /* 4.5 bar breaks a 270 mm bundle */if(LSET.bar[kk]+1e-9<need){lFault('E483',`${LNAME[kk]}: stack did not break`,`The presses at ${LSET.bar[kk]} bar could not break the nicks of this ${Math.round(it.h)} mm stack (about ${need.toFixed(1)} bar needed). Higher stacks and more nicks need more pressure. Raise the pressure (hand on the separator, 2 to 7.5 bar), remove the stack, then reset.`,kk);break;}
-     const k=st.ks.shift();st.vs.shift();const al=lDims(it).al,back=it.s-al/2;
-     const sr=Math.sin((it.rot||0)*D2R),cr=Math.cos((it.rot||0)*D2R),fo={};   /* which blanks go with the front piece */
-     if(st.cf==='n'){if(sr>0){fo.bc0=it.bc0||0;it.bc0=(it.bc0||0)+k;}else fo.bc0=(it.bc0||0)+it.n-k;}else{if(cr>0)fo.br0=(it.br0||0)+lRows(it)-k;else{fo.br0=it.br0||0;it.br0=(it.br0||0)+k;}}
-     const f={...it,...fo,id:lNext,grp:lNext++,[st.cf]:k,s:st.c+k*st.U/2,pitch:0,piv:st.c,pivY:it.y+it.h,tgt:null,tl:null};
-     it[st.cf]-=k;it.s=back+lDims(it).al/2;lItems.push(f);st.front=f;st.ph='tilt';st.t=0;}break;
-  case 'tilt':{st.t+=dt;const a=st.t<.42?ease(st.t/.42)*8:(1-ease(Math.min(1,(st.t-.42)/.42)))*8;st.tilt=a;st.front.pitch=a;if(st.t>=.84){st.tilt=0;st.front.pitch=0;st.ph='upB';st.t=0;it.tgt=it.s-40;}}break;   /* back press lifts first and the back belt pulls the rest 40 mm back: the split is visible */
-  case 'upB':st.t+=dt;if(st.t>=SEP_UP&&lAt(it)){st.ph='upF';st.t=0;}break;
-  case 'upF':st.t+=dt;if(st.t>=SEP_UP){st.ph='wait';st.t=0;st.front.tgt=Math.max(st.front.s,st.c+HS(st.k)-10-lDims(st.front).al/2);}break;   /* a long front piece never runs back into the rest of the stack */   /* the broken piece runs to the end of the separator belt and waits for the next belt */
-  case 'wait':{const nx=lNextOf(kk);if(lAt(st.front)&&lAccepts(nx)){const f=st.front;st.front=null;st.its.push(f);lHand(kk,nx,[f]);st.gone=f;st.ph='clear';}}break;
+     const gap=Math.max(0,LSET.batchH-hMax),tc=gap/40,tNeed=tc+.8;
+     if(LSET.ptime[kk]+1e-9<tNeed){lFault('E484',`${LNAME[kk]}: bundle not pressed enough`,`With ${LSET.ptime[kk].toFixed(1)} s press time the presses only just reached the bundle (batch height ${LSET.batchH} mm, bundle ${Math.round(hMax)} mm, so a ${Math.round(gap)} mm gap that takes about ${tc.toFixed(1)} s), so the pressure did not build and the nicks did not break. Set a longer press time (about ${tNeed.toFixed(1)} s or more), remove the stack, then reset.`,kk);break;}
+     const need=2+hMax/120;   /* 4.5 bar breaks a 270 mm bundle */if(LSET.bar[kk]+1e-9<need){lFault('E483',`${LNAME[kk]}: stack did not break`,`The presses at ${LSET.bar[kk]} bar could not break the nicks of this ${Math.round(hMax)} mm stack (about ${need.toFixed(1)} bar needed). Higher stacks and more nicks need more pressure. Raise the pressure (hand on the separator, 2 to 7.5 bar), remove the stack, then reset.`,kk);break;}
+     const k=st.ks.shift();st.vs.shift();const g=lNext++;st.fronts=[];
+     B.forEach((it,bi)=>{const al=lDims(it).al,back=it.s-al/2;
+      const sr=Math.sin((it.rot||0)*D2R),cr=Math.cos((it.rot||0)*D2R),fo={};   /* which blanks go with the front piece */
+      if(st.cf==='n'){if(sr>0){fo.bc0=it.bc0||0;it.bc0=(it.bc0||0)+k;}else fo.bc0=(it.bc0||0)+it.n-k;}else{if(cr>0)fo.br0=(it.br0||0)+lRows(it)-k;else{fo.br0=it.br0||0;it.br0=(it.br0||0)+k;}}
+      const f={...it,...fo,id:bi?lNext++:g,grp:g,[st.cf]:k,s:st.c+k*st.U/2,pitch:0,piv:st.c,pivY:it.y+it.h,tgt:null,tl:null};   /* pieces broken off in one stroke are one bundle from here on */
+      it[st.cf]-=k;it.s=back+lDims(it).al/2;lItems.push(f);st.fronts.push(f);});
+     st.front=st.fronts[0];st.ph='tilt';st.t=0;}break;
+  case 'tilt':{st.t+=dt;const a=st.t<.42?ease(st.t/.42)*8:(1-ease(Math.min(1,(st.t-.42)/.42)))*8;st.tilt=a;FR.forEach(f=>f.pitch=a);if(st.t>=.84){st.tilt=0;FR.forEach(f=>f.pitch=0);st.ph='upB';st.t=0;B.forEach(q=>q.tgt=q.s-40);}}break;   /* back press lifts first and the back belt pulls the rest 40 mm back: the split is visible */
+  case 'upB':st.t+=dt;if(st.t>=SEP_UP&&lAllAt(B)){st.ph='upF';st.t=0;}break;
+  case 'upF':st.t+=dt;if(st.t>=SEP_UP){st.ph='wait';st.t=0;FR.forEach(f=>f.tgt=Math.max(f.s,st.c+HS(st.k)-10-lDims(f).al/2));}break;   /* a long front piece never runs back into the rest of the stack */   /* the broken piece runs to the end of the separator belt and waits for the next belt */
+  case 'wait':{const nx=lNextOf(kk);if(FR.length&&lAllAt(FR)&&lAccepts(nx)){const fs=[...FR];st.front=null;st.fronts=[];st.its.push(...fs);lHand(kk,nx,fs);st.gone=fs[0];st.ph='clear';}}break;
   /* the broken-off piece has to leave the separator before the rest is moved up and broken again */
   case 'clear':{const f=st.gone;if(!f||f.s-lDims(f).al/2>=st.c+HS(st.k)-5||!lItems.includes(f)){st.gone=null;
-     if(st.ks.length){st.ph='pos';it.tgt=st.c+st.vs[0]-lDims(it).al/2;}else{it.tgt=st.c+HS(st.k)-10-lDims(it).al/2;st.ph='last';}}}break;
-  case 'last':if(lAt(it))st.ph='out';break;
+     if(st.ks.length){st.ph='pos';B.forEach(q=>q.tgt=st.c+st.vs[0]-lDims(q).al/2);}else{B.forEach(q=>q.tgt=st.c+HS(st.k)-10-lDims(q).al/2);st.ph='last';}}}break;
+  case 'last':if(lAllAt(B))st.ph='out';break;
   case 'out':if(lSendOn(kk))st.ph='idle';break;}}
 /* turntable: grid lifts 150 mm, turns the whole block about the hub, lowers */
 function lTT(kk,dt){const st=LS[kk],S=LSET[kk];if(!st.its.length)return;
@@ -2164,7 +2168,7 @@ function lineStep(dt){if(dt<=0||lineFault||lineHalt)return;
  lBottom(dt);
  if(lineWait&&lAccepts('belt1')){lineWait=false;log('Line free: the stack drives out. Switch the feeder on','ok');ui();}}
 function lineReset(){if(!lineFault)return false;const kk=lineFault.kk,st=LS[kk];
- if(kk&&st){const gone=[...st.its,...(st.front?[st.front]:[])];lItems=lItems.filter(q=>!gone.includes(q));st.its=[];st.front=null;st.ph='idle';st.cl=0;st.gd=0;st.tilt=0;st.fx=0;
+ if(kk&&st){const gone=[...st.its,...(st.fronts||[]),...(st.front?[st.front]:[])];lItems=lItems.filter(q=>!gone.includes(q));st.its=[];st.front=null;st.fronts=[];st.ph='idle';st.cl=0;st.gd=0;st.tilt=0;st.fx=0;
    if(kk==='pal'){st.ph='home';}}
  log(`Reset: ${lineFault.code} cleared, stack removed from ${LNAME[kk]||'the line'}`,'ok');lineFault=null;ui();return true;}
 /* ---------- drawing ---------- */
