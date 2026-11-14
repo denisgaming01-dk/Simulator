@@ -391,7 +391,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <div class="wrap">
   <header>
     <div>
-      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v368 · 14 Nov 2026</span></h1>
+      <h1>Flatbed Die-Cutter Simulator <span class="ver" title="Version of the simulator: it updates by itself on the shared link">v369 · 14 Nov 2026</span></h1>
       <div class="sub" id="hdrSub">Sheet-fed flatbed die-cutter with gripper-bar chain</div>
     </div>
     <div class="grow"></div>
@@ -2843,11 +2843,12 @@ function gNewBuild(B){const S=gNewJ;
    const all=customJobs();let k=ed;if(!k){do{k='J'+Math.floor(Math.random()*1e9).toString(36);}while(JOBS[k]||all[k]);}all[k]=job;
    if(!customSave(all))return gNewMsg('This browser could not save the job.',true);
    JOBS[k]=job;
-   /* the separator job of an edited job: a changed layout puts it back to the standard values for the new layout; otherwise only what was edited here goes in */
-   if(old){const sv=jobsSaved();if(sv[k]||JOBPRE[k]){if(!same)sv[k]=jobDefault(k);else{sv[k]=sv[k]||jclone(JOBPRE[k]);sv[k].batchH=job.batchH;if(sv[k].gcut){sv[k].gcut.spd=spd;sv[k].gcut.thk=thk;sv[k].gcut.stack=n;}}
+   /* the separator job is its own thing, tied to the machine job only by the job: editing the job here never changes it (v369).
+      Only the machine values kept beside it (speed, thickness, stack) follow the edit. */
+   if(old){const sv=jobsSaved();if(sv[k]||JOBPRE[k]){sv[k]=sv[k]||jclone(JOBPRE[k]);if(sv[k].gcut){sv[k].gcut.spd=spd;sv[k].gcut.thk=thk;sv[k].gcut.stack=n;}
      try{localStorage.setItem('dcsJobs',JSON.stringify(sv));}catch(e){}}}
    jobSelFill();gSel=k;gNewJ=null;gBodyBuild();
-   if(old){log(`Job ${name} changed on the G-Cut${same?'':`: ${np} across × ${rows} along, layout ${W} × ${H} mm. Its separator job is back on standard values: check it at the separator`}${old.shared?'. It is shared: upload it again (Share jobs) so everyone gets the change':''}`,'ok');
+   if(old){log(`Job ${name} changed on the G-Cut${same?'':`: ${np} across × ${rows} along, layout ${W} × ${H} mm. The separator job is not touched: change it at the separator if the pieces changed`}${old.shared?'. It is shared: upload it again (Share jobs) so everyone gets the change':''}`,'ok');
     if(k===JOBK)setTimeout(()=>location.reload(),400);}
    else log(`Job ${name} created on the G-Cut: ${L.bl.length} blanks, ${L.np} across × ${L.rows} along, layout ${W} × ${H} mm. Now create the job with the same name at the separator and set it up there.`,'ok');};
  gNewDraw();}
